@@ -99,6 +99,7 @@ lang =  {
 	noScores = "No scores yet!",
 	browse = "Browse saved scores",
 	A = "A. Last flight",
+	A2 = "A2. Last flight 10:00",
 	B1 = "B. Two last 3:00",
 	B2 = "B. Two last 4:00",
 	C = "C. All up last down",
@@ -139,6 +140,7 @@ local function defineTasks()
 		{ lang.L, 600, 1, 1, true, 599, 2	},
 		{ lang.M, 900, 3, 3, true, 1, 2	},
 		{ lang.N, 600, -1, 1, false, 599, 1	},
+		{ lang.A2, 600, -1, 1, false, 599, 2 },
 		{ lang.Y, 0, -1, 7, false, 2, 2	},
 		{ lang.Z, 0, -1, 7, false, 0, 2	},
 		{ lang.browse } -- Not a task - menu item for browsing scores

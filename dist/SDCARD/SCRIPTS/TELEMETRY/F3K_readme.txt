@@ -23,3 +23,30 @@ If you are flying when the window expires, then the flight timer will freeze whe
 You can start the window timer in two ways - either pull Launch, or push ENTER. If you push ENTER, then you get a 10 sec. countdown before the window starts. You can pause and restart the window by pressing ENTER between flights.
 
 When the window is paused or expired, then you can leave the task by pressing EXIT/RETURN. It will ask if you want to save the scores. It will keep scores for up to 20 rounds, and you can find the score browser at the bottom of the task menu.
+
+2026 FAI F3K task notes
+
+The current FAI F3 soaring rules for 2026 are published as SC4_VOL_F3_SOARING_26:
+https://www.fai.org/sites/default/files/document/file/SC4_volume_CIAM_F3_soaring_2026_0.pdf
+
+Relevant 2026 tasks:
+
+  Task A - Last flight
+    Unlimited launches. Only the last flight counts. A later launch annuls the previous time.
+    The official maximum flight time is 300 seconds. Working time may be 7 or 10 minutes.
+    This script keeps the original A task as 7 minutes / 300 seconds.
+
+  Task L - One flight
+    One launch only. The official maximum is 419 seconds for 7 minutes or 599 seconds for
+    10 minutes. This script includes the 10 minute / 599 second variant as "L. One flight only".
+
+  Task N - Best flight
+    Unlimited launches. Only the best flight counts. The official maximum is 599 seconds
+    with 10 minutes working time. This script includes it as "N. Best flight".
+
+Custom/local task:
+
+  A2 - Last flight 10:00
+    Unlimited launches. Only the last flight counts, like Task A, but the window is 10 minutes
+    and the maximum counted flight is 599 seconds. This is not an official 2026 FAI task; use it
+    for practice or local rules when a 10 minute last-flight task is wanted.

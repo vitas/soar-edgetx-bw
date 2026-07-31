@@ -39,6 +39,8 @@ missing graph wrapper on Pocket.
 - The package still includes some `.luac` files because precompiled scripts can
   reduce load time and memory pressure on small BW radios. Matching Lua source
   files are included where available.
+- F3K task notes, including 2026 FAI task coverage and the custom `A2` task,
+  are in `dist/SDCARD/SCRIPTS/TELEMETRY/F3K_readme.txt`.
 - Keep the model-specific calibrations, receiver protocol, failsafe, and switch
   assignments under review before flying.
 

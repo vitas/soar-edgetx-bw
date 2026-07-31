@@ -23,7 +23,9 @@ if sk.task == 0 then
 		"J. Three last flights",
 		"K. Big Ladder",
 		"L. One flight only",
-		"M. Huge Ladder"
+		"M. Huge Ladder",
+		"N. Best flight",
+		"A2. Last flight 10:00"
 	}
 
 	return name, tasks
@@ -56,7 +58,9 @@ if sk.state == sk.STATE_IDLE then
 			{ 600, -1, 3, false, 180, 2, false }, -- J. 3 last
 			{ 600, 5, 5, true, 4, 2, true },  -- K. Big ladder
 			{ 600, 1, 1, true, 599, 2, false },  -- L. One flight only
-			{ 900, 3, 3, true, 1, 2, true }  -- M. Huge Ladder
+			{ 900, 3, 3, true, 1, 2, true },  -- M. Huge Ladder
+			{ 600, -1, 1, false, 599, 1, false },  -- N. Best flight
+			{ 600, -1, 1, false, 599, 2, false } -- A2. Last flight 10:00
 		}
 		
 		sk.taskWindow = taskData[sk.task][1]
