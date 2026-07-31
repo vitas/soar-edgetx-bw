@@ -30,6 +30,16 @@ missing graph wrapper on Pocket.
 5. On the radio, verify script screens, channel order, switch assignments,
    failsafe, and motor behavior with the motor disconnected.
 
+When updating an existing SD card, delete these old generated helper files if
+they are present before copying the new package:
+
+- `/SCRIPTS/TELEMETRY/128x64/ARMED.luac`
+- `/SCRIPTS/TELEMETRY/128x64/JFutil.luac`
+- `/SCRIPTS/TELEMETRY/128x64/MENU.luac`
+
+They can prevent F3K/F5J timer and setup screens from opening on Pocket/128x64
+EdgeTX radios.
+
 ## Notes
 
 - This is a personal EdgeTX/Pocket adaptation of SoarOTX, not an official

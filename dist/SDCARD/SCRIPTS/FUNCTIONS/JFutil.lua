@@ -84,9 +84,9 @@ end
 -- Load a file chunk for Tx specific screen size
 function soarUtil.LoadWxH(file, ...)
 	-- Add the path to the files for radio's screen resolution
-	local file = string.format("/SCRIPTS/TELEMETRY/%ix%i/%s/", LCD_W, LCD_H, file)
+	local file = string.format("/SCRIPTS/TELEMETRY/%ix%i/%s", LCD_W, LCD_H, file)
 	
-	local chunk = loadScript(file)
+	local chunk = loadScript(file, "tx")
 	return chunk(...)
 end  --  LoadWxH()
 
