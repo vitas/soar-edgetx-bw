@@ -1,0 +1,10 @@
+*.lua text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.txt text
+
+*.bmp binary
+*.png binary
+*.wav binary
+*.luac binary
+*.etx binary

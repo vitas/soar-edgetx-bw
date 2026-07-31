@@ -1,0 +1,28 @@
+Soar EdgeTX BW
+
+This repository contains an adapted SD-card/model package for EdgeTX
+black-and-white radios, with a focus on RadioMaster Pocket.
+
+Original work and authorship:
+
+- SoarOTX soaring Lua scripts were created by Jesper Frickmann.
+- Several SD-card scripts and wizard/tool components originate from OpenTX or
+  EdgeTX projects and retain their original copyright and license headers.
+- Individual source file headers remain authoritative for copyright and license
+  attribution.
+
+Adjustments in this repository:
+
+- RadioMaster Pocket model archive and Pocket-oriented model setup.
+- EdgeTX BW radio/model adjustments for the included soaring models.
+- 128x64 and 212x64 BW script packaging for the included SD-card tree.
+- Removal of the graph screen/model references where the graph wrapper is not
+  used.
+- Local SD-card cleanup and packaging for this repository.
+
+Adaptation work:
+
+Copyright (C) 2026 Vitaliy Ryumshyn.
+
+Unless a file states otherwise, modifications are distributed under the same
+GPLv2 terms as the original GPLv2-covered files.
