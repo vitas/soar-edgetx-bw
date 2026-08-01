@@ -20,6 +20,47 @@ The graph screen has been removed from the included models. The active soaring
 model screens are now score/timer plus setup/configuration; this avoids the
 missing graph wrapper on Pocket.
 
+## Pocket Templates
+
+The SD-card package includes four RadioMaster Pocket templates:
+
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F3K.yml`
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F5J-XTail.yml`
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F5J-MTail.yml`
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F5J-VTail.yml`
+
+The F3K template derives its behavior from Flitz3. The F5J templates derive
+their common behavior from Sense and use these channel assignments:
+
+| Channel | X-tail | M-tail | V-tail |
+| --- | --- | --- | --- |
+| CH1 | Left aileron | Left aileron | Left aileron |
+| CH2 | Right aileron | Right aileron | Right aileron |
+| CH3 | Motor | Motor | Motor |
+| CH4 | Left flap | Left flap | Left flap |
+| CH5 | Right flap | Right flap | Right flap |
+| CH6 | Rudder | Rudder | Unused |
+| CH7 | Elevator | Left elevator | Left V-tail |
+| CH8 | Unused | Right elevator | Right V-tail |
+
+The templates are sanitized: they contain no personal binding, registration,
+or discovered telemetry data, and output calibration, setup curves, and flight
+trims are neutral. You must configure each template for the aircraft before
+flight.
+
+To install and configure a template safely:
+
+1. Back up the radio and current model.
+2. Remove the propeller or disconnect the motor before applying the template.
+   Keep propulsion isolated throughout receiver setup and output configuration.
+3. Apply the template from the radio SD card.
+4. Bind and configure the receiver, then discover telemetry sensors.
+5. Configure endpoints, centers, reversals, and setup curves for the aircraft.
+6. With the motor disconnected where possible, verify outputs, scripts, switch
+   assignments, and failsafe behavior.
+7. To verify motor direction, remove the propeller, reconnect the motor if
+   needed, and power it only briefly.
+
 ## Install
 
 1. Back up the radio SD card and models first.
@@ -27,8 +68,9 @@ missing graph wrapper on Pocket.
 3. Copy the contents of `dist/SDCARD/` to the root of the radio SD card.
 4. Import `models/pocket/pocket_vitas_3.12.etx` in EdgeTX Companion, or copy the
    model YAML files manually if you know your radio layout.
-5. On the radio, verify script screens, channel order, switch assignments,
-   failsafe, and motor behavior with the motor disconnected.
+5. On the radio, keep propulsion isolated while verifying script screens,
+   channel order, switch assignments, and failsafe. Remove the propeller before
+   briefly powering the motor to verify its direction.
 
 When updating an existing SD card, delete these old generated helper files if
 they are present before copying the new package:
@@ -55,6 +97,9 @@ EdgeTX radios.
   assignments under review before flying.
 
 ## Development
+
+Host verification requires `make`, `bash`, `git`, `file`, `rg`, `lua`, and
+`luac`.
 
 Run `make verify` to check shell and Lua syntax, Lua loading, F3K tasks, and
 model templates.
