@@ -77,9 +77,7 @@ local function nested_section(content, name)
     end
   end
 
-  if #section == 0 then
-    error("missing nested section: " .. name, 0)
-  end
+  if #section == 0 then return nil end
   return table.concat(section, "\n")
 end
 
@@ -249,8 +247,6 @@ local function assert_mix_signatures(content, dest_ch, expected, label)
   for _, block in ipairs(mix_blocks_for(content, dest_ch)) do
     actual[#actual + 1] = mix_signature(block)
   end
-  table.sort(actual)
-  table.sort(expected)
   assert_equal(table.concat(actual, "\n"), table.concat(expected, "\n"), label)
 end
 
@@ -269,6 +265,50 @@ local function assert_index_set(content, section_name, expected, label)
     actual[#actual + 1] = tostring(block.index)
   end
   assert_equal(table.concat(actual, ","), table.concat(expected, ","), label)
+end
+
+local function assert_indexed_field_signatures(content, section_name, fields, expected, label)
+  local actual = {}
+  for _, block in ipairs(indexed_blocks(content, section_name)) do
+    local values = {}
+    for _, field in ipairs(fields) do
+      values[#values + 1] = field .. "=" .. tostring(scalar_field(block.text, field))
+    end
+    actual[block.index] = table.concat(values, "|")
+  end
+
+  for index, signature in pairs(expected) do
+    assert_equal(actual[index], signature, label .. " block " .. tostring(index))
+    actual[index] = nil
+  end
+  for index in pairs(actual) do
+    error(label .. " has unexpected block " .. tostring(index), 0)
+  end
+end
+
+local function flight_gvar_signature(flight_mode_block)
+  local gvars = nested_section(flight_mode_block, "gvars")
+  if not gvars then return "" end
+
+  local values = {}
+  for _, block in ipairs(indexed_blocks(gvars, "gvars")) do
+    values[#values + 1] = tostring(block.index) .. "=" .. tostring(scalar_field(block.text, "val"))
+  end
+  return table.concat(values, ",")
+end
+
+local function assert_flight_gvars(content, expected, label)
+  local actual = {}
+  for _, flight_mode in ipairs(indexed_blocks(content, "flightModeData")) do
+    actual[flight_mode.index] = flight_gvar_signature(flight_mode.text)
+  end
+  for index, signature in pairs(expected) do
+    assert_equal(actual[index], signature, label .. " flight mode " .. tostring(index))
+    actual[index] = nil
+  end
+  for index in pairs(actual) do
+    error(label .. " has unexpected flight mode " .. tostring(index), 0)
+  end
 end
 
 local function assert_point_values(content, first_index, expected, label)
@@ -342,10 +382,10 @@ local function blocks_for_destinations(content, destinations)
 end
 
 local TEMPLATE_ROOT = "dist/SDCARD/TEMPLATES/3.SoarEdgeTx"
-local F3K = TEMPLATE_ROOT .. "/pocket-F3K.yml"
-local F5J_X = TEMPLATE_ROOT .. "/pocket-F5J-XTail.yml"
-local F5J_M = TEMPLATE_ROOT .. "/pocket-F5J-MTail.yml"
-local F5J_V = TEMPLATE_ROOT .. "/pocket-F5J-VTail.yml"
+local F3K = os.getenv("POCKET_F3K_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F3K.yml"
+local F5J_X = os.getenv("POCKET_F5J_X_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-XTail.yml"
+local F5J_M = os.getenv("POCKET_F5J_M_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-MTail.yml"
+local F5J_V = os.getenv("POCKET_F5J_V_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-VTail.yml"
 
 local templates = {
   { path = F3K, name = "Pocket F3K", kind = "F3K" },
@@ -455,6 +495,19 @@ limitData:
   local accepts_nonzero_trim = pcall(assert_flight_mode_trims_neutral,
     two_space_trims:gsub("value: 0", "value: 8", 1), "nonzero trim")
   assert(not accepts_nonzero_trim, "nonzero trim must fail neutrality")
+
+  local flight_gvar_fixture = [[flightModeData:
+  0:
+    name: Cruise
+    gvars:
+      0:
+        val: 80
+]]
+  assert_flight_gvars(flight_gvar_fixture, { [0] = "0=80" }, "flight GVar fixture")
+  local mutated_gvar = flight_gvar_fixture:gsub("val: 80", "val: 81", 1)
+  local accepts_gvar_mutation = pcall(assert_flight_gvars, mutated_gvar,
+    { [0] = "0=80" }, "flight GVar fixture")
+  assert(not accepts_gvar_mutation, "Cruise Ail GVar mutation 80 to 81 must fail")
 end)
 
 for _, template in ipairs(templates) do
@@ -537,6 +590,103 @@ test("Pocket F3K keeps Flitz behavior sets", function()
   assert_index_set(content, "logicalSw",
     { "0", "1", "2", "3", "4", "5", "6", "7", "8", "10", "11", "12", "13", "15", "16", "18", "19", "20", "21", "23", "24", "25", "26", "28", "29", "30", "32", "33", "34" },
     "F3K logical switches")
+end)
+
+test("Pocket F3K keeps every functional physical and virtual mix", function()
+  local content = read_file(F3K)
+  local expected = {
+    [0] = {
+      "src=ch(31)|weight=-100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=I2|weight=gv(0)|switch=NONE|curve=0:!gv(3)|trim=0|mux=ADD|fm=010000000|offset=0|name="
+    },
+    [1] = {
+      "src=ch(31)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=I2|weight=gv(0)|switch=NONE|curve=0:gv(3)|trim=0|mux=ADD|fm=010000000|offset=0|name="
+    },
+    [2] = {
+      "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=ch(24)|weight=!gv(4)|switch=NONE|curve=3:3|trim=0|mux=ADD|fm=000000000|offset=gv(4)|name=BrkEle"
+    },
+    [3] = {
+      "src=I0|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=I2|weight=gv(2)|switch=NONE|curve=0:0|trim=1|mux=ADD|fm=000000000|offset=0|name=AilRud"
+    },
+    [24] = {
+      "src=I3|weight=100|switch=NONE|curve=3:6|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=MAX|weight=100|switch=L26|curve=0:0|trim=0|mux=REPL|fm=000000000|offset=0|name=BrkOff"
+    },
+    [25] = {
+      "src=I4|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=I1|weight=100|switch=NONE|curve=3:-4|trim=1|mux=MUL|fm=000000000|offset=0|name="
+    },
+    [26] = {
+      "src=I4|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=!gv(5)|name=Cbr-Sn",
+      "src=I1|weight=100|switch=NONE|curve=3:4|trim=1|mux=MUL|fm=000000000|offset=0|name="
+    },
+    [27] = {
+      "src=I5|weight=gv(6)|switch=NONE|curve=3:6|trim=0|mux=ADD|fm=011100111|offset=!gv(6)|name=Slider",
+      "src=I3|weight=gv(6)|switch=NONE|curve=3:8|trim=1|mux=ADD|fm=111110111|offset=!gv(6)|name=CambrX",
+      "src=I4|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=ch(25)|weight=100|switch=NONE|curve=0:100|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=ch(26)|weight=100|switch=NONE|curve=0:-100|trim=0|mux=ADD|fm=000000000|offset=0|name="
+    },
+    [28] = {
+      "src=ch(24)|weight=gv(1)|switch=NONE|curve=3:3|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=MAX|weight=gv(1)|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=-100|name=Offset",
+      "src=ch(27)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=010000000|offset=0|name="
+    },
+    [29] = {
+      "src=I2|weight=gv(0)|switch=NONE|curve=3:5|trim=1|mux=ADD|fm=000000000|offset=0|name="
+    },
+    [30] = {
+      "src=ch(28)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=100|name=",
+      "src=ch(29)|weight=-100|switch=NONE|curve=0:gv(3)|trim=0|mux=ADD|fm=000000000|offset=0|name=AilDow"
+    },
+    [31] = {
+      "src=ch(28)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+      "src=ch(30)|weight=-100|switch=NONE|curve=0:100|trim=0|mux=ADD|fm=010000000|offset=0|name=BmpUp",
+      "src=I6|weight=100|switch=L11|curve=0:0|trim=0|mux=REPL|fm=000000000|offset=0|name=Align"
+    }
+  }
+
+  local seen = {}
+  for destination, signatures in pairs(expected) do
+    assert_mix_signatures(content, destination, signatures, "F3K CH" .. tostring(destination + 1))
+    seen[destination] = true
+  end
+  for _, block in ipairs(list_blocks(content, "mixData")) do
+    local destination = tonumber(scalar_field(block, "destCh"))
+    assert(seen[destination], "F3K has unexpected mix destination " .. tostring(destination))
+    for _, field in ipairs({
+      "delayPrec", "delayUp", "delayDown", "speedPrec", "speedUp", "speedDown", "mixWarn"
+    }) do
+      assert_equal(scalar_field(block, field), "0",
+        "F3K CH" .. tostring(destination + 1) .. " " .. field)
+    end
+  end
+end)
+
+test("Pocket F3K keeps exact GVar definitions and flight-mode values", function()
+  local content = read_file(F3K)
+  assert_indexed_field_signatures(content, "gvars", { "name", "min", "max", "popup", "prec", "unit" }, {
+    [0] = "name=Ail|min=1044|max=924|popup=0|prec=0|unit=0",
+    [1] = "name=Brk|min=1074|max=934|popup=0|prec=0|unit=0",
+    [2] = "name=AiR|min=924|max=924|popup=0|prec=0|unit=0",
+    [3] = "name=Dif|min=924|max=924|popup=0|prec=0|unit=0",
+    [4] = "name=BkE|min=1024|max=984|popup=0|prec=0|unit=0",
+    [5] = "name=Snp|min=974|max=1024|popup=0|prec=0|unit=0",
+    [6] = "name=Cmb|min=1024|max=924|popup=0|prec=0|unit=0",
+    [7] = "name=Adj|min=0|max=0|popup=0|prec=0|unit=0",
+    [8] = "name=Tmr|min=0|max=0|popup=0|prec=0|unit=0"
+  }, "F3K GVars")
+  assert_flight_gvars(content, {
+    [0] = "0=80,1=60,2=32,3=68,4=36,5=-22,6=10",
+    [1] = "2=2,3=4,4=0,6=37",
+    [2] = "",
+    [3] = "",
+    [4] = "",
+    [5] = "6=35"
+  }, "F3K GVars")
 end)
 
 test("Pocket F3K resets setup curves and keeps utility curve shapes", function()
@@ -627,6 +777,35 @@ test("F5J variants keep the Sense behavior sets", function()
     for _, unsupported in ipairs({ "gv(11)", "!gv(11)", "L46", "AilEle" }) do
       assert_absent(content, unsupported, variant.label)
     end
+  end
+end)
+
+test("F5J variants keep exact GVar definitions and every flight-mode value", function()
+  local definitions = {
+    [0] = "name=Ail|min=924|max=924|popup=0|prec=0|unit=0",
+    [1] = "name=AiF|min=924|max=924|popup=0|prec=0|unit=0",
+    [2] = "name=AiR|min=924|max=924|popup=0|prec=0|unit=0",
+    [3] = "name=Dif|min=924|max=924|popup=0|prec=0|unit=0",
+    [4] = "name=BkE|min=924|max=924|popup=0|prec=0|unit=0",
+    [5] = "name=Snp|min=974|max=1024|popup=0|prec=0|unit=0",
+    [6] = "name=CbA|min=1024|max=624|popup=0|prec=0|unit=0",
+    [7] = "name=Adj|min=0|max=0|popup=0|prec=0|unit=0",
+    [8] = "name=Tmr|min=0|max=0|popup=0|prec=0|unit=0"
+  }
+  local flight_values = {
+    [0] = "0=57,1=24,2=15,3=-11,4=46,5=-16,6=153,7=0,8=0",
+    [1] = "0=6,1=0,2=9,3=-12,4=0,6=69",
+    [2] = "4=-4",
+    [3] = "4=-100",
+    [4] = "",
+    [5] = ""
+  }
+
+  for _, variant in ipairs(f5j_variants) do
+    local content = read_file(variant.path)
+    assert_indexed_field_signatures(content, "gvars", { "name", "min", "max", "popup", "prec", "unit" },
+      definitions, variant.label .. " GVars")
+    assert_flight_gvars(content, flight_values, variant.label .. " GVars")
   end
 end)
 

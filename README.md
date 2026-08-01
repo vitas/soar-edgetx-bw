@@ -98,11 +98,11 @@ EdgeTX radios.
 
 ## Development
 
-Host verification requires `make`, `bash`, `git`, `file`, `rg`, `lua`, and
-`luac`.
+Host verification requires `make`, `bash`, `git`, `file`, `rg`, `lua`, `luac`,
+and `ruby` with its standard-library Psych YAML parser.
 
-Run `make verify` to check shell and Lua syntax, Lua loading, F3K tasks, and
-model templates.
+Run `make verify` to check shell, Ruby, and Lua syntax, YAML structure, Lua
+loading, F3K tasks, and model-template contracts.
 
 ## Credits
 

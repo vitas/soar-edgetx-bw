@@ -5,6 +5,10 @@ while IFS= read -r file; do
 	bash -n "$file"
 done < <(git ls-files 'scripts/*.sh' | LC_ALL=C sort)
 
+while IFS= read -r file; do
+	ruby -c "$file" >/dev/null
+done < <(git ls-files 'scripts/*.rb' | LC_ALL=C sort)
+
 # This imported legacy tool uses syntax rejected by host Lua and is outside soaring-package ownership.
 while IFS= read -r file; do
 	luac -p "$file"
