@@ -1,6 +1,6 @@
 semver: 2.12.2
 header:
-   name: "Pocket F5J XTail"
+   name: "Pocket F5J MTail"
    modelId:
       0:
          val: 0
@@ -194,6 +194,40 @@ mixData:
    name: ""
  -
    destCh: 6
+   srcRaw: "I1"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 000100000
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 7
+   srcRaw: "ch(21)"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 000000000
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 7
    srcRaw: "I1"
    carryTrim: 0
    mixWarn: 0
@@ -1037,7 +1071,7 @@ limitData:
       symetrical: 0
       revert: 0
       curve: 0
-      name: "Elev"
+      name: "Ele-L"
    7:
       min: 0
       max: 0
@@ -1046,7 +1080,7 @@ limitData:
       symetrical: 0
       revert: 0
       curve: 0
-      name: "Unused"
+      name: "Ele-R"
    8:
       min: 0
       max: 0
@@ -2162,7 +2196,7 @@ failsafeChannels:
    6:
       val: 0
    7:
-      val: 2001
+      val: 0
 trainerData:
    mode: MASTER_TRAINER_JACK
    channelsStart: 0

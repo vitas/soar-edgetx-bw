@@ -16,6 +16,10 @@ local function assert_absent(content, needle, label)
   end
 end
 
+local function normalize_content(content)
+  return content:gsub("\r\n", "\n"):gsub("[ \t]+\n", "\n"):gsub("[ \t]+$", "")
+end
+
 local function read_file(path)
   local file, open_error = io.open(path, "rb")
   if not file then
@@ -23,7 +27,7 @@ local function read_file(path)
   end
   local content = file:read("*a")
   file:close()
-  return content:gsub("\r\n", "\n")
+  return normalize_content(content)
 end
 
 local function lines_from(content)
@@ -51,6 +55,30 @@ local function top_level_section(content, name)
 
   if #section == 0 then
     error("missing section: " .. name, 0)
+  end
+  return table.concat(section, "\n")
+end
+
+local function nested_section(content, name)
+  local section = {}
+  local in_section = false
+  local section_indent = nil
+
+  for _, line in ipairs(lines_from(content)) do
+    local indent = line:match("^(%s*)")
+    if not in_section and line:match("^%s*" .. name .. ":%s*$") then
+      in_section = true
+      section_indent = #indent
+      section[#section + 1] = line:sub(section_indent + 1)
+    elseif in_section and line:match("%S") and #indent <= section_indent then
+      break
+    elseif in_section then
+      section[#section + 1] = line:sub(math.min(#line + 1, section_indent + 1))
+    end
+  end
+
+  if #section == 0 then
+    error("missing nested section: " .. name, 0)
   end
   return table.concat(section, "\n")
 end
@@ -252,6 +280,14 @@ local function assert_point_values(content, first_index, expected, label)
   end
 end
 
+local function assert_indexed_values(content, section_name, expected, label)
+  for index, value in ipairs(expected) do
+    local block = indexed_block(content, section_name, index - 1)
+    assert_equal(scalar_field(block, "val"), tostring(value),
+      label .. " " .. tostring(index - 1))
+  end
+end
+
 local function assert_flight_mode_trims_neutral(content, label)
   local section = top_level_section(content, "flightModeData")
   local in_trim = false
@@ -324,6 +360,9 @@ local copied_failsafes = {
 }
 
 test("block helpers parse model05 and model06 YAML shapes exactly", function()
+  assert_equal(normalize_content("header: \t\r\n   name: Test  \r\n"),
+    "header:\n   name: Test\n", "content whitespace normalization")
+
   local model05_shape = [[mixData:
   - destCh: 0
     srcRaw: ch(31)
@@ -510,9 +549,9 @@ test("Pocket F3K resets setup curves and keeps utility curve shapes", function()
 end)
 
 local f5j_variants = {
-  { path = F5J_X, label = "F5J X-tail" },
-  { path = F5J_M, label = "F5J M-tail" },
-  { path = F5J_V, label = "F5J V-tail" }
+  { path = F5J_X, label = "F5J X-tail", failsafes = { 0, 0, -1024, 0, 0, 0, 0, 2001 } },
+  { path = F5J_M, label = "F5J M-tail", failsafes = { 0, 0, -1024, 0, 0, 0, 0, 0 } },
+  { path = F5J_V, label = "F5J V-tail", failsafes = { 0, 0, -1024, 0, 0, 2001, 0, 0 } }
 }
 
 local common_f5j_mix_signatures = {
@@ -560,9 +599,9 @@ for _, variant in ipairs(f5j_variants) do
     assert_equal(scalar_field(adjust, "srcRaw"), "Thr", variant.label .. " adjust source")
     assert_equal(scalar_field(adjust, "weight"), scalar_field(brake, "weight"), variant.label .. " brake/adjust weight")
 
-    for index = 0, 4 do
-      local expected = index == 2 and -1024 or 0
-      assert_equal(scalar_field(indexed_block(content, "failsafeChannels", index), "val"), tostring(expected),
+    for index = 0, 7 do
+      assert_equal(scalar_field(indexed_block(content, "failsafeChannels", index), "val"),
+        tostring(variant.failsafes[index + 1]),
         variant.label .. " CH" .. tostring(index + 1) .. " failsafe")
     end
   end)
@@ -576,6 +615,8 @@ test("F5J variants keep the Sense behavior sets", function()
       { "Cruise", "Adjust", "Motor", "KAPOW", "Speed", "Float" }, variant.label .. " flight modes")
     assert_named_indexed_set(content, "gvars", "name",
       { "Ail", "AiF", "AiR", "Dif", "BkE", "Snp", "CbA", "Adj", "Tmr" }, variant.label .. " GVars")
+    assert_indexed_values(nested_section(indexed_block(content, "flightModeData", 0), "gvars"), "gvars",
+      { 57, 24, 15, -11, 46, -16, 153, 0, 0 }, variant.label .. " Cruise GVar")
     assert_named_indexed_set(content, "curves", "name",
       { "LA", "RA", "LF", "RF", "BrF", "BrA", "Snp", "Adj", "Mot", "Abs", "DB", "LSl", "Pot" }, variant.label .. " curves")
     assert_named_indexed_set(content, "inputNames", "val",
