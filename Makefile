@@ -6,6 +6,6 @@ lint:
 test:
 	bash scripts/check-lua-loading.sh
 	bash scripts/check-f3k-tasks.sh
-	@if [ -f tests/test_model_templates.lua ]; then lua tests/test_model_templates.lua; fi
+	lua tests/test_model_templates.lua
 
 verify: lint test
