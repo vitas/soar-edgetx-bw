@@ -540,7 +540,7 @@ for _, template in ipairs(templates) do
     assert(#limits > 0, template.name .. " should define output limits")
     for _, limit in ipairs(limits) do
       local output = template.name .. " limitData " .. tostring(limit.index)
-      for _, field in ipairs({ "min", "max", "offset", "revert", "ppmCenter", "curve" }) do
+      for _, field in ipairs({ "min", "max", "offset", "revert", "ppmCenter" }) do
         assert_equal(scalar_field(limit.text, field), "0", output .. " " .. field)
       end
     end
@@ -689,9 +689,17 @@ test("Pocket F3K keeps exact GVar definitions and flight-mode values", function(
   }, "F3K GVars")
 end)
 
-test("Pocket F3K resets setup curves and keeps utility curve shapes", function()
+test("Pocket F3K starts physical curves linear and keeps utility curve shapes", function()
   local content = read_file(F3K)
-  assert_point_values(content, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, "F3K setup")
+  assert_point_values(content, 0, {
+    -100, -50, 0, 50, 100,
+    -100, -50, 0, 50, 100,
+    0, 0, 0
+  }, "F3K setup")
+  assert_equal(scalar_field(indexed_block(content, "limitData", 0), "curve"), "1", "F3K CH1 curve")
+  assert_equal(scalar_field(indexed_block(content, "limitData", 1), "curve"), "2", "F3K CH2 curve")
+  assert_equal(scalar_field(indexed_block(content, "limitData", 2), "curve"), "0", "F3K CH3 curve")
+  assert_equal(scalar_field(indexed_block(content, "limitData", 3), "curve"), "0", "F3K CH4 curve")
   assert_point_values(content, 13, {
     -100, -100, 0, 0, -50, 0, 100, 0, 100, -100, 100, 100, 90, -100, -100, -50,
     -50, 0, 0, 50, 50, 100, 100, -90, -90, -30, -30, 30, 30, 90, 90, 0, 100
@@ -826,7 +834,7 @@ test("F5J variants keep common sections and mix routes identical", function()
   end
 end)
 
-test("F5J variants reset CV1-CV6 and keep utility curve shapes", function()
+test("F5J variants start physical curves linear and keep utility curve shapes", function()
   local utility = {
     -100, -100, 0, 0, -50, 0, -100, -100, -50, -50, 0, 0, 50, 50, 100, 100,
     -90, -90, -30, -30, 30, 30, 90, 90, -70, 75, 100, 100, 90, 90, 100, 0,
@@ -834,9 +842,17 @@ test("F5J variants reset CV1-CV6 and keep utility curve shapes", function()
   }
   for _, variant in ipairs(f5j_variants) do
     local content = read_file(variant.path)
-    local neutral = {}
-    for _ = 1, 30 do neutral[#neutral + 1] = 0 end
-    assert_point_values(content, 0, neutral, variant.label .. " setup")
+    local setup = {}
+    for _ = 1, 4 do
+      for _, value in ipairs({ -100, -50, 0, 50, 100 }) do setup[#setup + 1] = value end
+    end
+    for _ = 1, 10 do setup[#setup + 1] = 0 end
+    assert_point_values(content, 0, setup, variant.label .. " setup")
+    local expected_output_curves = { [0] = 1, [1] = 2, [2] = 0, [3] = 3, [4] = 4 }
+    for output, curve in pairs(expected_output_curves) do
+      assert_equal(scalar_field(indexed_block(content, "limitData", output), "curve"), tostring(curve),
+        variant.label .. " CH" .. tostring(output + 1) .. " curve")
+    end
     assert_point_values(content, 30, utility, variant.label .. " utility")
   end
 end)

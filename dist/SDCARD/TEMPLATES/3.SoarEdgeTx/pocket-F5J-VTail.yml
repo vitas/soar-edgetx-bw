@@ -1016,7 +1016,7 @@ limitData:
       offset: 0
       symetrical: 0
       revert: 0
-      curve: 0
+      curve: 1
       name: "Ai-L"
    1:
       min: 0
@@ -1025,7 +1025,7 @@ limitData:
       offset: 0
       symetrical: 0
       revert: 0
-      curve: 0
+      curve: 2
       name: "Ai-R"
    2:
       min: 0
@@ -1043,7 +1043,7 @@ limitData:
       offset: 0
       symetrical: 0
       revert: 0
-      curve: 0
+      curve: 3
       name: "Fl-L"
    4:
       min: 0
@@ -1052,7 +1052,7 @@ limitData:
       offset: 0
       symetrical: 0
       revert: 0
-      curve: 0
+      curve: 4
       name: "Fl-R"
    5:
       min: 0
@@ -1417,45 +1417,45 @@ curves:
       name: "Pot"
 points:
    0:
-      val: 0
+      val: -100
    1:
-      val: 0
+      val: -50
    2:
       val: 0
    3:
-      val: 0
+      val: 50
    4:
-      val: 0
+      val: 100
    5:
-      val: 0
+      val: -100
    6:
-      val: 0
+      val: -50
    7:
       val: 0
    8:
-      val: 0
+      val: 50
    9:
-      val: 0
+      val: 100
    10:
-      val: 0
+      val: -100
    11:
-      val: 0
+      val: -50
    12:
       val: 0
    13:
-      val: 0
+      val: 50
    14:
-      val: 0
+      val: 100
    15:
-      val: 0
+      val: -100
    16:
-      val: 0
+      val: -50
    17:
       val: 0
    18:
-      val: 0
+      val: 50
    19:
-      val: 0
+      val: 100
    20:
       val: 0
    21:

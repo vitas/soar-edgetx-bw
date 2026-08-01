@@ -707,7 +707,7 @@ limitData:
     ppmCenter: 0
     symetrical: 0
     name: Ai-L
-    curve: 0
+    curve: 1
   1:
     min: 0
     max: 0
@@ -716,7 +716,7 @@ limitData:
     ppmCenter: 0
     symetrical: 0
     name: Ai-R
-    curve: 0
+    curve: 2
   2:
     min: 0
     max: 0
@@ -1021,25 +1021,25 @@ curves:
     name: LSl
 points:
   0:
-    val: 0
+    val: -100
   1:
-    val: 0
+    val: -50
   2:
     val: 0
   3:
-    val: 0
+    val: 50
   4:
-    val: 0
+    val: 100
   5:
-    val: 0
+    val: -100
   6:
-    val: 0
+    val: -50
   7:
     val: 0
   8:
-    val: 0
+    val: 50
   9:
-    val: 0
+    val: 100
   10:
     val: 0
   11:

@@ -44,9 +44,9 @@ their common behavior from Sense and use these channel assignments:
 | CH8 | Unused | Right elevator | Right V-tail |
 
 The templates are sanitized: they contain no personal binding, registration,
-or discovered telemetry data, and output calibration, setup curves, and flight
-trims are neutral. You must configure each template for the aircraft before
-flight.
+or discovered telemetry data. Output calibration and flight trims are neutral,
+and the physical aileron/flap alignment curves start with a linear response.
+You must configure each template for the aircraft before flight.
 
 To install and configure a template safely:
 
