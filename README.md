@@ -54,6 +54,11 @@ EdgeTX radios.
 - Keep the model-specific calibrations, receiver protocol, failsafe, and switch
   assignments under review before flying.
 
+## Development
+
+Run `make verify` to check shell and Lua syntax, Lua loading, F3K tasks, and
+model templates.
+
 ## Credits
 
 Original SoarOTX soaring scripts were created by Jesper Frickmann. This package
