@@ -581,7 +581,7 @@ test("F5J variants keep the Sense behavior sets", function()
     assert_named_indexed_set(content, "inputNames", "val",
       { "Rud", "Ele", "Ail", "Mot", "Brk", "CbP", "Cmb", "Adj" }, variant.label .. " inputs")
     assert_index_set(content, "logicalSw",
-      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44" },
+      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44" },
       variant.label .. " logical switches")
     for _, unsupported in ipairs({ "gv(11)", "!gv(11)", "L46", "AilEle" }) do
       assert_absent(content, unsupported, variant.label)
