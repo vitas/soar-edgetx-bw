@@ -834,7 +834,7 @@ test("F5J variants keep common sections and mix routes identical", function()
   end
 end)
 
-test("F5J variants start physical curves linear and keep utility curve shapes", function()
+test("F5J variants start physical curves linear and keep Sense brake and utility curves", function()
   local utility = {
     -100, -100, 0, 0, -50, 0, -100, -100, -50, -50, 0, 0, 50, 50, 100, 100,
     -90, -90, -30, -30, 30, 30, 90, 90, -70, 75, 100, 100, 90, 90, 100, 0,
@@ -846,7 +846,9 @@ test("F5J variants start physical curves linear and keep utility curve shapes", 
     for _ = 1, 4 do
       for _, value in ipairs({ -100, -50, 0, 50, 100 }) do setup[#setup + 1] = value end
     end
-    for _ = 1, 10 do setup[#setup + 1] = 0 end
+    for _, value in ipairs({ -100, -50, 0, 50, 67, -16, -3, -12, -9, 37 }) do
+      setup[#setup + 1] = value
+    end
     assert_point_values(content, 0, setup, variant.label .. " setup")
     local expected_output_curves = { [0] = 1, [1] = 2, [2] = 0, [3] = 3, [4] = 4 }
     for output, curve in pairs(expected_output_curves) do

@@ -1457,25 +1457,25 @@ points:
    19:
       val: 100
    20:
-      val: 0
+      val: -100
    21:
-      val: 0
+      val: -50
    22:
       val: 0
    23:
-      val: 0
+      val: 50
    24:
-      val: 0
+      val: 67
    25:
-      val: 0
+      val: -16
    26:
-      val: 0
+      val: -3
    27:
-      val: 0
+      val: -12
    28:
-      val: 0
+      val: -9
    29:
-      val: 0
+      val: 37
    30:
       val: -100
    31:
