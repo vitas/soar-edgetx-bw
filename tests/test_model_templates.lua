@@ -252,6 +252,49 @@ local function assert_point_values(content, first_index, expected, label)
   end
 end
 
+local function assert_flight_mode_trims_neutral(content, label)
+  local section = top_level_section(content, "flightModeData")
+  local in_trim = false
+  local trim_indent = nil
+  local entry_indent = nil
+  local entry_index = nil
+  local entry_value = nil
+
+  local function finish_entry()
+    if entry_index then
+      assert_equal(entry_value, "0", label .. " trim " .. tostring(entry_index))
+    end
+    entry_index = nil
+    entry_value = nil
+  end
+
+  for _, line in ipairs(lines_from(section)) do
+    local indent = line:match("^(%s*)")
+    local trim = line:match("^%s*trim:%s*$")
+
+    if trim then
+      finish_entry()
+      in_trim = true
+      trim_indent = #indent
+      entry_indent = nil
+    elseif in_trim and line:match("%S") and #indent <= trim_indent then
+      finish_entry()
+      in_trim = false
+    elseif in_trim then
+      local item_indent, index = line:match("^(%s+)(%d+):%s*$")
+      if index and (not entry_indent or #item_indent == entry_indent) then
+        finish_entry()
+        entry_indent = #item_indent
+        entry_index = tonumber(index)
+      elseif entry_index then
+        local value = line:match("^%s+value:%s*([^%s]+)%s*$")
+        if value then entry_value = normalize_scalar(value) end
+      end
+    end
+  end
+  finish_entry()
+end
+
 local function blocks_for_destinations(content, destinations)
   local result = {}
   for _, destination in ipairs(destinations) do
@@ -343,6 +386,36 @@ limitData:
   assert_point_values(model05_shape, 0, { 25, 0, -25 }, "sparse points")
   local accepts_nonzero_missing = pcall(assert_point_values, model05_shape, 0, { 25, 1, -25 }, "sparse points")
   assert(not accepts_nonzero_missing, "missing sparse point must not satisfy a nonzero expectation")
+
+  local two_space_trims = [[flightModeData:
+  0:
+    trim:
+      1:
+        value: 0
+        mode: 31
+  3:
+    trim:
+      2:
+        value: 0
+        mode: 10
+]]
+  local three_space_trims = [[flightModeData:
+   0:
+     trim:
+       0:
+         value: 0
+         mode: 1
+   5:
+     trim:
+       3:
+         value: 0
+         mode: 4
+]]
+  assert_flight_mode_trims_neutral(two_space_trims, "two-space sparse trims")
+  assert_flight_mode_trims_neutral(three_space_trims, "three-space sparse trims")
+  local accepts_nonzero_trim = pcall(assert_flight_mode_trims_neutral,
+    two_space_trims:gsub("value: 0", "value: 8", 1), "nonzero trim")
+  assert(not accepts_nonzero_trim, "nonzero trim must fail neutrality")
 end)
 
 for _, template in ipairs(templates) do
@@ -388,6 +461,8 @@ for _, template in ipairs(templates) do
         assert(value ~= copied, template.name .. " copied calibrated failsafe " .. tostring(copied))
       end
     end
+
+    assert_flight_mode_trims_neutral(content, template.name .. " flight mode")
   end)
 end
 
