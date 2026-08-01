@@ -27,6 +27,9 @@ require_absent() {
 require_line "$jfutil" 'local file = string.format("/SCRIPTS/TELEMETRY/%ix%i/%s", LCD_W, LCD_H, file)'
 require_line "$jfutil" 'local chunk = loadScript(file, "tx")'
 require_absent "$jfutil" 'string.format("/SCRIPTS/TELEMETRY/%ix%i/%s/", LCD_W, LCD_H, file)'
+require_absent "$jfutil" 'return collectgarbage()'
+require_absent "dist/SDCARD/SCRIPTS/TELEMETRY/JF3K/MENU.lua" 'return collectgarbage()'
+require_absent "dist/SDCARD/SCRIPTS/TELEMETRY/JF5K/MENU.lua" 'return collectgarbage()'
 
 while IFS= read -r luac; do
 	if ! file "$luac" | rg -q 'Lua bytecode, version 5\.2$'; then

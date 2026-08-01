@@ -45,7 +45,8 @@ local function run(event)
 		end
 		
 		scanPlugin = scanPlugin + 1
-		return collectgarbage()
+		collectgarbage()
+		return
 	end
 	
 	if sk.selectedTask == 0 then -- Show plugin menu

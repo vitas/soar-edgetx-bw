@@ -97,7 +97,7 @@ soarUtil.LoadWxH("JFutil.lua")
 function soarUtil.Unload(file)
 	programs[file] = nil
 	states[file] = nil
-	return collectgarbage()
+	collectgarbage()
 end -- Unload()
 
 -- Load program or forward run() call to the program
@@ -137,7 +137,7 @@ function soarUtil.RunLoadable(file, event, ...)
 		if chunk then
 			programs[file] = chunk(...)
 			states[file] = ST_LOADED			
-			return collectgarbage()
+			collectgarbage()
 		else
 			err = string.gsub(err, file .. ":", "")
 			lcd.clear()
