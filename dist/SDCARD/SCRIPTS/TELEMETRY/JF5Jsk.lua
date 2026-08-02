@@ -6,6 +6,7 @@ local FM_KAPOW = 3 -- KAPOW flight mode
 local LS_ALT = getFieldInfo("ls1").id -- Input ID for allowing altitude calls
 local LS_ALT10 = getFieldInfo("ls8").id -- Input ID for altitude calls every 10 sec.
 local LS_TRIGGER = getFieldInfo("ls9").id -- Input ID for the trigger switch
+local LS_LANDING = getFieldInfo("ls7").id -- Input ID for the landing switch
 local LS_ARM = getFieldInfo("ls23").id -- Input ID for motor arming
 
 local offTime -- Time motor off
@@ -145,7 +146,7 @@ local function background()
 			end
 		end
 		
-		if getValue(LS_TRIGGER) > 0 and offTime == 0 then
+		if getValue(LS_LANDING) > 0 and offTime == 0 then
 			-- Stop timer and record scores
 			sk.state = sk.STATE_LANDINGPTS
 			soarUtil.SetGVTmr(0) -- Flight timer off

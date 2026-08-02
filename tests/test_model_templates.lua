@@ -386,6 +386,7 @@ local F3K = os.getenv("POCKET_F3K_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F3K.ym
 local F5J_X = os.getenv("POCKET_F5J_X_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-XTail.yml"
 local F5J_M = os.getenv("POCKET_F5J_M_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-MTail.yml"
 local F5J_V = os.getenv("POCKET_F5J_V_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-VTail.yml"
+local F5J_SCRIPT = "dist/SDCARD/SCRIPTS/TELEMETRY/JF5Jsk.lua"
 
 local templates = {
   { path = F3K, name = "Pocket F3K", kind = "F3K" },
@@ -812,7 +813,7 @@ test("F5J variants keep the Sense switch assignments", function()
     [1] = "SA2,!SA2",
     [2] = "SC0,NONE",
     [3] = "SC2,NONE",
-    [4] = "SB2,NONE",
+    [4] = "SA2,NONE",
     [6] = "SD2,NONE",
     [7] = "SA2,L1",
     [8] = "SE2,L11"
@@ -835,6 +836,14 @@ test("F5J variants keep the Sense switch assignments", function()
         variant.label .. " timer " .. tostring(index) .. " switch")
     end
   end
+end)
+
+test("F5J uses separate motor and landing switches", function()
+  local script = read_file(F5J_SCRIPT)
+  assert(script:find('local LS_TRIGGER = getFieldInfo("ls9").id', 1, true), "F5J missing SE motor trigger")
+  assert(script:find('local LS_LANDING = getFieldInfo("ls7").id', 1, true), "F5J missing SD landing trigger")
+  assert(script:find("if getValue(LS_LANDING) > 0 and offTime == 0 then", 1, true),
+    "F5J landing does not use SD")
 end)
 
 test("F5J variants keep exact GVar definitions and every flight-mode value", function()

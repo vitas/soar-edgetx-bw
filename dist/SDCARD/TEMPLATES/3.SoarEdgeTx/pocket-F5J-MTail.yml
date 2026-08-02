@@ -1579,7 +1579,7 @@ logicalSw:
       duration: 0
    4:
       func: FUNC_AND
-      def: "SB2,NONE"
+      def: "SA2,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
