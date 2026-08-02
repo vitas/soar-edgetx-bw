@@ -1393,7 +1393,7 @@ customFn:
   11:
     swtch: L27
     func: PLAY_TRACK
-    def: "\x00\x00\x00\x00\x00\x00\x00\x00,1,1"
+    def: "\x00\x00\x00\x00\x00\x00\x00\x00,1,1x"
   12:
     swtch: L30
     func: LOGS
@@ -1405,27 +1405,27 @@ customFn:
   22:
     swtch: FM0
     func: PLAY_TRACK
-    def: "f3j_t2\x00\x00,1,1"
+    def: "f3j_t2\x00\x00,1,1x"
   23:
     swtch: FM2
     func: PLAY_TRACK
-    def: "f3jlau\x00\x00,1,1"
+    def: "f3jlau\x00\x00,1,1x"
   24:
     swtch: FM4
     func: PLAY_TRACK
-    def: "f3j_t3\x00\x00,1,1"
+    def: "f3j_t3\x00\x00,1,1x"
   25:
     swtch: FM5
     func: PLAY_TRACK
-    def: "f3j_t1\x00\x00,1,1"
+    def: "f3j_t1\x00\x00,1,1x"
   26:
     swtch: L24
     func: PLAY_TRACK
-    def: "f3jlnd\x00\x00,1,1"
+    def: "f3jlnd\x00\x00,1,1x"
   27:
     swtch: L35
     func: PLAY_TRACK
-    def: "crowof\x00\x00,1,1"
+    def: "crowof\x00\x00,1,1x"
 thrTraceSrc: Thr
 thrTrimSw: 0
 potsWarnMode: WARN_OFF

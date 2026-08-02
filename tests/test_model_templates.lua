@@ -592,6 +592,24 @@ test("Pocket F3K keeps Flitz behavior sets", function()
     "F3K logical switches")
 end)
 
+test("Pocket F3K plays flight announcements once", function()
+  local content = read_file(F3K)
+  local tracks = {
+    [11] = "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00,1,1x",
+    [22] = "f3j_t2\\x00\\x00,1,1x",
+    [23] = "f3jlau\\x00\\x00,1,1x",
+    [24] = "f3j_t3\\x00\\x00,1,1x",
+    [25] = "f3j_t1\\x00\\x00,1,1x",
+    [26] = "f3jlnd\\x00\\x00,1,1x",
+    [27] = "crowof\\x00\\x00,1,1x"
+  }
+  for index, expected in pairs(tracks) do
+    local custom_function = indexed_block(content, "customFn", index)
+    assert_equal(scalar_field(custom_function, "func"), "PLAY_TRACK", "F3K SF" .. tostring(index + 1) .. " function")
+    assert_equal(scalar_field(custom_function, "def"), expected, "F3K SF" .. tostring(index + 1) .. " play-once setting")
+  end
+end)
+
 test("Pocket F3K keeps every functional physical and virtual mix", function()
   local content = read_file(F3K)
   local expected = {
@@ -784,6 +802,37 @@ test("F5J variants keep the Sense behavior sets", function()
       variant.label .. " logical switches")
     for _, unsupported in ipairs({ "gv(11)", "!gv(11)", "L46", "AilEle" }) do
       assert_absent(content, unsupported, variant.label)
+    end
+  end
+end)
+
+test("F5J variants keep the Sense switch assignments", function()
+  local logical_switches = {
+    [0] = "SA0,L19",
+    [1] = "SA2,!SA2",
+    [2] = "SC0,NONE",
+    [3] = "SC2,NONE",
+    [4] = "SB2,NONE",
+    [6] = "SD2,NONE",
+    [7] = "SA2,L1",
+    [8] = "SE2,L11"
+  }
+  local flight_modes = { "NONE", "L17", "L26", "L32", "L3", "L4" }
+  local timers = { "L19", "FM2" }
+
+  for _, variant in ipairs(f5j_variants) do
+    local content = read_file(variant.path)
+    for index, expected in pairs(logical_switches) do
+      assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "def"), expected,
+        variant.label .. " L" .. tostring(index + 1))
+    end
+    for index, expected in ipairs(flight_modes) do
+      assert_equal(scalar_field(indexed_block(content, "flightModeData", index - 1), "swtch"), expected,
+        variant.label .. " FM" .. tostring(index - 1) .. " switch")
+    end
+    for index, expected in ipairs(timers) do
+      assert_equal(scalar_field(indexed_block(content, "timers", index - 1), "swtch"), expected,
+        variant.label .. " timer " .. tostring(index) .. " switch")
     end
   end
 end)
