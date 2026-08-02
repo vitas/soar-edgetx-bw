@@ -43,6 +43,23 @@ their common behavior from Sense and use these channel assignments:
 | CH7 | Elevator | Left elevator | Left V-tail |
 | CH8 | Unused | Right elevator | Right V-tail |
 
+### Pocket Switch Assignments
+
+The Pocket templates use the following primary controls. EdgeTX position names
+are included because they are more precise than physical up/down descriptions.
+
+| Switch | F3K | F5J X-/M-/V-tail |
+| --- | --- | --- |
+| SA | Altitude-call control | Motor arm (`SA2`, latched by `L23`) |
+| SB | Altitude-announcement control | Unused |
+| SC | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) |
+| SD | Brake/landing control (`SD2`); crow-off on `SD0` | Landing and score entry (`SD2` through `L7`) |
+| SE | Launch (`SE2` through `L7`) | Motor start/release (`SE2` through `L9`) |
+
+For F5J, arm with SA before using SE. After the motor run and motor-off count,
+use SD to finish the flight and open landing-score entry. Keep the motor
+disconnected while checking these assignments on a newly created model.
+
 The templates are sanitized: they contain no personal binding, registration,
 or discovered telemetry data. Output calibration and flight trims are neutral,
 and the physical aileron/flap alignment curves start with a linear response.
