@@ -838,6 +838,26 @@ test("F5J variants keep the Sense switch assignments", function()
   end
 end)
 
+test("F5J variants map landing voice announcements to SD", function()
+  local announcements = {
+    [36] = { swtch = "SD2", track = "f3jlnd,1,1x", label = "landing on" },
+    [37] = { swtch = "SD0", track = "crowof,1,1x", label = "landing off" }
+  }
+
+  for _, variant in ipairs(f5j_variants) do
+    local content = read_file(variant.path)
+    for index, expected in pairs(announcements) do
+      local custom_function = indexed_block(content, "customFn", index)
+      assert_equal(scalar_field(custom_function, "swtch"), expected.swtch,
+        variant.label .. " " .. expected.label .. " switch")
+      assert_equal(scalar_field(custom_function, "func"), "PLAY_TRACK",
+        variant.label .. " " .. expected.label .. " function")
+      assert_equal(scalar_field(custom_function, "def"), expected.track,
+        variant.label .. " " .. expected.label .. " track")
+    end
+  end
+end)
+
 test("F5J uses separate motor and landing switches", function()
   local script = read_file(F5J_SCRIPT)
   assert(script:find('local LS_TRIGGER = getFieldInfo("ls9").id', 1, true), "F5J missing SE motor trigger")

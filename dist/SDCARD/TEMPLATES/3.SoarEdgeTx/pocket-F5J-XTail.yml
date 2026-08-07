@@ -1933,11 +1933,11 @@ customFn:
       func: PLAY_TRACK
       def: "f3j_t3,1,1x"
    36:
-      swtch: "L35"
+      swtch: "SD2"
       func: PLAY_TRACK
       def: "f3jlnd,1,1x"
    37:
-      swtch: "L45"
+      swtch: "SD0"
       func: PLAY_TRACK
       def: "crowof,1,1x"
 flightModeData:

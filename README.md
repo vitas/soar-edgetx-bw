@@ -53,7 +53,7 @@ are included because they are more precise than physical up/down descriptions.
 | SA | Altitude-call control | Motor arm (`SA2`, latched by `L23`) |
 | SB | Altitude-announcement control | Unused |
 | SC | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) |
-| SD | Brake/landing control (`SD2`); crow-off on `SD0` | Landing and score entry (`SD2` through `L7`) |
+| SD | Brake/landing control (`SD2`); crow-off on `SD0` | Finish flight, score entry, and landing announcement (`SD2`, through `L7` for scoring); landing-off/crow-off announcement (`SD0`) |
 | SE | Launch (`SE2` through `L7`) | Motor start/release (`SE2` through `L9`) |
 
 For F5J, arm with SA before using SE. After the motor run and motor-off count,
