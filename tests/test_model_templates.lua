@@ -799,7 +799,7 @@ test("F5J variants keep the Sense behavior sets", function()
     assert_named_indexed_set(content, "inputNames", "val",
       { "Rud", "Ele", "Ail", "Mot", "Brk", "CbP", "Cmb", "Adj" }, variant.label .. " inputs")
     assert_index_set(content, "logicalSw",
-      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44" },
+      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44" },
       variant.label .. " logical switches")
     for _, unsupported in ipairs({ "gv(11)", "!gv(11)", "L46", "AilEle" }) do
       assert_absent(content, unsupported, variant.label)
@@ -816,7 +816,9 @@ test("F5J variants keep the Sense switch assignments", function()
     [4] = "SA2,NONE",
     [6] = "SD2,NONE",
     [7] = "SA2,L1",
-    [8] = "SE2,L11"
+    [8] = "SE2,L11",
+    [11] = "SB2,NONE",
+    [35] = "SD0,NONE"
   }
   local flight_modes = { "NONE", "L17", "L26", "L32", "L3", "L4" }
   local timers = { "L19", "FM2" }
@@ -826,6 +828,10 @@ test("F5J variants keep the Sense switch assignments", function()
     for index, expected in pairs(logical_switches) do
       assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "def"), expected,
         variant.label .. " L" .. tostring(index + 1))
+    end
+    for _, index in ipairs({ 11, 35 }) do
+      assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "func"), "FUNC_AND",
+        variant.label .. " L" .. tostring(index + 1) .. " function")
     end
     for index, expected in ipairs(flight_modes) do
       assert_equal(scalar_field(indexed_block(content, "flightModeData", index - 1), "swtch"), expected,
@@ -838,22 +844,39 @@ test("F5J variants keep the Sense switch assignments", function()
   end
 end)
 
-test("F5J variants map landing voice announcements to SD", function()
-  local announcements = {
-    [36] = { swtch = "SD2", track = "f3jlnd,1,1x", label = "landing on" },
-    [37] = { swtch = "SD0", track = "crowof,1,1x", label = "landing off" }
+test("F5J variants route landing and time controls through logical switches", function()
+  local special_functions = {
+    [7] = { swtch = "L12", func = "PLAY_VALUE", def = "Tmr1,1,10", label = "time announcement" },
+    [36] = { swtch = "L7", func = "PLAY_TRACK", def = "f3jlnd,1,1x", label = "landing on" },
+    [37] = { swtch = "L36", func = "PLAY_TRACK", def = "crowof,1,1x", label = "landing off" }
   }
 
   for _, variant in ipairs(f5j_variants) do
     local content = read_file(variant.path)
-    for index, expected in pairs(announcements) do
+    for _, physical_switch in ipairs({ "SB2", "SD0", "SD2" }) do
+      assert_absent(content, 'swtch: "' .. physical_switch .. '"',
+        variant.label .. " direct " .. physical_switch .. " consumer")
+      assert_absent(content, "swtch: " .. physical_switch .. "\n",
+        variant.label .. " direct " .. physical_switch .. " consumer")
+    end
+
+    local brake = find_named_list_block(content, "expoData", 4, "Brake")
+    assert_equal(scalar_field(brake, "srcRaw"), "Thr", variant.label .. " proportional crow source")
+
+    local brake_off = find_mix_block_matching(mix_blocks_for(content, 20), { "name: BrkOff" })
+    assert(brake_off, variant.label .. " missing BrkOff replacement mix")
+    assert_equal(scalar_field(brake_off, "srcRaw"), "MAX", variant.label .. " BrkOff source")
+    assert_equal(scalar_field(brake_off, "mltpx"), "REPL", variant.label .. " BrkOff multiplex")
+    assert_equal(scalar_field(brake_off, "swtch"), "L36", variant.label .. " BrkOff logical switch")
+
+    for index, expected in pairs(special_functions) do
       local custom_function = indexed_block(content, "customFn", index)
       assert_equal(scalar_field(custom_function, "swtch"), expected.swtch,
         variant.label .. " " .. expected.label .. " switch")
-      assert_equal(scalar_field(custom_function, "func"), "PLAY_TRACK",
+      assert_equal(scalar_field(custom_function, "func"), expected.func,
         variant.label .. " " .. expected.label .. " function")
-      assert_equal(scalar_field(custom_function, "def"), expected.track,
-        variant.label .. " " .. expected.label .. " track")
+      assert_equal(scalar_field(custom_function, "def"), expected.def,
+        variant.label .. " " .. expected.label .. " definition")
     end
   end
 end)

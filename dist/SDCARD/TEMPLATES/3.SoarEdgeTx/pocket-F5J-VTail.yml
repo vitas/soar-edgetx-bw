@@ -1633,6 +1633,14 @@ logicalSw:
       lsState: 0
       delay: 0
       duration: 3
+   11:
+      func: FUNC_AND
+      def: "SB2,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
    12:
       func: FUNC_VEQUAL
       def: "gv(7),1"
@@ -1778,11 +1786,11 @@ logicalSw:
       delay: 0
       duration: 0
    35:
-      func: FUNC_STICKY
-      def: "L44,L35"
+      func: FUNC_AND
+      def: "SD0,NONE"
       andsw: "NONE"
       lsPersist: 0
-      lsState: 1
+      lsState: 0
       delay: 0
       duration: 0
    36:
@@ -1863,7 +1871,7 @@ customFn:
       func: PLAY_TRACK
       def: ",1,1x"
    7:
-      swtch: "L7"
+      swtch: "L12"
       func: PLAY_VALUE
       def: "Tmr1,1,10"
    8:
@@ -1967,11 +1975,11 @@ customFn:
       func: PLAY_TRACK
       def: "f3j_t3,1,1x"
    36:
-      swtch: "SD2"
+      swtch: "L7"
       func: PLAY_TRACK
       def: "f3jlnd,1,1x"
    37:
-      swtch: "SD0"
+      swtch: "L36"
       func: PLAY_TRACK
       def: "crowof,1,1x"
 flightModeData:

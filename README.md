@@ -51,14 +51,16 @@ are included because they are more precise than physical up/down descriptions.
 | Switch | F3K | F5J X-/M-/V-tail |
 | --- | --- | --- |
 | SA | Altitude-call control | Motor arm (`SA2`, latched by `L23`) |
-| SB | Altitude-announcement control | Unused |
+| SB | Altitude-announcement control | Flight-time announcement (`SB2` through `L12`) |
 | SC | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) |
-| SD | Brake/landing control (`SD2`); crow-off on `SD0` | Finish flight, score entry, and landing announcement (`SD2`, through `L7` for scoring); landing-off/crow-off announcement (`SD0`) |
+| SD | Brake/landing control (`SD2`); crow-off on `SD0` | Proportional crow enabled on `SD2` (`L36` off); score entry and landing announcement (`SD2` through `L7`); crow off and landing-off announcement (`SD0` through `L36`) |
 | SE | Launch (`SE2` through `L7`) | Motor start/release (`SE2` through `L9`) |
 
 For F5J, arm with SA before using SE. After the motor run and motor-off count,
-use SD to finish the flight and open landing-score entry. Keep the motor
-disconnected while checking these assignments on a newly created model.
+move SD down to enable throttle-controlled proportional crow, finish the flight,
+and open landing-score entry. Move SD up to force crow off. Hold SB down for
+repeating flight-time announcements. Keep the motor disconnected while checking
+these assignments on a newly created model.
 
 The templates are sanitized: they contain no personal binding, registration,
 or discovered telemetry data. Output calibration and flight trims are neutral,
