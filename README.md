@@ -3,9 +3,10 @@
 EdgeTX black-and-white SD-card package and RadioMaster Pocket model archive
 adapted from SoarOTX soaring scripts.
 
-This repository is for small BW radios such as RadioMaster Pocket and related
-128x64/212x64 EdgeTX radios. It keeps the original SoarOTX-style telemetry and
-setup scripts, with model and SD-card adjustments for EdgeTX and Pocket use.
+This repository is for small BW radios such as RadioMaster Pocket, RadioMaster
+GX12, and related 128x64/212x64 EdgeTX radios. It keeps the original
+SoarOTX-style telemetry and setup scripts, with model and SD-card adjustments
+for EdgeTX and Pocket/GX12 use.
 
 ## What Is Included
 
@@ -97,6 +98,42 @@ To install and configure a template safely:
    assignments, and failsafe behavior.
 7. To verify motor direction, remove the propeller, reconnect the motor if
    needed, and power it only briefly.
+
+## RadioMaster GX12
+
+The same four templates are also provided for the RadioMaster GX12, which is
+supported by EdgeTX from v2.11 and uses the same 128x64 black-and-white
+interface as the Pocket:
+
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F3K.yml`
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F5J-XTail.yml`
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F5J-MTail.yml`
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F5J-VTail.yml`
+
+The `gx12-*` files are identical to the matching `pocket-*` templates apart from
+the model name, so the channel assignments, switch assignments, and
+`AilEle`/`RudEle` mixes described above apply unchanged.
+
+| Item | GX12 |
+| --- | --- |
+| EdgeTX target | `gx12` (`PCB=X7`, `PCBREV=GX12`) |
+| Display | 128x64 monochrome OLED |
+| Processor | STM32F407 |
+| Global variables | 9 (`GV1`-`GV9`), same as the Pocket |
+| Switches | `SA` 2-position, `SB`/`SC` 3-position, `SD` 2-position, `SE`/`SF` 3-position |
+| Function switches | 8 RGB function switches (`FS1`-`FS8`) in 4 groups |
+| Storage | 512 MB internal memory, mounted as the SD-card root over USB |
+
+The templates only use positions `0` and `2` on `SA` and `SD`, so the GX12's
+2-position `SA`/`SD` work without changes. The GX12 has no extended global
+variables, so the fixed `AilEle`/`RudEle` weights (`+20`/`-20`) are required
+there as well. The templates do not use the `FS1`-`FS8` function switches.
+
+The GX12 has no SD card: copy the contents of `dist/SDCARD/` to the root of the
+internal storage instead. The `models/pocket/pocket_vitas_3.12.etx` archive is
+Pocket-specific because it carries the Pocket `RADIO/radio.yml`; for the GX12,
+create a model from a `gx12-*` template on the radio or export an archive from
+your own GX12 in EdgeTX Companion.
 
 ## Install
 

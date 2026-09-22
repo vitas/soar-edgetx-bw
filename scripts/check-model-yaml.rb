@@ -7,6 +7,10 @@ DEFAULT_TEMPLATES = %w[
   dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F5J-XTail.yml
   dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F5J-MTail.yml
   dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F5J-VTail.yml
+  dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F3K.yml
+  dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F5J-XTail.yml
+  dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F5J-MTail.yml
+  dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F5J-VTail.yml
 ].freeze
 
 paths = ARGV.empty? ? DEFAULT_TEMPLATES : ARGV

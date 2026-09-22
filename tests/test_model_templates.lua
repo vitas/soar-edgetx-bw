@@ -386,13 +386,28 @@ local F3K = os.getenv("POCKET_F3K_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F3K.ym
 local F5J_X = os.getenv("POCKET_F5J_X_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-XTail.yml"
 local F5J_M = os.getenv("POCKET_F5J_M_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-MTail.yml"
 local F5J_V = os.getenv("POCKET_F5J_V_TEMPLATE") or TEMPLATE_ROOT .. "/pocket-F5J-VTail.yml"
+local GX12_F3K = os.getenv("GX12_F3K_TEMPLATE") or TEMPLATE_ROOT .. "/gx12-F3K.yml"
+local GX12_F5J_X = os.getenv("GX12_F5J_X_TEMPLATE") or TEMPLATE_ROOT .. "/gx12-F5J-XTail.yml"
+local GX12_F5J_M = os.getenv("GX12_F5J_M_TEMPLATE") or TEMPLATE_ROOT .. "/gx12-F5J-MTail.yml"
+local GX12_F5J_V = os.getenv("GX12_F5J_V_TEMPLATE") or TEMPLATE_ROOT .. "/gx12-F5J-VTail.yml"
 local F5J_SCRIPT = "dist/SDCARD/SCRIPTS/TELEMETRY/JF5Jsk.lua"
 
 local templates = {
   { path = F3K, name = "Pocket F3K", kind = "F3K" },
   { path = F5J_X, name = "Pocket F5J XTail", kind = "F5J" },
   { path = F5J_M, name = "Pocket F5J MTail", kind = "F5J" },
-  { path = F5J_V, name = "Pocket F5J VTail", kind = "F5J" }
+  { path = F5J_V, name = "Pocket F5J VTail", kind = "F5J" },
+  { path = GX12_F3K, name = "GX12 F3K", kind = "F3K" },
+  { path = GX12_F5J_X, name = "GX12 F5J XTail", kind = "F5J" },
+  { path = GX12_F5J_M, name = "GX12 F5J MTail", kind = "F5J" },
+  { path = GX12_F5J_V, name = "GX12 F5J VTail", kind = "F5J" }
+}
+
+local gx12_mirrors = {
+  { pocket = F3K, gx12 = GX12_F3K, pocket_name = "Pocket F3K", gx12_name = "GX12 F3K", label = "F3K" },
+  { pocket = F5J_X, gx12 = GX12_F5J_X, pocket_name = "Pocket F5J XTail", gx12_name = "GX12 F5J XTail", label = "F5J X-tail" },
+  { pocket = F5J_M, gx12 = GX12_F5J_M, pocket_name = "Pocket F5J MTail", gx12_name = "GX12 F5J MTail", label = "F5J M-tail" },
+  { pocket = F5J_V, gx12 = GX12_F5J_V, pocket_name = "Pocket F5J VTail", gx12_name = "GX12 F5J VTail", label = "F5J V-tail" }
 }
 
 local copied_failsafes = {
@@ -558,6 +573,16 @@ for _, template in ipairs(templates) do
     assert_flight_mode_trims_neutral(content, template.name .. " flight mode")
   end)
 end
+
+test("GX12 variants mirror the Pocket templates except for the model name", function()
+  for _, mirror in ipairs(gx12_mirrors) do
+    local pocket = read_file(mirror.pocket)
+    local gx12 = read_file(mirror.gx12)
+    local expected = pocket:gsub(mirror.pocket_name, mirror.gx12_name, 1)
+    assert(expected ~= pocket, mirror.label .. " Pocket name was not found in the header")
+    assert_equal(gx12, expected, mirror.label .. " GX12 mirror")
+  end
+end)
 
 test("Pocket F3K keeps Flitz screens and physical channel routing", function()
   local content = read_file(F3K)
