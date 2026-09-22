@@ -799,9 +799,9 @@ test("F5J variants keep the Sense behavior sets", function()
     assert_named_indexed_set(content, "inputNames", "val",
       { "Rud", "Ele", "Ail", "Mot", "Brk", "CbP", "Cmb", "Adj" }, variant.label .. " inputs")
     assert_index_set(content, "logicalSw",
-      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44" },
+      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44", "45", "47" },
       variant.label .. " logical switches")
-    for _, unsupported in ipairs({ "gv(11)", "!gv(11)", "L46", "AilEle" }) do
+    for _, unsupported in ipairs({ "gv(11)", "!gv(11)" }) do
       assert_absent(content, unsupported, variant.label)
     end
   end
@@ -977,7 +977,7 @@ test("F5J X-tail maps rudder and one elevator exactly", function()
   assert_equal(scalar_field(indexed_block(content, "failsafeChannels", 6), "val"), "0", "X-tail CH7 failsafe")
 end)
 
-test("F5J M-tail maps rudder and two elevators without unsupported AilEle", function()
+test("F5J M-tail maps rudder and two elevators with switchable AilEle and RudEle", function()
   local content = read_file(F5J_M)
   assert_equal(scalar_field(indexed_block(content, "limitData", 5), "name"), "Rudd", "M-tail CH6 name")
   assert_equal(scalar_field(indexed_block(content, "limitData", 6), "name"), "Ele-L", "M-tail CH7 name")
@@ -986,12 +986,24 @@ test("F5J M-tail maps rudder and two elevators without unsupported AilEle", func
     "src=I0|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
     "src=I2|weight=gv(2)|switch=NONE|curve=0:0|trim=1|mux=ADD|fm=000000000|offset=0|name=AilRud"
   }, "M-tail CH6 exact mixes")
-  local elevator = {
+  local elevator_left = {
     "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name="
+    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name=",
+    "src=I2|weight=20|switch=L46|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=AilEle",
+    "src=I0|weight=20|switch=L48|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=RudEle"
   }
-  assert_mix_signatures(content, 6, elevator, "M-tail CH7 exact mixes")
-  assert_mix_signatures(content, 7, elevator, "M-tail CH8 exact mixes")
+  local elevator_right = {
+    "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name=",
+    "src=I2|weight=-20|switch=L46|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=AilEle",
+    "src=I0|weight=-20|switch=L48|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=RudEle"
+  }
+  assert_mix_signatures(content, 6, elevator_left, "M-tail CH7 exact mixes")
+  assert_mix_signatures(content, 7, elevator_right, "M-tail CH8 exact mixes")
+  assert_equal(scalar_field(indexed_block(content, "logicalSw", 45), "func"), "FUNC_AND", "M-tail L46 function")
+  assert_equal(scalar_field(indexed_block(content, "logicalSw", 45), "def"), "NONE,NONE", "M-tail L46 default")
+  assert_equal(scalar_field(indexed_block(content, "logicalSw", 47), "func"), "FUNC_AND", "M-tail L48 function")
+  assert_equal(scalar_field(indexed_block(content, "logicalSw", 47), "def"), "NONE,NONE", "M-tail L48 default")
   for index = 5, 7 do
     assert_equal(scalar_field(indexed_block(content, "failsafeChannels", index), "val"), "0",
       "M-tail CH" .. tostring(index + 1) .. " failsafe")

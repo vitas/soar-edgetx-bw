@@ -1807,6 +1807,22 @@ logicalSw:
       lsState: 0
       delay: 0
       duration: 0
+   45:
+      func: FUNC_AND
+      def: "NONE,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   47:
+      func: FUNC_AND
+      def: "NONE,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
 customFn:
    0:
       swtch: "ON"

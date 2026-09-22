@@ -210,6 +210,40 @@ mixData:
    speedDown: 0
    name: ""
  -
+   destCh: 6
+   srcRaw: "I2"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 011100111
+   weight: 20
+   offset: 0
+   swtch: "L46"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: "AilEle"
+ -
+   destCh: 6
+   srcRaw: "I0"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 011100111
+   weight: 20
+   offset: 0
+   swtch: "L48"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: "RudEle"
+ -
    destCh: 7
    srcRaw: "ch(21)"
    carryTrim: 0
@@ -243,6 +277,40 @@ mixData:
    speedUp: 0
    speedDown: 0
    name: ""
+ -
+   destCh: 7
+   srcRaw: "I2"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 011100111
+   weight: -20
+   offset: 0
+   swtch: "L46"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: "AilEle"
+ -
+   destCh: 7
+   srcRaw: "I0"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 011100111
+   weight: -20
+   offset: 0
+   swtch: "L48"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: "RudEle"
  -
    destCh: 3
    srcRaw: "ch(31)"
@@ -1837,6 +1905,22 @@ logicalSw:
       func: FUNC_EDGE
       def: "L6,13,<"
       andsw: "!FM2"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   45:
+      func: FUNC_AND
+      def: "NONE,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   47:
+      func: FUNC_AND
+      def: "NONE,NONE"
+      andsw: "NONE"
       lsPersist: 0
       lsState: 0
       delay: 0

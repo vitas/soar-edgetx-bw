@@ -43,6 +43,24 @@ their common behavior from Sense and use these channel assignments:
 | CH7 | Elevator | Left elevator | Left V-tail |
 | CH8 | Unused | Right elevator | Right V-tail |
 
+### M-tail Elevator Mixes
+
+`M-tail` drives the two elevator servos from `CH7` and `CH8` and adds two
+optional differential elevator mixes:
+
+| Mix | Enable switch | Default | Effect |
+| --- | --- | --- | --- |
+| `AilEle` (aileron to elevator) | `L46` | `NONE` | `+20` on `CH7`, `-20` on `CH8` |
+| `RudEle` (rudder to elevator) | `L48` | `NONE` | `+20` on `CH7`, `-20` on `CH8` |
+
+The opposite `CH8` sign keeps the two mirrored elevator servos moving together.
+Both mixes are active in `Cruise`, `Speed`, and `Float`, and disabled in
+`Adjust`, `Motor`, and `KAPOW`. `L46` and `L48` are defined on every F5J variant
+but default to `NONE`, so assign a physical switch in the radio's Logical
+Switches menu before using either mix. The mixes are only present on `M-tail`;
+`X-tail` has a single elevator output and `V-tail` uses its two surfaces for the
+V-tail mix.
+
 ### Pocket Switch Assignments
 
 The Pocket templates use the following primary controls. EdgeTX position names
