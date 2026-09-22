@@ -1,7 +1,7 @@
 # Soar EdgeTX BW
 
-EdgeTX black-and-white SD-card package and RadioMaster Pocket model archive
-adapted from SoarOTX soaring scripts.
+EdgeTX black-and-white SD-card package with soaring model templates adapted
+from SoarOTX.
 
 This repository is for small BW radios such as RadioMaster Pocket, RadioMaster
 GX12, and related 128x64/212x64 EdgeTX radios. It keeps the original
@@ -10,16 +10,20 @@ for EdgeTX and Pocket/GX12 use.
 
 ## What Is Included
 
-- `dist/SDCARD/` - SD-card files to copy to the radio SD card root.
-- `models/pocket/pocket_vitas_3.12.etx` - EdgeTX Companion archive for the
-  RadioMaster Pocket setup.
-- F3K/F5J/JFXJ/JFXK telemetry and setup scripts for BW screens.
-- Custom soaring voice prompts used by the included models.
-- Pocket model examples including `Dart-LT`, `Flitz3`, and `Sense`.
+- `dist/SDCARD/` - the SD-card package to copy to the radio. It contains the
+  model templates, the F3K/F5J telemetry and setup scripts, and the custom
+  soaring voice prompts.
+- `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/` - the model templates: F3K and F5J
+  X-/M-/V-tail for the RadioMaster Pocket (`pocket-*`) and for the RadioMaster
+  GX12 (`gx12-*`).
+- `dist/SDCARD/SCRIPTS/TELEMETRY/` - the F3K/F5J/JFXJ/JFXK telemetry and setup
+  scripts for BW screens.
+- `dist/SDCARD/SOUNDS/en/` - the custom soaring voice prompts used by the
+  templates.
 
-The graph screen has been removed from the included models. The active soaring
-model screens are now score/timer plus setup/configuration; this avoids the
-missing graph wrapper on Pocket.
+The templates use score/timer plus setup/configuration screens instead of the
+SoarOTX graph screen. Apply a template on the radio and configure it for the
+aircraft before flight; see [Install](#install) for the setup steps.
 
 ## Pocket Templates
 
@@ -30,8 +34,8 @@ The SD-card package includes four RadioMaster Pocket templates:
 - `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F5J-MTail.yml`
 - `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/pocket-F5J-VTail.yml`
 
-The F3K template derives its behavior from Flitz3. The F5J templates derive
-their common behavior from Sense and use these channel assignments:
+The F3K template implements the SoarOTX F3K task set. The F5J templates share a
+common F5J setup and use these channel assignments:
 
 | Channel | X-tail | M-tail | V-tail |
 | --- | --- | --- | --- |
@@ -130,18 +134,16 @@ variables, so the fixed `AilEle`/`RudEle` weights (`+20`/`-20`) are required
 there as well. The templates do not use the `FS1`-`FS8` function switches.
 
 The GX12 has no SD card: copy the contents of `dist/SDCARD/` to the root of the
-internal storage instead. The `models/pocket/pocket_vitas_3.12.etx` archive is
-Pocket-specific because it carries the Pocket `RADIO/radio.yml`; for the GX12,
-create a model from a `gx12-*` template on the radio or export an archive from
-your own GX12 in EdgeTX Companion.
+internal storage instead, then create a model from a `gx12-*` template on the
+radio.
 
 ## Install
 
 1. Back up the radio SD card and models first.
 2. Install the standard EdgeTX SD-card sound pack for your firmware version.
 3. Copy the contents of `dist/SDCARD/` to the root of the radio SD card.
-4. Import `models/pocket/pocket_vitas_3.12.etx` in EdgeTX Companion, or copy the
-   model YAML files manually if you know your radio layout.
+4. Create a model from a `pocket-*` or `gx12-*` template on the radio, or copy
+   the template YAML into `MODELS/` if you know your radio layout.
 5. On the radio, keep propulsion isolated while verifying script screens,
    channel order, switch assignments, and failsafe. Remove the propeller before
    briefly powering the motor to verify its direction.
