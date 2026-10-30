@@ -22,7 +22,15 @@ local CRV_FLP, CRV_AIL, CRV_POT, CRV_ELE = 4, 5, 12, 13
 local GV_FLP, GV_AIL, GV_ELE, GV_ADJ = 1, 3, 2, 7
 local LS_TRIM, SF_TRIM = 48, 38
 local FM_NORMAL, FM_ADJUST = 0, 1
-local PAGE_BRAKES, PAGE_MOTOR = 3, 7
+local PAGE_ALIGN, PAGE_BRAKES, PAGE_MOTOR = 2, 3, 7
+
+-- The wing outputs CH1, CH2, CH4 and CH5 and the alignment curves they use
+local WING = {
+  { output = 0, name = "Ai-L", curve = 0, curve_name = "LA" },
+  { output = 1, name = "Ai-R", curve = 1, curve_name = "RA" },
+  { output = 3, name = "Fl-L", curve = 2, curve_name = "LF" },
+  { output = 4, name = "Fl-R", curve = 3, curve_name = "RF" }
+}
 
 -- Step input values that select airbrake curve points 1, 2 and 5
 local STEP_POINT = { [1] = -1024, [2] = -512, [5] = 1024 }
@@ -68,12 +76,17 @@ end
 -- An unused curve as EdgeTX returns it: no name, five zero points.
 local EMPTY_CURVE = { name = "", type = 0, smooth = false, points = 5, y = { 0, 0, 0, 0, 0 } }
 
+-- An output without a curve as EdgeTX returns it for each of the 32 channels.
+local DEFAULT_OUTPUT = { name = "", min = -1000, max = 1000, offset = 0, ppmCenter = 0, symetrical = 0, revert = 0 }
+
 local function new_radio(screen)
   local radio = {
     time = 0,
     values = {},
     curves = {},
     curve_writes = {},
+    outputs = {},
+    output_writes = {},
     gvars = {},
     gvar_writes = 0,
     logical_switches = {},
@@ -103,6 +116,14 @@ local function new_radio(screen)
       radio.curves[index] = copy(curve)
       radio.curve_writes[#radio.curve_writes + 1] = index
       return 0
+    end,
+    getOutput = function(index)
+      if index < 0 or index > 31 then return nil end
+      return copy(radio.outputs[index] or DEFAULT_OUTPUT)
+    end,
+    setOutput = function(index, output)
+      radio.outputs[index] = copy(output)
+      radio.output_writes[#radio.output_writes + 1] = index
     end,
     getGlobalVariable = function(index, fm) return (radio.gvars[fm] or {})[index] or 0 end,
     setGlobalVariable = function(index, fm, value)
@@ -234,6 +255,85 @@ test("airbrake page leaves models without BrE alone", function()
     assert_true(not contains(radio.curve_writes, CRV_ELE), screen_label(screen, "CV14 not written"))
     assert_true(shows(radio, "N/A"), screen_label(screen, "elevator plot shows N/A"))
     assert_equal(radio.help.msg2, "TrmT, TrmE - adjust", screen_label(screen, "old trim help"))
+  end
+end)
+
+-- A model whose wing outputs are aligned away from neutral; left_aileron replaces the points of the
+-- left aileron curve.
+local function wing_radio(screen, left_aileron)
+  local radio = new_radio(screen)
+  for _, wing in ipairs(WING) do
+    local y = (wing.curve == 0 and left_aileron) or { -100, -40, 10, 60, 100 }
+    radio.curves[wing.curve] = { name = wing.curve_name, type = 0, smooth = true, points = 5, y = y }
+    radio.outputs[wing.output] = {
+      name = wing.name, min = -900, max = 950, offset = 30, ppmCenter = 0, symetrical = 0, revert = 0,
+      curve = wing.curve
+    }
+  end
+  start_menu(radio)
+  open_page(radio, PAGE_ALIGN)
+  return radio
+end
+
+-- True if a text on the screen mentions a reset
+local function asks_reset(radio)
+  for _, item in ipairs(radio.frame) do
+    if type(item) == "string" and item:lower():find("reset", 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+-- Numbers as text; whole floats print like the radio's integers
+local function numbers(list)
+  local texts = {}
+  for index, value in ipairs(list) do
+    texts[index] = string.format("%g", value)
+  end
+  return table.concat(texts, ",")
+end
+
+test("alignment page asks before it resets the wing outputs", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = wing_radio(screen)
+    radio.menu.run(0)
+    assert_true(shows(radio, "LA") and not asks_reset(radio), screen_label(screen, "curves"))
+
+    radio.menu.run(CONSTANTS.EVT_VIRTUAL_ENTER)
+    assert_true(asks_reset(radio) and not shows(radio, "LA"), screen_label(screen, "reset question"))
+
+    radio.menu.run(CONSTANTS.EVT_VIRTUAL_EXIT)
+    assert_true(shows(radio, "LA") and not asks_reset(radio), screen_label(screen, "curves after EXIT"))
+    assert_equal(#radio.curve_writes + #radio.output_writes, 0, screen_label(screen, "writes"))
+  end
+end)
+
+test("alignment page resets the wing outputs after a second ENTER", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = wing_radio(screen)
+    radio.menu.run(CONSTANTS.EVT_VIRTUAL_ENTER)
+    radio.menu.run(CONSTANTS.EVT_VIRTUAL_ENTER)
+    for _, wing in ipairs(WING) do
+      local out = radio.outputs[wing.output]
+      local label = screen_label(screen, wing.name)
+      assert_equal(numbers(radio.curves[wing.curve].y), "-100,-50,0,50,100", label .. " curve")
+      assert_equal(numbers({ out.min, out.offset, out.max }), "-1000,0,1000", label .. " output")
+    end
+    assert_true(shows(radio, "LA") and not asks_reset(radio), screen_label(screen, "curves after the reset"))
+  end
+end)
+
+test("alignment page offers a reset for wing outputs that fail the checks", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = wing_radio(screen, { -100, 20, 10, 60, 100 })
+    radio.menu.run(0)
+    assert_true(asks_reset(radio) and not shows(radio, "LA"), screen_label(screen, "reset offer"))
+
+    radio.menu.run(CONSTANTS.EVT_VIRTUAL_EXIT)
+    radio.menu.run(0)
+    assert_true(shows(radio, "2. Align flaps & ailerons"), screen_label(screen, "back in the menu"))
+    assert_equal(#radio.curve_writes + #radio.output_writes, 0, screen_label(screen, "writes"))
   end
 end)
 

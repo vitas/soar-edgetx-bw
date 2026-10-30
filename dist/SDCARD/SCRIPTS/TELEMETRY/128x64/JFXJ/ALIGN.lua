@@ -27,4 +27,22 @@ function ui.Draw(rgtAilY, lftAilY, rgtFlpY, lftFlpY, i)
 	crv.Draw(65, 9, rgtAilY, i)
 end -- Draw()
 
+function ui.DrawReset(reset)
+	soarUtil.InfoBar("Alignment")
+
+	if reset == 1 then
+		lcd.drawText(0, 10, "Do you want to reset")
+		lcd.drawText(0, 20, "the flap/aileron")
+		lcd.drawText(0, 30, "outputs?")
+		lcd.drawText(0, 40, "ENTER = DO IT")
+		lcd.drawText(0, 50, "EXIT = NO")
+	else
+		lcd.drawText(0, 10, "The flap/aileron")
+		lcd.drawText(0, 20, "outputs did not pass")
+		lcd.drawText(0, 30, "all checks. Reset?")
+		lcd.drawText(0, 40, "ENTER = RESET")
+		lcd.drawText(0, 50, "EXIT = NO")
+	end
+end -- DrawReset()
+
 return ui
