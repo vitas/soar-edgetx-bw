@@ -1,0 +1,541 @@
+/* Shared print styles for the Soar EdgeTX BW setup guides (rendered to A4 PDF). */
+
+:root {
+  --ink: #1c2631;
+  --muted: #5d6a77;
+  --line: #d5dce3;
+  --accent: #0b5d78;
+  --accent-dark: #083f52;
+  --accent-soft: #e6f1f5;
+  --warn: #b42318;
+  --warn-soft: #fdefed;
+  --tip: #1d7349;
+  --tip-soft: #e9f5ee;
+  --chip: #eef2f6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body {
+  margin: 0;
+  font-family: "PT Sans", "Helvetica Neue", Arial, sans-serif;
+  font-size: 10.3pt;
+  line-height: 1.42;
+  color: var(--ink);
+  background: #fff;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+b,
+strong {
+  font-weight: 700;
+}
+
+p {
+  margin: 0 0 2.4mm;
+}
+
+/* Cover block on the first page. */
+
+.cover {
+  background: var(--accent-dark);
+  background-image: linear-gradient(135deg, #0b5d78 0%, #083f52 70%);
+  color: #fff;
+  border-radius: 6px;
+  padding: 11mm 11mm 9mm;
+  margin-bottom: 5mm;
+}
+
+.cover .kicker {
+  font-size: 8.6pt;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.cover h1 {
+  font-size: 24pt;
+  line-height: 1.12;
+  margin: 2.5mm 0 3.5mm;
+}
+
+.cover .lead {
+  font-size: 11.2pt;
+  line-height: 1.4;
+  margin: 0 0 5mm;
+  max-width: 158mm;
+}
+
+.cover .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm;
+}
+
+.cover .meta span {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+  padding: 0.8mm 3mm;
+  font-size: 8.6pt;
+}
+
+.intro {
+  font-size: 10.6pt;
+  margin-bottom: 4mm;
+}
+
+/* Two boxes side by side on the first page. */
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4mm;
+  margin-bottom: 4mm;
+}
+
+.box {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 3.2mm 4mm 2.4mm;
+  break-inside: avoid;
+}
+
+.box h4 {
+  margin: 0 0 1.8mm;
+  font-size: 10.6pt;
+  color: var(--accent);
+}
+
+.box.warn {
+  border-color: #efb7b0;
+  background: var(--warn-soft);
+}
+
+.box.warn h4 {
+  color: var(--warn);
+}
+
+ul.dash {
+  margin: 0;
+  padding-left: 4.2mm;
+}
+
+ul.dash li {
+  margin-bottom: 1.1mm;
+}
+
+ul.dash li::marker {
+  color: var(--accent);
+}
+
+.box.warn ul.dash li::marker {
+  color: var(--warn);
+}
+
+/* Table of contents. */
+
+.toc {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 2.6mm 0 1.6mm;
+  margin-bottom: 2mm;
+}
+
+.toc-title {
+  font-size: 8.6pt;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.4mm;
+}
+
+.toc ol {
+  columns: 2;
+  column-gap: 8mm;
+  margin: 0;
+  padding-left: 5mm;
+}
+
+.toc li {
+  margin-bottom: 0.9mm;
+  break-inside: avoid;
+}
+
+.toc li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Headings. */
+
+h2 {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  font-size: 15pt;
+  line-height: 1.2;
+  color: var(--accent-dark);
+  margin: 7mm 0 3mm;
+  padding-bottom: 1.6mm;
+  border-bottom: 1.5px solid var(--accent);
+  break-after: avoid;
+  break-inside: avoid;
+}
+
+h2 .n {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 7.5mm;
+  height: 7.5mm;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11pt;
+}
+
+h3 {
+  font-size: 11.6pt;
+  color: var(--accent-dark);
+  margin: 5mm 0 2mm;
+  break-after: avoid;
+  break-inside: avoid;
+}
+
+h3 .tag {
+  display: inline-block;
+  font-size: 8.4pt;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 3px;
+  padding: 0.3mm 1.6mm;
+  margin-left: 1.5mm;
+  vertical-align: 1px;
+}
+
+.page-break {
+  break-before: page;
+}
+
+.keep {
+  break-inside: avoid;
+}
+
+/* Numbered steps. */
+
+ol.steps {
+  list-style: none;
+  counter-reset: step;
+  margin: 0 0 3mm;
+  padding: 0;
+}
+
+ol.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 8mm;
+  margin-bottom: 1.9mm;
+}
+
+ol.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  width: 5.2mm;
+  height: 5.2mm;
+  border-radius: 50%;
+  border: 1.2px solid var(--accent);
+  color: var(--accent);
+  font-size: 8.4pt;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+ul.plain {
+  margin: 0 0 3mm;
+  padding-left: 5mm;
+}
+
+ul.plain li {
+  margin-bottom: 1.3mm;
+}
+
+ul.plain li::marker {
+  color: var(--accent);
+}
+
+/* Tables. */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6mm 0 4mm;
+  font-size: 9.3pt;
+  line-height: 1.32;
+  break-inside: avoid;
+}
+
+th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  border-bottom: 1.5px solid var(--accent);
+  padding: 1.5mm 2.2mm;
+}
+
+td {
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+  padding: 1.4mm 2.2mm;
+}
+
+tr:last-child td {
+  border-bottom-color: #b9c3cc;
+}
+
+td.nowrap,
+th.nowrap {
+  white-space: nowrap;
+}
+
+tr.hl td {
+  background: #fff8e6;
+}
+
+/* Callouts. */
+
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 4px 4px 0;
+  padding: 2.3mm 3.4mm;
+  margin: 2mm 0 3.6mm;
+  font-size: 9.7pt;
+  break-inside: avoid;
+}
+
+.callout .t {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.6mm;
+}
+
+.callout.warn {
+  border-color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.callout.warn .t {
+  color: var(--warn);
+}
+
+.callout.tip {
+  border-color: var(--tip);
+  background: var(--tip-soft);
+}
+
+.callout.tip .t {
+  color: var(--tip);
+}
+
+.callout p:last-child,
+.callout ul:last-child {
+  margin-bottom: 0;
+}
+
+.callout ul {
+  margin: 0.6mm 0 0;
+  padding-left: 4.6mm;
+}
+
+/* Inline markers for on-screen labels, files, keys and switches. */
+
+.ui {
+  font-weight: 700;
+  color: var(--accent-dark);
+  white-space: nowrap;
+}
+
+td .ui {
+  white-space: normal;
+}
+
+code {
+  font-family: "PT Mono", Menlo, monospace;
+  font-size: 8.9pt;
+  background: var(--chip);
+  border-radius: 2px;
+  padding: 0.1mm 0.5mm;
+  white-space: nowrap;
+}
+
+kbd {
+  font-family: "PT Sans", sans-serif;
+  font-size: 8.6pt;
+  font-weight: 700;
+  border: 1px solid #aeb9c4;
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  background: #fff;
+  padding: 0 1.3mm;
+  white-space: nowrap;
+}
+
+.sw {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.nb {
+  white-space: nowrap;
+}
+
+/* Figures. */
+
+figure {
+  margin: 2mm 0 4mm;
+  break-inside: avoid;
+}
+
+figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+figure.wiring svg {
+  max-width: 162mm;
+  margin: 0 auto;
+}
+
+figcaption {
+  font-size: 8.7pt;
+  color: var(--muted);
+  margin-top: 1.2mm;
+}
+
+/* Radio screenshots: the 128×64 screen enlarged four times. */
+
+img.screen {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #b9c3cc;
+  border-radius: 3px;
+  image-rendering: pixelated;
+}
+
+.shots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3mm 4mm;
+  margin: 2mm 0 4mm;
+}
+
+.shots.two {
+  grid-template-columns: repeat(2, 56mm);
+}
+
+.shots figure {
+  margin: 0;
+}
+
+/* Text on the left, a screenshot on the right. */
+
+.with-shot {
+  display: grid;
+  grid-template-columns: 1fr 56mm;
+  gap: 5mm;
+  align-items: start;
+  break-inside: avoid;
+}
+
+.with-shot > figure {
+  margin: 0.8mm 0 3mm;
+}
+
+/* Competition state chain. */
+
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.6mm;
+  margin: 1mm 0 3.5mm;
+  font-size: 9.4pt;
+}
+
+.flow .st {
+  border: 1.3px solid var(--accent);
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  border-radius: 99px;
+  padding: 0.6mm 3mm;
+  font-weight: 700;
+}
+
+.flow .st.zero {
+  border-color: var(--warn);
+  color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.flow .arr {
+  color: var(--muted);
+}
+
+.flow .note {
+  color: var(--muted);
+  margin-left: 2mm;
+}
+
+/* Final checklist. */
+
+ul.check {
+  list-style: none;
+  margin: 0 0 3mm;
+  padding: 0;
+}
+
+ul.check li {
+  position: relative;
+  padding-left: 7mm;
+  margin-bottom: 1.7mm;
+  break-inside: avoid;
+}
+
+ul.check li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.22em;
+  width: 3.5mm;
+  height: 3.5mm;
+  border: 1.3px solid var(--accent);
+  border-radius: 1px;
+}
+
+.endnote {
+  margin-top: 5mm;
+  padding-top: 2.4mm;
+  border-top: 1px solid var(--line);
+  font-size: 9pt;
+  color: var(--muted);
+}

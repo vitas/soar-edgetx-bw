@@ -8,11 +8,19 @@ GX12, and related 128x64/212x64 EdgeTX radios. It keeps the original
 SoarOTX-style telemetry and setup scripts, with model and SD-card adjustments
 for EdgeTX and Pocket/GX12 use.
 
+<img src="docs/images/timer-glide.png" width="32%" alt="F5J timer screen in glide"> <img src="docs/images/menu.png" width="32%" alt="F5J Configuration menu"> <img src="docs/images/timer-landing.png" width="32%" alt="F5J landing score entry">
+
+**Guide (PDF):** an F5J M-tail model on the Pocket and the GX12 step by step,
+from the files on the radio to the first flight, in
+[English](docs/guides/SoarEdgeTX-BW-MTail-en.pdf),
+[Russian](docs/guides/SoarEdgeTX-BW-MTail-ru.pdf), and
+[Bulgarian](docs/guides/SoarEdgeTX-BW-MTail-bg.pdf).
+
 ## What Is Included
 
-- `dist/SDCARD/` - the SD-card package to copy to the radio. It contains the
+- `dist/SDCARD/` - the SD-card tree of the author's radio. It contains the
   model templates, the F3K/F5J telemetry and setup scripts, and the custom
-  soaring voice prompts.
+  soaring voice prompts; copy only those parts (see [Install](#install)).
 - `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/` - the model templates: F3K and F5J
   X-/M-/V-tail for the RadioMaster Pocket (`pocket-*`) and for the RadioMaster
   GX12 (`gx12-*`).
@@ -98,6 +106,8 @@ stores the help setting. Models from earlier templates have no `BrE`: the page
 shows `N/A` for the elevator, and the elevator trim still adjusts the aileron
 curve.
 
+![The Airbrakes page with the Flap, Aile, and Elev curves](docs/images/page-airbrakes.png)
+
 ### Motor Idle
 
 The configuration page `7. Motor idle` sets the first point of curve `CV13`
@@ -105,6 +115,8 @@ The configuration page `7. Motor idle` sets the first point of curve `CV13`
 range in the `Motor` flight mode. The template value is `99`; the range is `0`
 to `100`, and at `0` the motor stops with `P1` at the lowest power. The page
 scales the middle point with the idle, so the `P1` range keeps its shape.
+
+![The Motor idle page after five trim clicks down from 99](docs/images/page-motor-idle.png)
 
 This page needs the motor connected. It shows a propeller warning first; hold
 the model and keep clear before you press `ENTER`. The page does not start the
@@ -151,7 +163,7 @@ To install and configure a template safely:
 1. Back up the radio and current model.
 2. Remove the propeller or disconnect the motor before applying the template.
    Keep propulsion isolated throughout receiver setup and output configuration.
-3. Apply the template from the radio SD card.
+3. Restore the template from `/BACKUP/` on the radio (see [Install](#install)).
 4. Bind and configure the receiver, then discover telemetry sensors.
 5. Configure endpoints, centers, reversals, and setup curves for the aircraft.
 6. With the motor disconnected where possible, verify outputs, scripts, switch
@@ -202,17 +214,35 @@ For F5J, arm with `SE` down, then press `SG` where the Pocket flicks `SE`.
 the fixed `AilEle`/`RudEle` weights (`+20`/`-20`) and the `AilEle` differential
 are required there as well.
 
-The GX12 has no SD card: copy the contents of `dist/SDCARD/` to the root of the
-internal storage instead, then create a model from a `gx12-*` template on the
-radio.
+The GX12 has no SD card: over USB its internal storage appears as the SD card.
+Copy the same package parts to it (see [Install](#install)), then restore a
+`gx12-*` template on the radio.
 
 ## Install
 
-1. Back up the radio SD card and models first.
+`dist/SDCARD/` mirrors the SD card of the author's radio: besides the package
+it holds models (`MODELS/`), radio settings (`RADIO/`), firmware, and other
+files. Copy only the package parts below, or they replace your own models and
+settings. The [guide](docs/guides/SoarEdgeTX-BW-MTail-en.pdf) walks through
+these steps for an F5J M-tail model.
+
+1. Back up the radio SD card and models first. On the GX12, back up its internal
+   storage.
 2. Install the standard EdgeTX SD-card sound pack for your firmware version.
-3. Copy the contents of `dist/SDCARD/` to the root of the radio SD card.
-4. Create a model from a `pocket-*` or `gx12-*` template on the radio, or copy
-   the template YAML into `MODELS/` if you know your radio layout.
+3. Copy these parts of `dist/SDCARD/` to the radio SD card:
+
+   | From `dist/SDCARD/` | To |
+   | --- | --- |
+   | `SCRIPTS/TELEMETRY/` (the whole folder) | `/SCRIPTS/TELEMETRY/` |
+   | `SCRIPTS/FUNCTIONS/JFutil.lua` | `/SCRIPTS/FUNCTIONS/` |
+   | `TEMPLATES/3.SoarEdgeTx/*.yml` | `/BACKUP/` |
+   | `SOUNDS/en/*.wav` | `/SOUNDS/en/` |
+
+4. Create the model from a template: open the model list, select an empty slot,
+   press `ENTER`, choose `Restore model`, and pick a `pocket-*` or `gx12-*`
+   template. EdgeTX on black-and-white radios has no template list for new
+   models; `Restore model` lists the files in `/BACKUP/`. You can also copy the
+   template YAML into `MODELS/` if you know your radio layout.
 5. On the radio, keep propulsion isolated while verifying script screens,
    channel order, switch assignments, and failsafe. Remove the propeller before
    briefly powering the motor to verify its direction.
