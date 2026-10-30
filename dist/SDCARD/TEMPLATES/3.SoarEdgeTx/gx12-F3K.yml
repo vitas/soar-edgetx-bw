@@ -1115,7 +1115,7 @@ points:
 logicalSw:
   0:
     func: FUNC_AND
-    def: SA2,L17
+    def: SE2,L17
     delay: 0
     duration: 0
     andsw: NONE
@@ -1163,7 +1163,7 @@ logicalSw:
     lsState: 0
   6:
     func: FUNC_OR
-    def: SE2,L9
+    def: SG2,L9
     delay: 0
     duration: 0
     andsw: NONE
@@ -1171,7 +1171,7 @@ logicalSw:
     lsState: 0
   7:
     func: FUNC_AND
-    def: SD2,NONE
+    def: SF2,NONE
     delay: 0
     duration: 0
     andsw: NONE
@@ -1339,7 +1339,7 @@ logicalSw:
     lsState: 0
   34:
     func: FUNC_AND
-    def: SD0,NONE
+    def: "!SF2,NONE"
     delay: 0
     duration: 0
     andsw: NONE

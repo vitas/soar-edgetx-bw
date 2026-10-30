@@ -431,37 +431,17 @@ mixData:
    delayPrec: 0
    speedPrec: 0
    flightModes: 000000000
-   weight: "!gv(4)"
+   weight: "gv(4)"
    offset: "gv(4)"
    swtch: "NONE"
    curve:
       type: 3
-      value: 5
+      value: 14
    delayUp: 0
    delayDown: 0
    speedUp: 0
    speedDown: 0
    name: "BrkEle"
- -
-   destCh: 21
-   srcRaw: "MAX"
-   carryTrim: 0
-   mixWarn: 0
-   mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
-   flightModes: 000000000
-   weight: "gv(4)"
-   offset: "!gv(4)"
-   swtch: "NONE"
-   curve:
-      type: 3
-      value: 5
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
-   name: "BEOffs"
  -
    destCh: 21
    srcRaw: "MAX"
@@ -1381,6 +1361,11 @@ curves:
       smooth: 0
       points: -2
       name: "Pot"
+   13:
+      type: 0
+      smooth: 0
+      points: 0
+      name: "BrE"
 points:
    0:
       val: -100
@@ -1510,10 +1495,20 @@ points:
       val: 99
    70:
       val: 32
+   73:
+      val: 67
+   74:
+      val: 17
+   75:
+      val: -33
+   76:
+      val: -83
+   77:
+      val: -100
 logicalSw:
    0:
       func: FUNC_AND
-      def: "SA0,L19"
+      def: "SE0,L19"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1521,7 +1516,7 @@ logicalSw:
       duration: 0
    1:
       func: FUNC_AND
-      def: "SA2,!SA2"
+      def: "SE2,!SE2"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1545,7 +1540,7 @@ logicalSw:
       duration: 0
    4:
       func: FUNC_AND
-      def: "SA2,NONE"
+      def: "SE2,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1561,7 +1556,7 @@ logicalSw:
       duration: 0
    6:
       func: FUNC_AND
-      def: "SD2,NONE"
+      def: "SF2,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1569,7 +1564,7 @@ logicalSw:
       duration: 0
    7:
       func: FUNC_AND
-      def: "SA2,L1"
+      def: "SE2,L1"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1577,7 +1572,7 @@ logicalSw:
       duration: 0
    8:
       func: FUNC_OR
-      def: "SE2,L11"
+      def: "SG2,L11"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1753,7 +1748,7 @@ logicalSw:
       duration: 0
    35:
       func: FUNC_AND
-      def: "SD0,NONE"
+      def: "!SF2,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1809,7 +1804,7 @@ logicalSw:
       duration: 0
    45:
       func: FUNC_AND
-      def: "NONE,NONE"
+      def: "!ON,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1817,7 +1812,15 @@ logicalSw:
       duration: 0
    47:
       func: FUNC_AND
-      def: "NONE,NONE"
+      def: "!ON,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   48:
+      func: FUNC_VPOS
+      def: "gv(7),50"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1879,7 +1882,7 @@ customFn:
    13:
       swtch: "L14"
       func: ADJUST_GVAR
-      def: "3,Src,T2,1"
+      def: "3,Src,T4,1"
    14:
       swtch: "L15"
       func: ADJUST_GVAR
@@ -1964,6 +1967,14 @@ customFn:
       swtch: "L36"
       func: PLAY_TRACK
       def: "crowof,1,1x"
+   38:
+      swtch: "L49"
+      func: ADJUST_GVAR
+      def: "7,Src,T3,1"
+   39:
+      swtch: "L14"
+      func: ADJUST_GVAR
+      def: "2,Src,T2,1"
 flightModeData:
    0:
       trim:

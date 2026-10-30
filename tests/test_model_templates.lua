@@ -574,13 +574,46 @@ for _, template in ipairs(templates) do
   end)
 end
 
-test("GX12 variants mirror the Pocket templates except for the model name", function()
+test("GX12 variants mirror the Pocket templates except for the model name and the switches", function()
   for _, mirror in ipairs(gx12_mirrors) do
     local pocket = read_file(mirror.pocket)
     local gx12 = read_file(mirror.gx12)
     local expected = pocket:gsub(mirror.pocket_name, mirror.gx12_name, 1)
     assert(expected ~= pocket, mirror.label .. " Pocket name was not found in the header")
-    assert_equal(gx12, expected, mirror.label .. " GX12 mirror")
+    local switches = top_level_section(gx12, "logicalSw")
+    local first, last = gx12:find(switches, 1, true)
+    local actual = gx12:sub(1, first - 1) .. top_level_section(pocket, "logicalSw") .. gx12:sub(last + 1)
+    assert_equal(actual, expected, mirror.label .. " GX12 mirror")
+  end
+end)
+
+-- The stock GX12 has SA, SD, SG and SH buttons: SE arms (F5J) or allows altitude calls (F3K),
+-- the SG button starts the motor or the launch, and SF replaces the Pocket SD.
+test("GX12 variants use the GX12 switch layout", function()
+  local definitions = {
+    F5J = {
+      [0] = "SE0,L19", [1] = "SE2,!SE2", [2] = "SC0,NONE", [3] = "SC2,NONE", [4] = "SE2,NONE",
+      [6] = "SF2,NONE", [7] = "SE2,L1", [8] = "SG2,L11", [11] = "SB2,NONE", [35] = "!SF2,NONE"
+    },
+    F3K = {
+      [0] = "SE2,L17", [1] = "SC2,!SC2", [2] = "SC0,NONE", [3] = "SC2,NONE", [4] = "SB0,NONE",
+      [5] = "SB2,L1", [6] = "SG2,L9", [7] = "SF2,NONE", [34] = "!SF2,NONE"
+    }
+  }
+
+  for _, template in ipairs(templates) do
+    if template.name:match("^GX12") then
+      local content = read_file(template.path)
+      for index, expected in pairs(definitions[template.kind]) do
+        assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "def"), expected,
+          template.name .. " L" .. tostring(index + 1))
+      end
+      for _, block in ipairs(indexed_blocks(content, "logicalSw")) do
+        local definition = scalar_field(block.text, "def") or ""
+        assert(not definition:match("S[AD]%d"), template.name .. " L" .. tostring(block.index + 1) ..
+          " uses a GX12 button as a switch: " .. definition)
+      end
+    end
   end
 end)
 
@@ -820,11 +853,11 @@ test("F5J variants keep the Sense behavior sets", function()
     assert_indexed_values(nested_section(indexed_block(content, "flightModeData", 0), "gvars"), "gvars",
       { 57, 24, 15, -11, 46, -16, 153, 0, 0 }, variant.label .. " Cruise GVar")
     assert_named_indexed_set(content, "curves", "name",
-      { "LA", "RA", "LF", "RF", "BrF", "BrA", "Snp", "Adj", "Mot", "Abs", "DB", "LSl", "Pot" }, variant.label .. " curves")
+      { "LA", "RA", "LF", "RF", "BrF", "BrA", "Snp", "Adj", "Mot", "Abs", "DB", "LSl", "Pot", "BrE" }, variant.label .. " curves")
     assert_named_indexed_set(content, "inputNames", "val",
       { "Rud", "Ele", "Ail", "Mot", "Brk", "CbP", "Cmb", "Adj" }, variant.label .. " inputs")
     assert_index_set(content, "logicalSw",
-      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44", "45", "47" },
+      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44", "45", "47", "48" },
       variant.label .. " logical switches")
     for _, unsupported in ipairs({ "gv(11)", "!gv(11)" }) do
       assert_absent(content, unsupported, variant.label)
@@ -865,6 +898,54 @@ test("F5J variants keep the Sense switch assignments", function()
     for index, expected in ipairs(timers) do
       assert_equal(scalar_field(indexed_block(content, "timers", index - 1), "swtch"), expected,
         variant.label .. " timer " .. tostring(index) .. " switch")
+    end
+  end
+end)
+
+-- EdgeTX treats an empty switch as always on, so AND(NONE, NONE) would keep the mixes on.
+test("F5J variants keep NONE mix switches off", function()
+  for _, variant in ipairs(f5j_variants) do
+    local content = read_file(variant.path)
+    for _, index in ipairs({ 45, 47 }) do
+      local switch = indexed_block(content, "logicalSw", index)
+      assert_equal(scalar_field(switch, "func"), "FUNC_AND", variant.label .. " L" .. tostring(index + 1) .. " function")
+      assert_equal(scalar_field(switch, "def"), "!ON,NONE", variant.label .. " L" .. tostring(index + 1) .. " default")
+    end
+  end
+end)
+
+test("F5J variants shape the brake elevator compensation with BrE", function()
+  for _, variant in ipairs(f5j_variants) do
+    assert_mix_signatures(read_file(variant.path), 21, {
+      "src=I3|weight=gv(4)|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=gv(4)|name=MotEle",
+      "src=MAX|weight=10|switch=NONE|curve=0:0|trim=1|mux=MUL|fm=000000000|offset=0|name=MotEle",
+      "src=ch(20)|weight=gv(4)|switch=NONE|curve=3:14|trim=0|mux=ADD|fm=000000000|offset=gv(4)|name=BrkEle",
+      "src=MAX|weight=gv(4)|switch=NONE|curve=0:0|trim=0|mux=REPL|fm=111011111|offset=0|name=KAPOW"
+    }, variant.label .. " CH22 exact mixes")
+  end
+end)
+
+test("F5J variants map the setup trims", function()
+  local special_functions = {
+    [13] = { swtch = "L14", def = "3,Src,T4,1", label = "airbrake aileron curve" },
+    [38] = { swtch = "L49", def = "7,Src,T3,1", label = "motor idle" },
+    [39] = { swtch = "L14", def = "2,Src,T2,1", label = "airbrake elevator curve" }
+  }
+
+  for _, variant in ipairs(f5j_variants) do
+    local content = read_file(variant.path)
+    local counter = indexed_block(content, "logicalSw", 48)
+    assert_equal(scalar_field(counter, "func"), "FUNC_VPOS", variant.label .. " L49 function")
+    assert_equal(scalar_field(counter, "def"), "gv(7),50", variant.label .. " L49 definition")
+    assert_equal(scalar_field(counter, "andsw"), "NONE", variant.label .. " L49 AND switch")
+    for index, expected in pairs(special_functions) do
+      local custom_function = indexed_block(content, "customFn", index)
+      assert_equal(scalar_field(custom_function, "swtch"), expected.swtch,
+        variant.label .. " " .. expected.label .. " switch")
+      assert_equal(scalar_field(custom_function, "func"), "ADJUST_GVAR",
+        variant.label .. " " .. expected.label .. " function")
+      assert_equal(scalar_field(custom_function, "def"), expected.def,
+        variant.label .. " " .. expected.label .. " definition")
     end
   end
 end)
@@ -964,7 +1045,8 @@ test("F5J variants start physical curves linear and keep Sense brake and utility
   local utility = {
     -100, -100, 0, 0, -50, 0, -100, -100, -50, -50, 0, 0, 50, 50, 100, 100,
     -90, -90, -30, -30, 30, 30, 90, 90, -70, 75, 100, 100, 90, 90, 100, 0,
-    100, -100, 100, 100, 90, 0, 100, 99, 32, 0, 0
+    100, -100, 100, 100, 90, 0, 100, 99, 32, 0, 0,
+    67, 17, -33, -83, -100
   }
   for _, variant in ipairs(f5j_variants) do
     local content = read_file(variant.path)
@@ -1014,42 +1096,50 @@ test("F5J M-tail maps rudder and two elevators with switchable AilEle and RudEle
   local elevator_left = {
     "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
     "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name=",
-    "src=I2|weight=20|switch=L46|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=AilEle",
+    "src=I2|weight=20|switch=L46|curve=0:-50|trim=0|mux=ADD|fm=011100111|offset=0|name=AilEle",
     "src=I0|weight=20|switch=L48|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=RudEle"
   }
+  -- EdgeTX applies the differential after the weight, so the same -50 on both lines halves the
+  -- down-going travel of each half.
   local elevator_right = {
     "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
     "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name=",
-    "src=I2|weight=-20|switch=L46|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=AilEle",
+    "src=I2|weight=-20|switch=L46|curve=0:-50|trim=0|mux=ADD|fm=011100111|offset=0|name=AilEle",
     "src=I0|weight=-20|switch=L48|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=RudEle"
   }
   assert_mix_signatures(content, 6, elevator_left, "M-tail CH7 exact mixes")
   assert_mix_signatures(content, 7, elevator_right, "M-tail CH8 exact mixes")
-  assert_equal(scalar_field(indexed_block(content, "logicalSw", 45), "func"), "FUNC_AND", "M-tail L46 function")
-  assert_equal(scalar_field(indexed_block(content, "logicalSw", 45), "def"), "NONE,NONE", "M-tail L46 default")
-  assert_equal(scalar_field(indexed_block(content, "logicalSw", 47), "func"), "FUNC_AND", "M-tail L48 function")
-  assert_equal(scalar_field(indexed_block(content, "logicalSw", 47), "def"), "NONE,NONE", "M-tail L48 default")
   for index = 5, 7 do
     assert_equal(scalar_field(indexed_block(content, "failsafeChannels", index), "val"), "0",
       "M-tail CH" .. tostring(index + 1) .. " failsafe")
   end
 end)
 
-test("F5J V-tail maps Challenger pitch and yaw signs without AilEle", function()
+-- CH18 carries rudder and aileron -> rudder, CH19 the elevator stick and its compensation, so
+-- rudder moves both tail servos the same way and elevator moves them in opposite directions.
+test("F5J V-tail mixes rudder and elevator through virtual channels", function()
   local content = read_file(F5J_V)
   assert_equal(scalar_field(indexed_block(content, "limitData", 6), "name"), "Vt-L", "V-tail CH7 name")
   assert_equal(scalar_field(indexed_block(content, "limitData", 7), "name"), "Vt-R", "V-tail CH8 name")
+  assert_equal(scalar_field(indexed_block(content, "limitData", 17), "name"), "Rudd", "V-tail CH18 name")
+  assert_equal(scalar_field(indexed_block(content, "limitData", 18), "name"), "Elev", "V-tail CH19 name")
   assert_mix_signatures(content, 5, {}, "V-tail CH6 exact mixes")
   assert_mix_signatures(content, 6, {
-    "src=I0|weight=50|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=Vt-l",
-    "src=ch(21)|weight=-50|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name="
+    "src=ch(17)|weight=50|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=Vt-l",
+    "src=ch(18)|weight=-50|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name="
   }, "V-tail CH7 exact mixes")
   assert_mix_signatures(content, 7, {
-    "src=I0|weight=50|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=ch(21)|weight=50|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=Vt-R",
-    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name="
+    "src=ch(17)|weight=50|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+    "src=ch(18)|weight=50|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=Vt-R"
   }, "V-tail CH8 exact mixes")
+  assert_mix_signatures(content, 17, {
+    "src=I0|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+    "src=I2|weight=gv(2)|switch=NONE|curve=0:0|trim=1|mux=ADD|fm=000000000|offset=0|name=AilRud"
+  }, "V-tail CH18 exact mixes")
+  assert_mix_signatures(content, 18, {
+    "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name="
+  }, "V-tail CH19 exact mixes")
   assert_equal(scalar_field(indexed_block(content, "failsafeChannels", 6), "val"), "0", "V-tail CH7 failsafe")
   assert_equal(scalar_field(indexed_block(content, "failsafeChannels", 7), "val"), "0", "V-tail CH8 failsafe")
 end)
