@@ -55,16 +55,72 @@ optional differential elevator mixes:
 
 | Mix | Enable switch | Default | Effect |
 | --- | --- | --- | --- |
-| `AilEle` (aileron to elevator) | `L46` | `NONE` | `+20` on `CH7`, `-20` on `CH8` |
-| `RudEle` (rudder to elevator) | `L48` | `NONE` | `+20` on `CH7`, `-20` on `CH8` |
+| `AilEle` (aileron to elevator) | `L46` | Off | `+20` on `CH7`, `-20` on `CH8`, differential `-50` |
+| `RudEle` (rudder to elevator) | `L48` | Off | `+20` on `CH7`, `-20` on `CH8` |
 
 The opposite `CH8` sign keeps the two mirrored elevator servos moving together.
 Both mixes are active in `Cruise`, `Speed`, and `Float`, and disabled in
 `Adjust`, `Motor`, and `KAPOW`. `L46` and `L48` are defined on every F5J variant
-but default to `NONE`, so assign a physical switch in the radio's Logical
-Switches menu before using either mix. The mixes are only present on `M-tail`;
-`X-tail` has a single elevator output and `V-tail` uses its two surfaces for the
-V-tail mix.
+and are off by default: their first switch is `!ON`, because EdgeTX treats an
+empty switch (`NONE`) as always on. To use a mix, set that switch in the radio's
+Logical Switches menu to a physical switch, or to `ON` to keep the mix on. The
+`AilEle` differential of `-50` halves the travel of the elevator half that moves
+down; it is fixed because the Pocket and the GX12 have only nine global
+variables. The mixes are only present on `M-tail`; `X-tail` has a single
+elevator output and `V-tail` uses its two surfaces for the V-tail mix.
+
+### V-tail Mixing
+
+The V-tail servos mix two virtual channels. `CH18` `Rudd` carries the rudder
+stick plus the `AilRud` aileron-to-rudder mix (`GV3`), as `CH6` does on the
+other variants. `CH19` `Elev` carries the elevator stick plus the elevator
+compensation from `CH22`. `CH7` gets 50% of `CH18` minus 50% of `CH19`, and
+`CH8` gets 50% of both, so rudder moves the two servos the same way and elevator
+moves them in opposite directions. Each servo gets half of the rudder and
+elevator travel, so full rudder with full elevator stays within 100%; set the
+throws with the output endpoints.
+
+### Airbrake Elevator Curve
+
+The F5J templates shape the airbrake elevator compensation with curve `CV14`
+`BrE`. The compensation in `CH22` is `BkE` (`GV5`) times `1 + BrE / 100`: at
+`-100` there is none, at `0` it equals `BkE`, and at `100` it is `2 x BkE`. The
+default `67, 17, -33, -83, -100` gives the same compensation as earlier
+templates with their default flap curve, which the compensation followed.
+
+The configuration page `3. Adjust airbrake curves` shows the flap, aileron, and
+elevator curves. The throttle stick selects a point; the throttle trim adjusts
+the flap curve, the aileron trim the aileron curve, and the elevator trim the
+elevator curve. The last point (brakes off) of `BrE` stays at `-100`, so in
+normal flight the elevator stays where the trim puts it. The elevator does not
+move with the curve on this page, because `BkE` in the `Adjust` flight mode
+stores the help setting. Models from earlier templates have no `BrE`: the page
+shows `N/A` for the elevator, and the elevator trim still adjusts the aileron
+curve.
+
+### Motor Idle
+
+The configuration page `7. Motor idle` sets the first point of curve `CV13`
+`Pot`, which lifts the motor command at the low end of the `P1` motor power
+range in the `Motor` flight mode. The template value is `99`; the range is `0`
+to `100`, and at `0` the motor stops with `P1` at the lowest power. The page
+scales the middle point with the idle, so the `P1` range keeps its shape.
+
+This page needs the motor connected. It shows a propeller warning first; hold
+the model and keep clear before you press `ENTER`. The page does not start the
+motor:
+
+1. Open the page and press `ENTER` on the warning.
+2. Start the motor as usual and turn `P1` to the lowest power.
+3. Press the throttle trim (`T3`) up or down, or turn the wheel. Each click
+   changes the idle by 1, and the motor follows at once.
+4. Stop the motor and press `EXIT`. The idle stays in the model.
+
+While the page is open, it holds `GV8` at `100`. The template's `L49` and `SF39`
+then count throttle trim clicks in `GV8` instead of moving the trim, so thermal
+camber does not change. `EXIT` releases the throttle trim. On models from
+earlier templates, which have no `L49` and `SF39`, the throttle trim works as
+usual; use the wheel (`+`/`-` on radios without one) instead.
 
 ### Pocket Switch Assignments
 
@@ -107,7 +163,7 @@ To install and configure a template safely:
 
 The same four templates are also provided for the RadioMaster GX12, which is
 supported by EdgeTX from v2.11 and uses the same 128x64 black-and-white
-interface as the Pocket:
+interface as the Pocket, with a switch layout for its controls:
 
 - `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F3K.yml`
 - `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F5J-XTail.yml`
@@ -115,8 +171,8 @@ interface as the Pocket:
 - `dist/SDCARD/TEMPLATES/3.SoarEdgeTx/gx12-F5J-VTail.yml`
 
 The `gx12-*` files are identical to the matching `pocket-*` templates apart from
-the model name, so the channel assignments, switch assignments, and
-`AilEle`/`RudEle` mixes described above apply unchanged.
+the model name and the switch definitions below, so the channel assignments,
+setup pages, and mixes described above apply unchanged.
 
 | Item | GX12 |
 | --- | --- |
@@ -124,14 +180,27 @@ the model name, so the channel assignments, switch assignments, and
 | Display | 128x64 monochrome OLED |
 | Processor | STM32F407 |
 | Global variables | 9 (`GV1`-`GV9`), same as the Pocket |
-| Switches | `SA` 2-position, `SB`/`SC` 3-position, `SD` 2-position, `SE`/`SF` 3-position |
-| Function switches | 8 RGB function switches (`FS1`-`FS8`) in 4 groups |
+| Buttons | `SA`, `SD`, `SG`, `SH` (momentary) |
+| Switches | `SB`, `SC`, `SE`, `SF` 3-position |
+| Other controls | `S1`/`S2` sliders, `P1`/`P2` dials, six buttons `SW1`-`SW6` |
 | Storage | 512 MB internal memory, mounted as the SD-card root over USB |
 
-The templates only use positions `0` and `2` on `SA` and `SD`, so the GX12's
-2-position `SA`/`SD` work without changes. The GX12 has no extended global
-variables, so the fixed `AilEle`/`RudEle` weights (`+20`/`-20`) are required
-there as well. The templates do not use the `FS1`-`FS8` function switches.
+The GX12's `SA` and `SD` are buttons, so the Pocket layout would arm the motor
+only while `SA` is held. The GX12 templates use this layout instead:
+
+| Switch | F3K | F5J X-/M-/V-tail |
+| --- | --- | --- |
+| SB | Altitude-announcement control | Flight-time announcement (`SB2` through `L12`) |
+| SC | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) |
+| SE | Altitude-call control (`SE2` through `L1`) | Motor arm (`SE2` through `L5`, latched by `L23`) |
+| SF | Brake/landing control (`SF2` through `L8`); crow off on `SF0` and `SF1` (`L35`) | Proportional crow enabled on `SF2` (`L36` off); score entry and landing announcement (`SF2` through `L7`); crow off and landing-off announcement (`SF0` or `SF1` through `L36`) |
+| SG button | Launch (through `L7`) | Motor start/release (through `L9`) |
+
+For F5J, arm with `SE` down, then press `SG` where the Pocket flicks `SE`.
+`P1` still sets the motor power. The `SA`, `SD`, and `SH` buttons, the sliders,
+`P2`, and `SW1`-`SW6` are free. The GX12 has no extended global variables, so
+the fixed `AilEle`/`RudEle` weights (`+20`/`-20`) and the `AilEle` differential
+are required there as well.
 
 The GX12 has no SD card: copy the contents of `dist/SDCARD/` to the root of the
 internal storage instead, then create a model from a `gx12-*` template on the
@@ -157,6 +226,13 @@ they are present before copying the new package:
 
 They can prevent F3K/F5J timer and setup screens from opening on Pocket/128x64
 EdgeTX radios.
+
+Also delete `/SCRIPTS/TELEMETRY/JFXJcf.luac` and
+`/SCRIPTS/TELEMETRY/JF5Jsk.luac` if they are present. Earlier packages included
+them, compiled from older versions of the F5J configuration menu and timer
+scripts, and EdgeTX runs a `.luac` file instead of its `.lua` unless the `.lua`
+is newer, so the old menu would hide the `7. Motor idle` page. The radio
+compiles new copies from the `.lua` files.
 
 ## Notes
 

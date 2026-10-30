@@ -16,7 +16,8 @@ local texts = {
 	"3. Adjust airbrake curves",
 	"4. Aileron and camber",
 	"5. Adjust other mixes",
-	"6. Battery warning" }
+	"6. Battery warning",
+	"7. Motor idle" }
 
 local menu = soarUtil.LoadWxH("MENU.lua") -- Screen size specific menu
 menu.items = texts
@@ -29,11 +30,15 @@ local files = {
 	"/SCRIPTS/TELEMETRY/JFXJ/BRKCRV.lua",
 	"/SCRIPTS/TELEMETRY/JFXJ/AILCMB.lua",
 	"/SCRIPTS/TELEMETRY/JFXJ/ADJMIX.lua",
-	"/SCRIPTS/TELEMETRY/JF/BATTERY.lua" }
+	"/SCRIPTS/TELEMETRY/JF/BATTERY.lua",
+	"/SCRIPTS/TELEMETRY/JFXJ/MOTOR.lua" }
 
--- Enable/disable adjustment function
+-- Enable/disable adjustment function. GV8 is written only when it changes: background() calls this
+-- on every cycle, and every GV write makes EdgeTX wait again before it saves the model.
 function cf.SetAdjust(adj)
-	model.setGlobalVariable(7, 0, adj)
+	if model.getGlobalVariable(7, 0) ~= adj then
+		model.setGlobalVariable(7, 0, adj)
+	end
 end
 
 local function background()

@@ -9,5 +9,6 @@ test:
 	ruby tests/test_model_yaml_checker.rb
 	ruby scripts/check-model-yaml.rb
 	lua tests/test_model_templates.lua
+	lua tests/test_config_pages.lua
 
 verify: lint test
