@@ -271,7 +271,7 @@
   </div>
   <ul class="plain">
     <li>The motor stops when you press the start button again, when the arm switch leaves the down position, or automatically after 30 seconds of motor run. To arm again, move the arm switch out of the down position and back.</li>
-    <li><b>Throttle stick:</b> airbrakes (crow) while the crow switch is down; stick up deploys the brakes, stick down retracts them.</li>
+    <li><b>Throttle stick:</b> airbrakes (crow) while the crow switch is down; stick up deploys the brakes, stick down retracts them. In Float the throttle stick also adds thermal camber: none at the bottom, full at the top (6.4).</li>
     <li><b>Throttle trim</b> down from center adds thermal camber in Cruise and Float; each of the two modes keeps its own trim. Up from center it does nothing, and in Speed it is off.</li>
     <li><b>Elevator trim while the motor runs</b> sets the elevator compensation for the motor. It is stored in the Motor flight mode, and the elevator trim for the glide does not change.</li>
     <li>The radio announces the flight modes, crow off and motor off with the template's voice prompts.</li>
@@ -336,7 +336,7 @@
       <ul class="plain">
         <li>The throttle stick selects one of the five points, and the flaps and ailerons move to it.</li>
         <li>The throttle trim changes the flap point, the aileron trim the aileron point, and the elevator trim the elevator point.</li>
-        <li>The last point (throttle stick down, brakes off) of <span class="ui">Flap</span> and <span class="ui">Aile</span> sets where the flaps and ailerons sit in normal flight.</li>
+        <li>The last point (throttle stick down, brakes off) of <span class="ui">Flap</span> and <span class="ui">Aile</span> sets where the flaps and ailerons sit in normal flight. This is the neutral: in Speed the surfaces sit there, and Cruise and Float count their camber from it. Reflex is set through it (6.4).</li>
       </ul>
     </div>
     <figure>
@@ -370,6 +370,32 @@
     </figure>
   </div>
   <p>The values are shared by Cruise, Speed and Float. After you leave the page, the trims work as usual again.</p>
+  <p><b>In flight, camber</b> comes from the throttle trim T3 (input <code>CbP</code>), and in Float also from the throttle stick. T3 is kept separately for Cruise and Float.</p>
+  <table>
+    <thead><tr><th>Mode</th><th>Position of the flaps and ailerons</th></tr></thead>
+    <tbody>
+      <tr><td>Speed (<span class="sw">SC↑</span>)</td><td>No camber, and T3 does nothing: the surfaces sit at the neutral, the last points of the airbrake curves (6.3).</td></tr>
+      <tr><td>Cruise (SC&nbsp;middle)</td><td>Only T3 gives camber: below center it adds camber, a little more with each click down; at center the camber is zero; above center T3 changes nothing. The template has T3 at center, so no camber.</td></tr>
+      <tr><td>Float (<span class="sw">SC↓</span>)</td><td>Thermal camber from the throttle stick plus T3. Stick at the bottom: no thermal camber; at the top: full (32 in the template); in between: in proportion. T3 adds camber as in Cruise; the template has it at center.</td></tr>
+    </tbody>
+  </table>
+  <p>In camber the ailerons follow the flaps by <code>CbA</code>. The template has 153 %, so in thermal mode the ailerons drop more than the flaps. If that is too much, lower <code>CbA</code>.</p>
+  <div class="callout note"><span class="t">Thermal camber amount</span>The Pocket and the GX12 have only nine global variables, so the 32 is set directly in the <code>CambrX</code> mix of CH25 (<code>Camb</code>) and is not on the page. To change it, give that line in the mixes menu another <span class="ui">Weight</span> and the same <span class="ui">Offset</span> with a minus sign, for example 40 and −40.</div>
+
+  <p><b>Setting the camber</b> (motor disconnected):</p>
+  <ol class="steps">
+    <li>Turn the brakes off (Pocket <span class="sw">SD↑</span>, GX12 <span class="sw">SF↑</span>), select Float (<span class="sw">SC↓</span>) and put the throttle stick up. Open page 4: while it is open, the mode stays Float and the surfaces show the full Float camber.</li>
+    <li>The elevator trim changes only <code>CbA</code>: up makes the ailerons drop more, down less; the flaps do not move.</li>
+    <li>Leave the page, select Cruise and set the camber with T3 (down for more). In Float, T3 adds camber to the camber from the throttle stick the same way.</li>
+  </ol>
+
+  <p><b>Reflex for Speed.</b> In Speed the surfaces sit at the neutral, the last points of the airbrake curves, so reflex is set on page 3 (6.3), with the motor disconnected:</p>
+  <ol class="steps">
+    <li>Open page 3 and put the throttle stick down: the last point is selected, and the flaps and ailerons sit at the neutral.</li>
+    <li>Raise both flaps with the throttle trim and both ailerons with the aileron trim by the reflex you want.</li>
+    <li>Leave the page and check in Speed (<span class="sw">SC↑</span>): the surfaces sit with reflex.</li>
+    <li>Cruise and Float count their camber from the same neutral. In Cruise, bring the surfaces down with T3 to where you want them, for example to the old neutral; in Float, lower T3 too if needed.</li>
+  </ol>
 
   <h3>6.5. Other mixes <span class="tag">5. Adjust other mixes</span></h3>
   <div class="with-shot">
@@ -529,6 +555,8 @@
       <tr><td>The model has no timer or Configuration screen</td><td>The model was made with <span class="ui">Create model</span> and is empty. Restore it from the template (section 3).</td></tr>
       <tr><td>The menu has no <span class="ui">7. Motor idle</span>, or the screens do not open after an update</td><td>Delete the old <code>.luac</code> files (section 2) and restart the radio.</td></tr>
       <tr><td>Alignment opens with “did not pass all checks”</td><td>A wing curve or output was changed outside this page, so the page cannot align it. <kbd>ENTER</kbd> resets the four outputs and the curves CV1–CV4; then align the wing again (step 6.2). <kbd>RTN</kbd> leaves them as they are.</td></tr>
+      <tr><td>T3 above center does nothing, no reflex</td><td>That is by design: T3 only adds camber. Reflex is the last points of the airbrake curves on page 3 (6.4).</td></tr>
+      <tr><td>No camber in Float</td><td>In Float the thermal camber comes from the throttle stick: at the bottom there is none. Raise the stick or lower T3 (6.4).</td></tr>
       <tr><td>The help covers the page, or does not show</td><td>Press <kbd>MDL</kbd>: it shows or hides the help.</td></tr>
       <tr><td>The motor does not start</td><td>Arm first. After a motor run, move the arm switch out of the down position and back. The motor does not start while the Alignment or Airbrakes page is open.</td></tr>
       <tr><td><span class="ui">Elev</span> shows N/A, or the throttle trim does not change the idle</td><td>The model was made from an older template, without <code>BrE</code>, <code>L49</code> and <code>SF39</code>. Use the roller for the idle, or restore the model from the new template.</td></tr>

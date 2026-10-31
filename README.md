@@ -108,6 +108,32 @@ curve.
 
 ![The Airbrakes page with the Flap, Aile, and Elev curves](docs/images/page-airbrakes.png)
 
+### Camber and Reflex
+
+In flight, the throttle trim `T3` (input `CbP`) sets the camber. The input has
+a `-100` differential, so only `T3` below center reaches the mixes: it adds
+camber and never reflex. Cruise and Float keep their own `T3`:
+
+| Flight mode | Flaps and ailerons |
+| --- | --- |
+| Speed | No camber, and `T3` is off: the surfaces sit at the neutral, the last points of the `BrF` and `BrA` brake curves. |
+| Cruise | `T3` only: below center adds camber, center and above add none. The templates start at center. |
+| Float | The throttle stick plus `T3`. The `CambrX` mix in `CH25` adds no camber with the stick down and 32 with the stick up, in proportion in between, whether crow is on or off. |
+
+In camber the ailerons follow the flaps by `CbA` (`GV7`), 153 % in the
+templates; the configuration page `4. Aileron and camber` sets it with the
+elevator trim. The Pocket and the GX12 have only nine global variables, so the
+thermal camber amount is fixed in `CambrX`: weight `32` and offset `-32`.
+Change both to the same number, the offset negative, so that the stick at the
+bottom still adds no camber.
+
+Reflex comes from the brake curves, because Speed has no camber. On
+`3. Adjust airbrake curves`, put the throttle stick down to select the last
+point, then raise the flaps with the throttle trim and the ailerons with the
+aileron trim by the reflex you want. Cruise and Float count their camber from
+the same neutral, so then bring Cruise back down with `T3`, and lower `T3` in
+Float if needed.
+
 ### Motor Idle
 
 The configuration page `7. Motor idle` sets the first point of curve `CV13`
