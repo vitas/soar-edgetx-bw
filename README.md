@@ -224,21 +224,27 @@ setup pages, and mixes described above apply unchanged.
 | Storage | 512 MB internal memory, mounted as the SD-card root over USB |
 
 The GX12's `SA` and `SD` are buttons, so the Pocket layout would arm the motor
-only while `SA` is held. The GX12 templates use this layout instead:
+only while `SA` is held. In the GX12 templates a press on `SA` arms and the next
+press disarms, and `SD` applies the brakes while it is held:
 
 | Switch | F3K | F5J X-/M-/V-tail |
 | --- | --- | --- |
-| SB | Altitude-announcement control | Flight-time announcement (`SB2` through `L12`) |
-| SC | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) | Flight mode: Speed (`SC0`), Cruise (center), Float (`SC2`) |
-| SE | Altitude-call control (`SE2` through `L1`) | Motor arm (`SE2` through `L5`, latched by `L23`) |
-| SF | Brake/landing control (`SF2` through `L8`); crow off on `SF0` and `SF1` (`L35`) | Proportional crow enabled on `SF2` (`L36` off); score entry and landing announcement (`SF2` through `L7`); crow off and landing-off announcement (`SF0` or `SF1` through `L36`) |
+| SA button | Free | Motor arm toggle (`SA2` held for at least 0.3 s by `L41`/`L42`, flips `L5`, latched by `L23`); a motor stop disarms (`L31` through `L33`) |
+| SB | Altitude-announcement control | Free |
+| SC | Free | Flight-time announcement (`SC2` through `L12`) |
+| SD button | Brake/landing control while held (`SD2` through `L8`); crow off on release (`SD0` through `L35`) | Proportional crow while held (`SD2`, `L36` off); score entry and landing announcement (`SD2` through `L7`); crow off and landing-off announcement on release (`SD0` through `L36`) |
+| SE | Altitude-call control (`SE2` through `L1`) | Free |
+| SF | Flight mode: Speed (`SF0`), Cruise (center), Float (`SF2`) | Flight mode: Speed (`SF0`), Cruise (center), Float (`SF2`) |
 | SG button | Launch (through `L7`) | Motor start/release (through `L9`) |
 
-For F5J, arm with `SE` down, then press `SG` where the Pocket flicks `SE`.
-`P1` still sets the motor power. The `SA`, `SD`, and `SH` buttons, the sliders,
-`P2`, and `SW1`-`SW6` are free. The GX12 has no extended global variables, so
-the fixed `AilEle`/`RudEle` weights (`+20`/`-20`) and the `AilEle` differential
-are required there as well.
+For F5J, press `SA` to arm, then press `SG` where the Pocket flicks `SE`. Each
+`SA` press flips the arming, and a press while the motor runs stops it. When the
+motor stops, the arming drops by itself, so a restart needs a new `SA` press.
+The radio skips `SA` presses less than half a second apart; the siren and
+"MOTOR ARMED" confirm the arming. `P1` still sets the motor power. The `SH`
+button, the sliders, `P2`, and `SW1`-`SW6` are free in both templates. The GX12
+has no extended global variables, so the fixed `AilEle`/`RudEle` weights
+(`+20`/`-20`) and the `AilEle` differential are required there as well.
 
 The GX12 has no SD card: over USB its internal storage appears as the SD card.
 Copy the same package parts to it (see [Install](#install)), then restore a

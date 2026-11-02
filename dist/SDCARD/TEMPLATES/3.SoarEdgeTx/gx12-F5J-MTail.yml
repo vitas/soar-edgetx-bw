@@ -1616,7 +1616,7 @@ points:
 logicalSw:
    0:
       func: FUNC_AND
-      def: "SE0,L19"
+      def: "!L5,L19"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1624,7 +1624,7 @@ logicalSw:
       duration: 0
    1:
       func: FUNC_AND
-      def: "SE2,!SE2"
+      def: "SA2,!SA2"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1632,7 +1632,7 @@ logicalSw:
       duration: 0
    2:
       func: FUNC_AND
-      def: "SC0,NONE"
+      def: "SF0,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1640,15 +1640,15 @@ logicalSw:
       duration: 0
    3:
       func: FUNC_AND
-      def: "SC2,NONE"
+      def: "SF2,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
       delay: 0
       duration: 0
    4:
-      func: FUNC_AND
-      def: "SE2,NONE"
+      func: FUNC_STICKY
+      def: "L41,L33"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1664,7 +1664,7 @@ logicalSw:
       duration: 0
    6:
       func: FUNC_AND
-      def: "SF2,NONE"
+      def: "SD2,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1672,7 +1672,7 @@ logicalSw:
       duration: 0
    7:
       func: FUNC_AND
-      def: "SE2,L1"
+      def: "L5,L1"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1704,7 +1704,7 @@ logicalSw:
       duration: 3
    11:
       func: FUNC_AND
-      def: "SB2,NONE"
+      def: "SC2,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1838,6 +1838,22 @@ logicalSw:
       lsState: 0
       delay: 0
       duration: 0
+   30:
+      func: FUNC_EDGE
+      def: "L26,0,-"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   32:
+      func: FUNC_OR
+      def: "L41,L31"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
    33:
       func: FUNC_OR
       def: "L26,L32"
@@ -1856,7 +1872,7 @@ logicalSw:
       duration: 0
    35:
       func: FUNC_AND
-      def: "!SF2,NONE"
+      def: "SD0,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1886,6 +1902,22 @@ logicalSw:
       lsState: 0
       delay: 0
       duration: 0
+   40:
+      func: FUNC_OR
+      def: "SA2,L42"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   41:
+      func: FUNC_AND
+      def: "L41,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 3
    42:
       func: FUNC_AND
       def: "!FM2,!L6"

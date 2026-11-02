@@ -260,24 +260,24 @@
   <table>
     <thead><tr><th>Function</th><th>GX12</th><th>Pocket</th></tr></thead>
     <tbody>
-      <tr><td>Arm the motor</td><td><span class="sw">SE↓</span></td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td>Arm the motor</td><td><span class="sw">SA</span> button: press to arm, press again to disarm</td><td><span class="sw">SA↓</span></td></tr>
       <tr><td>Start and stop the motor</td><td><span class="sw">SG</span> button: press and release</td><td><span class="sw">SE</span> (spring-loaded): pull and release</td></tr>
-      <tr><td>Flight mode Speed / Cruise / Float</td><td><span class="sw">SC↑</span> / middle / <span class="sw">SC↓</span></td><td><span class="sw">SC↑</span> / middle / <span class="sw">SC↓</span></td></tr>
-      <tr><td>Crow on the throttle stick and landing</td><td><span class="sw">SF↓</span></td><td><span class="sw">SD↓</span></td></tr>
-      <tr><td>Crow off</td><td><span class="sw">SF↑</span> or middle</td><td><span class="sw">SD↑</span></td></tr>
-      <tr><td>Flight time callout every 10 s</td><td><span class="sw">SB↓</span></td><td><span class="sw">SB↓</span></td></tr>
-      <tr><td>Start height callout after the motor run</td><td><span class="sw">SE↑</span></td><td><span class="sw">SA↑</span></td></tr>
+      <tr><td>Flight mode Speed / Cruise / Float</td><td><span class="sw">SF↑</span> / middle / <span class="sw">SF↓</span></td><td><span class="sw">SC↑</span> / middle / <span class="sw">SC↓</span></td></tr>
+      <tr><td>Crow on the throttle stick and landing</td><td><span class="sw">SD</span> button, while held</td><td><span class="sw">SD↓</span></td></tr>
+      <tr><td>Crow off</td><td><span class="sw">SD</span> released</td><td><span class="sw">SD↑</span></td></tr>
+      <tr><td>Flight time callout every 10 s</td><td><span class="sw">SC↓</span></td><td><span class="sw">SB↓</span></td></tr>
+      <tr><td>Start height callout after the motor run</td><td>disarmed, which happens by itself when the motor stops</td><td><span class="sw">SA↑</span></td></tr>
       <tr><td>Motor power</td><td><span class="sw">P1</span></td><td><span class="sw">P1</span></td></tr>
     </tbody>
   </table>
   </div>
   <ul class="plain">
-    <li>The motor stops when you press the start button again, when the arm switch leaves the down position, or automatically after 30 seconds of motor run. To arm again, move the arm switch out of the down position and back.</li>
-    <li><b>Throttle stick:</b> airbrakes (crow) while the crow switch is down; stick up deploys the brakes, stick down retracts them. In Float the throttle stick also adds thermal camber: none at the bottom, full at the top (6.4).</li>
+    <li>The motor stops when you press the start button again, when you disarm, or automatically after 30 seconds of motor run. To arm again on the Pocket, move <span class="sw">SA</span> out of the down position and back. The GX12 disarms by itself when the motor stops: press <span class="sw">SA</span> again. The radio skips <span class="sw">SA</span> presses less than half a second apart; the siren and “MOTOR ARMED” confirm the arming.</li>
+    <li><b>Throttle stick:</b> airbrakes (crow) while crow is on (Pocket <span class="sw">SD↓</span>, GX12 while <span class="sw">SD</span> is held); stick up deploys the brakes, stick down retracts them. In Float the throttle stick also adds thermal camber: none at the bottom, full at the top (6.4).</li>
     <li><b>Throttle trim</b> down from center adds thermal camber in Cruise and Float; each of the two modes keeps its own trim. Up from center it does nothing, and in Speed it is off.</li>
     <li><b>Elevator trim while the motor runs</b> sets the elevator compensation for the motor. It is stored in the Motor flight mode, and the elevator trim for the glide does not change.</li>
     <li>The radio announces the flight modes, crow off and motor off with the template's voice prompts.</li>
-    <li>Free on the GX12: the <span class="sw">SA</span>, <span class="sw">SD</span> and <span class="sw">SH</span> buttons, the <span class="sw">S1</span>/<span class="sw">S2</span> sliders, <span class="sw">P2</span> and the <span class="sw">SW1</span>–<span class="sw">SW6</span> buttons. The Pocket has no free switch.</li>
+    <li>Free on the GX12: the <span class="sw">SB</span> and <span class="sw">SE</span> switches, the <span class="sw">SH</span> button, the <span class="sw">S1</span>/<span class="sw">S2</span> sliders, <span class="sw">P2</span> and the <span class="sw">SW1</span>–<span class="sw">SW6</span> buttons. The Pocket has no free switch.</li>
   </ul>
 </section>
 
@@ -349,7 +349,7 @@
   <ul class="plain">
     <li>Usually, with full brakes the flaps are down and the ailerons up.</li>
     <li>The amount of elevator compensation is <code>BkE</code> on page 5, and the <span class="ui">Elev</span> curve shapes it along the brake travel: at −100 there is none, at 0 it equals <code>BkE</code>, and at +100 it is twice as much. The last point stays at −100, so in normal flight the elevator stays where the trim puts it.</li>
-    <li>The elevator does not move on this page. Check the compensation after you leave the page: crow switch down, throttle stick up. If the model pitches its nose up or down as the brakes come out, note at what travel it happens and adjust that point of the <span class="ui">Elev</span> curve.</li>
+    <li>The elevator does not move on this page. Check the compensation after you leave the page: crow on (Pocket <span class="sw">SD↓</span>, GX12 hold <span class="sw">SD</span>), throttle stick up. If the model pitches its nose up or down as the brakes come out, note at what travel it happens and adjust that point of the <span class="ui">Elev</span> curve.</li>
     <li>Models made from older templates have no BrE curve: <span class="ui">Elev</span> shows N/A.</li>
   </ul>
 
@@ -376,9 +376,9 @@
   <table>
     <thead><tr><th>Mode</th><th>Position of the flaps and ailerons</th></tr></thead>
     <tbody>
-      <tr><td>Speed (<span class="sw">SC↑</span>)</td><td>No camber, and T3 does nothing: the surfaces sit at the neutral, the last points of the airbrake curves (6.3).</td></tr>
-      <tr><td>Cruise (SC&nbsp;middle)</td><td>Only T3 gives camber: below center it adds camber, a little more with each click down; at center the camber is zero; above center T3 changes nothing. The template has T3 at center, so no camber.</td></tr>
-      <tr><td>Float (<span class="sw">SC↓</span>)</td><td>Thermal camber from the throttle stick plus T3. Stick at the bottom: no thermal camber; at the top: full (32 in the template); in between: in proportion. T3 adds camber as in Cruise; the template has it at center.</td></tr>
+      <tr><td>Speed (Pocket <span class="sw">SC↑</span>, GX12 <span class="sw">SF↑</span>)</td><td>No camber, and T3 does nothing: the surfaces sit at the neutral, the last points of the airbrake curves (6.3).</td></tr>
+      <tr><td>Cruise (SC&nbsp;or&nbsp;SF middle)</td><td>Only T3 gives camber: below center it adds camber, a little more with each click down; at center the camber is zero; above center T3 changes nothing. The template has T3 at center, so no camber.</td></tr>
+      <tr><td>Float (Pocket <span class="sw">SC↓</span>, GX12 <span class="sw">SF↓</span>)</td><td>Thermal camber from the throttle stick plus T3. Stick at the bottom: no thermal camber; at the top: full (32 in the template); in between: in proportion. T3 adds camber as in Cruise; the template has it at center.</td></tr>
     </tbody>
   </table>
   <p>In camber the ailerons follow the flaps by <code>CbA</code>. The template has 153 %, so in thermal mode the ailerons drop more than the flaps. If that is too much, lower <code>CbA</code>.</p>
@@ -386,7 +386,7 @@
 
   <p><b>Setting the camber</b> (motor disconnected):</p>
   <ol class="steps">
-    <li>Turn the brakes off (Pocket <span class="sw">SD↑</span>, GX12 <span class="sw">SF↑</span>), select Float (<span class="sw">SC↓</span>) and put the throttle stick up. Open page 4: while it is open, the mode stays Float and the surfaces show the full Float camber.</li>
+    <li>Turn the brakes off (Pocket <span class="sw">SD↑</span>, GX12 release <span class="sw">SD</span>), select Float (Pocket <span class="sw">SC↓</span>, GX12 <span class="sw">SF↓</span>) and put the throttle stick up. Open page 4: while it is open, the mode stays Float and the surfaces show the full Float camber.</li>
     <li>The elevator trim changes only <code>CbA</code>: up makes the ailerons drop more, down less; the flaps do not move.</li>
     <li>Leave the page, select Cruise and set the camber with T3 (down for more). In Float, T3 adds camber to the camber from the throttle stick the same way.</li>
   </ol>
@@ -395,7 +395,7 @@
   <ol class="steps">
     <li>Open page 3 and put the throttle stick down: the last point is selected, and the flaps and ailerons sit at the neutral.</li>
     <li>Raise both flaps with the throttle trim and both ailerons with the aileron trim by the reflex you want.</li>
-    <li>Leave the page and check in Speed (<span class="sw">SC↑</span>): the surfaces sit with reflex.</li>
+    <li>Leave the page and check in Speed (Pocket <span class="sw">SC↑</span>, GX12 <span class="sw">SF↑</span>): the surfaces sit with reflex.</li>
     <li>Cruise and Float count their camber from the same neutral. In Cruise, bring the surfaces down with T3 to where you want them, for example to the old neutral; in Float, lower T3 too if needed.</li>
   </ol>
 
@@ -488,9 +488,9 @@
   <ol class="steps">
     <li>Open <span class="ui">1. Channel configuration</span> and press <kbd>ENTER</kbd> on the warning. The marker in the <span class="ui">3. Moto</span> row shows the motor channel CH3.</li>
     <li>Without arming, the marker stays at the left end (−100) whatever P1 and the sticks do.</li>
-    <li>Arm (GX12 <span class="sw">SE↓</span>, Pocket <span class="sw">SA↓</span>), then press and release the start button (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). The motor starts when you release it: the Motor flight mode comes on.</li>
+    <li>Arm (GX12 press <span class="sw">SA</span>, Pocket <span class="sw">SA↓</span>), then press and release the start button (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). The motor starts when you release it: the Motor flight mode comes on.</li>
     <li>Turn P1 from end to end: the marker moves between the center mark (the lowest power) and the right part of the bar (the highest power). Remember which end of P1 is the lowest power.</li>
-    <li>Stopping: the start button again, the arm switch out of the down position, or automatically after 30 seconds. The marker returns to the left end.</li>
+    <li>Stopping: the start button again, disarming (GX12 press <span class="sw">SA</span>, Pocket <span class="sw">SA↑</span>), or automatically after 30 seconds. The marker returns to the left end.</li>
     <li>Only after this check, connect the motor and fit the propeller.</li>
   </ol>
   </div>
@@ -540,15 +540,15 @@
   </div>
   <ol class="steps">
     <li><b>Ready:</b> the screen shows the working time <span class="ui">Tgt</span>, 10:00 by default. Turn the roller to change it in 1-minute steps (1:00 to 99:00). <kbd>RTN</kbd> shows the saved scores: the roller browses them, <kbd>RTN</kbd> returns.</li>
-    <li><b>Arm</b> (GX12 <span class="sw">SE↓</span>, Pocket <span class="sw">SA↓</span>): “MOTOR ARMED” flashes, the radio vibrates and sounds a siren every 5 seconds, and the altitude is reset.</li>
+    <li><b>Arm</b> (GX12 press <span class="sw">SA</span>, Pocket <span class="sw">SA↓</span>): “MOTOR ARMED” flashes, the radio vibrates and sounds a siren every 5 seconds, and the altitude is reset.</li>
     <li><b>Start</b>: press and release the start button (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). P1 sets the power. The voice calls 5, 10, 15 and 20 seconds of motor run, then counts 1…9 for the seconds 21 to 29.</li>
-    <li><b>Motor off</b>: the start button again, the arm switch out of the down position, or automatically at 30 seconds. The radio counts 10 seconds. At 10 it records the start height, the highest altitude since arming, and says it if the arm switch is up (GX12 <span class="sw">SE↑</span>, Pocket <span class="sw">SA↑</span>); otherwise it says “10”.</li>
+    <li><b>Motor off</b>: the start button again, disarming (GX12 press <span class="sw">SA</span>, Pocket <span class="sw">SA↑</span>), or automatically at 30 seconds. The radio counts 10 seconds. At 10 it records the start height, the highest altitude since arming, and says it if the motor is disarmed (the GX12 disarms by itself when the motor stops; Pocket <span class="sw">SA↑</span>); otherwise it says “10”.</li>
     <li><b>Glide:</b> the voice calls the remaining working time: every minute while more than 2 minutes remain; every 15 seconds from 2 to 1 minute; every 5 seconds from 1 minute to 10 seconds; then every second 10…1. To correct the remaining time, press <kbd>ENTER</kbd>: it blinks, rounded down to whole minutes. Turn the roller to change it and press <kbd>ENTER</kbd> to apply, or <kbd>RTN</kbd> to cancel.</li>
-    <li><b>Landing:</b> crow switch down (GX12 <span class="sw">SF↓</span>, Pocket <span class="sw">SD↓</span>): the throttle stick controls the brakes. Once the 10-second count is over, the flight timer stops at once and the radio says the flight time, so use the crow switch only for the landing.</li>
+    <li><b>Landing:</b> crow on (GX12 hold <span class="sw">SD</span>, Pocket <span class="sw">SD↓</span>): the throttle stick controls the brakes. Once the 10-second count is over, the flight timer stops at once and the radio says the flight time, so use crow only for the landing.</li>
     <li><b>Scores:</b> turn the roller to set the landing points (steps of 5, 0 to 50) and press <kbd>ENTER</kbd>. Correct the start height (steps of 1 m, 0 to 300; 100 without an altitude sensor) and press <kbd>ENTER</kbd>. Correct the flight time (steps of 1 second) and press <kbd>ENTER</kbd>. <kbd>RTN</kbd> goes back one step.</li>
     <li><b>Save:</b> <kbd>ENTER</kbd> writes the flight to <code>/LOGS/JF F5J Scores.csv</code>, <kbd>RTN</kbd> discards it. The screen returns to Ready.</li>
   </ol>
-  <div class="callout warn"><span class="t">Zero result</span>Restarting the motor in the glide or while you enter the landing points ends the flight with zero, as in the F5J rules: the flight time and the start height become 0, and the screen goes to Save. In the glide, keep the arm switch out of the down position: once armed again, one press of the start button starts the motor.</div>
+  <div class="callout warn"><span class="t">Zero result</span>Restarting the motor in the glide or while you enter the landing points ends the flight with zero, as in the F5J rules: the flight time and the start height become 0, and the screen goes to Save. In the glide, keep the Pocket's <span class="sw">SA</span> out of the down position; the GX12 disarms by itself when the motor stops. Once armed again, one press of the start button starts the motor.</div>
 
   <h2 id="s8"><span class="n">8</span>Troubleshooting</h2>
   <table>
@@ -560,7 +560,7 @@
       <tr><td>T3 above center does nothing, no reflex</td><td>That is by design: T3 only adds camber. Reflex is the last points of the airbrake curves on page 3 (6.4).</td></tr>
       <tr><td>No camber in Float</td><td>In Float the thermal camber comes from the throttle stick: at the bottom there is none. Raise the stick or lower T3 (6.4).</td></tr>
       <tr><td>The help covers the page, or does not show</td><td>Press <kbd>MDL</kbd>: it shows or hides the help.</td></tr>
-      <tr><td>The motor does not start</td><td>Arm first. After a motor run, move the arm switch out of the down position and back. The motor does not start while the Alignment or Airbrakes page is open.</td></tr>
+      <tr><td>The motor does not start</td><td>Arm first. After a motor run, press <span class="sw">SA</span> again on the GX12, or move the Pocket's <span class="sw">SA</span> out of the down position and back. The motor does not start while the Alignment or Airbrakes page is open.</td></tr>
       <tr><td><span class="ui">Elev</span> shows N/A, or the throttle trim does not change the idle</td><td>The model was made from an older template, without <code>BrE</code>, <code>L49</code> and <code>SF39</code>. Use the roller for the idle, or restore the model from the new template.</td></tr>
       <tr><td>The right flap (CH5) sits at an end, or CH6–CH8 move in steps</td><td>Update the module and the receiver to ExpressLRS 4 and set <span class="ui">Packet Rate</span> to “100Hz Full” and <span class="ui">Switch Mode</span> to “8ch” (section 3). Do not move channels.</td></tr>
       <tr><td>The ExpressLRS script will not change a setting</td><td>The model is armed: set <span class="ui">Arm using</span> to “Switch” and the <span class="ui">Switch</span> line to “---” while you change settings, then back to “ON”. <span class="ui">Switch Mode</span> changes only while the receiver is off (section 3).</td></tr>
@@ -576,8 +576,8 @@
     <li>The elevator halves are level at neutral and have equal travel.</li>
     <li>The <code>AilEle</code> and <code>RudEle</code> mixes are off, or on with small values in the right direction.</li>
     <li>Without arming, CH3 is at minimum; the failsafe stops the motor.</li>
-    <li>The motor stops with the start button and automatically after 30 seconds.</li>
-    <li>Crow (crow switch down, throttle stick up): flaps down, ailerons up, and the throttle stick controls the brakes smoothly.</li>
+    <li>The motor stops with the start button, when you disarm, and automatically after 30 seconds.</li>
+    <li>Crow (Pocket <span class="sw">SD↓</span>, GX12 <span class="sw">SD</span> held; throttle stick up): flaps down, ailerons up, and the throttle stick controls the brakes smoothly.</li>
     <li>The altitude and receiver voltage telemetry show, and the voice prompts are heard.</li>
     <li>A range check is done.</li>
   </ul>

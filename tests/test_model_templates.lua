@@ -589,19 +589,29 @@ test("GX12 variants mirror the Pocket templates except for the model name and th
   end
 end)
 
--- The stock GX12 has SA, SD, SG and SH buttons: SE arms (F5J) or allows altitude calls (F3K),
--- the SG button starts the motor or the launch, and SF replaces the Pocket SD.
+-- The stock GX12 has SA, SD, SG and SH buttons. SG starts the motor or the launch, SD holds
+-- the brakes while pressed, SF picks the flight modes, and in F5J SC calls the working time.
+-- A button is down only while pressed, so in F5J the SA press lasts at least 0.3 s (L41, L42)
+-- like the SG start (L9, L11), each press flips the arming (L5), and the end of a motor run
+-- (L31) drops the arming (L33).
 test("GX12 variants use the GX12 switch layout", function()
   local definitions = {
     F5J = {
-      [0] = "SE0,L19", [1] = "SE2,!SE2", [2] = "SC0,NONE", [3] = "SC2,NONE", [4] = "SE2,NONE",
-      [6] = "SF2,NONE", [7] = "SE2,L1", [8] = "SG2,L11", [11] = "SB2,NONE", [35] = "!SF2,NONE"
+      [0] = "!L5,L19", [1] = "SA2,!SA2", [2] = "SF0,NONE", [3] = "SF2,NONE", [4] = "L41,L33",
+      [6] = "SD2,NONE", [7] = "L5,L1", [8] = "SG2,L11", [11] = "SC2,NONE", [30] = "L26,0,-",
+      [32] = "L41,L31", [35] = "SD0,NONE", [40] = "SA2,L42", [41] = "L41,NONE"
     },
     F3K = {
-      [0] = "SE2,L17", [1] = "SC2,!SC2", [2] = "SC0,NONE", [3] = "SC2,NONE", [4] = "SB0,NONE",
-      [5] = "SB2,L1", [6] = "SG2,L9", [7] = "SF2,NONE", [34] = "!SF2,NONE"
+      [0] = "SE2,L17", [1] = "SC2,!SC2", [2] = "SF0,NONE", [3] = "SF2,NONE", [4] = "SB0,NONE",
+      [5] = "SB2,L1", [6] = "SG2,L9", [7] = "SD2,NONE", [34] = "SD0,NONE"
     }
   }
+  local functions = {
+    F5J = { [4] = "FUNC_STICKY", [30] = "FUNC_EDGE", [32] = "FUNC_OR", [40] = "FUNC_OR", [41] = "FUNC_AND" },
+    F3K = {}
+  }
+  local durations = { F5J = { [30] = "0", [40] = "0", [41] = "3" }, F3K = {} }
+  local free_switches = { F5J = "S[BEH]%d", F3K = "S[AH]%d" }
 
   for _, template in ipairs(templates) do
     if template.name:match("^GX12") then
@@ -610,10 +620,18 @@ test("GX12 variants use the GX12 switch layout", function()
         assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "def"), expected,
           template.name .. " L" .. tostring(index + 1))
       end
+      for index, expected in pairs(functions[template.kind]) do
+        assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "func"), expected,
+          template.name .. " L" .. tostring(index + 1) .. " function")
+      end
+      for index, expected in pairs(durations[template.kind]) do
+        assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "duration"), expected,
+          template.name .. " L" .. tostring(index + 1) .. " duration")
+      end
       for _, block in ipairs(indexed_blocks(content, "logicalSw")) do
         local definition = scalar_field(block.text, "def") or ""
-        assert(not definition:match("S[AD]%d"), template.name .. " L" .. tostring(block.index + 1) ..
-          " uses a GX12 button as a switch: " .. definition)
+        assert(not definition:match(free_switches[template.kind]), template.name .. " L" ..
+          tostring(block.index + 1) .. " uses a free switch: " .. definition)
       end
     end
   end
