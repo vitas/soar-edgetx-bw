@@ -551,6 +551,8 @@ for _, template in ipairs(templates) do
     assert_equal(scalar_field(module, "channelsStart"), "0", template.name .. " channel start")
     assert_equal(scalar_field(module, "channelsCount"), "16", template.name .. " channel count")
     assert_equal(scalar_field(module, "failsafeMode"), "NOT_SET", template.name .. " failsafe mode")
+    assert_equal(scalar_field(module, "crsfArmingMode"), "1", template.name .. " arming mode")
+    assert_equal(scalar_field(module, "crsfArmingTrigger"), "NONE", template.name .. " arming switch")
 
     local limits = indexed_blocks(content, "limitData")
     assert(#limits > 0, template.name .. " should define output limits")

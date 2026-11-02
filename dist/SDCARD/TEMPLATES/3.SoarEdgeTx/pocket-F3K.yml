@@ -1529,7 +1529,7 @@ moduleData:
     mod:
       crsf:
         telemetryBaudrate: 0
-        crsfArmingMode: 0
+        crsfArmingMode: 1
         crsfArmingTrigger: NONE
 failsafeChannels:
   0:
