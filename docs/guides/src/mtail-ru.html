@@ -39,7 +39,7 @@
     <h4>Что понадобится</h4>
     <ul class="dash">
       <li>RadioMaster Pocket или GX12 с EdgeTX 2.12.</li>
-      <li>Приёмник минимум на 8 каналов. Шаблоны настроены на встроенный модуль ExpressLRS.</li>
+      <li>Приёмник ExpressLRS 4 минимум на 8 каналов. Шаблоны настроены на встроенный модуль ExpressLRS.</li>
       <li>Компьютер и USB-кабель. Карту microSD из Pocket можно вставить и в кардридер.</li>
       <li>Датчик высоты с телеметрией (сенсор <code>Alt</code>) — для стартовой высоты.</li>
       <li>Телеметрия напряжения приёмника (<code>Cels</code>, <code>RxBt</code>, <code>A1</code> или <code>A2</code>) — для предупреждения о разряде.</li>
@@ -126,12 +126,14 @@
 
   <h3>ExpressLRS: обновление и полное разрешение</h3>
   <ol class="steps">
-    <li>Обновите ExpressLRS во встроенном модуле пульта и в приёмнике до одной и той же версии 3, лучше последней стабильной. Версии 2 и 3 между собой не работают. Прошивка пишется через <a href="https://github.com/ExpressLRS/ExpressLRS-Configurator/releases">ExpressLRS Configurator</a>: выберите устройство, версию и одну и ту же фразу привязки (<span class="ui">Binding Phrase</span>) для модуля и приёмника. Модуль прошивается по USB-кабелю (на пульте выберите <span class="ui">USB Serial (VCP)</span>, в Configurator — метод <span class="ui">EdgeTX Passthrough</span>) или по WiFi. Приёмник — по WiFi: включите его без пульта, примерно через минуту он поднимет сеть <code>ExpressLRS RX</code> с паролем <code>expresslrs</code>. Подключитесь к ней и откройте <code>10.0.0.1</code>. Подробнее — на <a href="https://www.expresslrs.org">expresslrs.org</a>.</li>
-    <li>Откройте <kbd>SYS</kbd> → <span class="ui">TOOLS</span> → <span class="ui">ExpressLRS</span> и выставьте <span class="ui">Packet Rate</span> «100Hz Full» и <span class="ui">Switch Mode</span> «8ch». Из режимов Full у 100Hz самая большая дальность. Скрипт должен быть той же версии, что и модуль.</li>
+    <li>Обновите ExpressLRS во встроенном модуле пульта и в приёмнике до одной и той же версии 4, лучше последней стабильной. Версии 3 и 4 между собой не работают. Прошивка пишется через <a href="https://github.com/ExpressLRS/ExpressLRS-Configurator/releases">ExpressLRS Configurator</a>: выберите устройство, версию и одну и ту же фразу привязки (<span class="ui">Binding Phrase</span>) для модуля и приёмника. Модуль прошивается по USB-кабелю (на пульте выберите <span class="ui">USB Serial (VCP)</span>, в Configurator — метод <span class="ui">EdgeTX Passthrough</span>) или по WiFi. Приёмник — по WiFi: включите его без пульта, примерно через минуту он поднимет сеть <code>ExpressLRS RX</code> с паролем <code>expresslrs</code>. Подключитесь к ней и откройте <code>10.0.0.1</code>. Подробнее — на <a href="https://www.expresslrs.org">expresslrs.org</a>.</li>
+    <li>Скачайте скрипт <a href="https://github.com/ExpressLRS/ExpressLRS/blob/master/src/lua/elrs.lua?raw=true"><code>elrs.lua</code></a> и положите его в <code>/SCRIPTS/TOOLS</code>. Он не привязан к версии прошивки. Старые <code>elrsV3.lua</code> и <code>elrsV3.luac</code>, если они есть, удалите.</li>
+    <li>В настройках модели (<kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> до <span class="ui">SETUP</span>, блок <span class="ui">Internal RF</span>) выберите <span class="ui">Arm using</span> «Switch», а строку <span class="ui">Switch</span> под ним пока оставьте пустой (---). Иначе ExpressLRS считает модель взведённой (armed), пока правый закрылок (CH5) выше центра, то есть при убранных тормозах, и менять настройки модуля нельзя. Строка <span class="ui">Arm using</span> появляется, когда модуль прошит ExpressLRS 4. В шаблонах так уже выбрано.</li>
+    <li>Откройте <kbd>SYS</kbd> → <span class="ui">TOOLS</span> → <span class="ui">ExpressLRS</span> и выставьте <span class="ui">Packet Rate</span> «100Hz Full» и <span class="ui">Switch Mode</span> «8ch». Из режимов Full у 100Hz самая большая дальность. <span class="ui">Switch Mode</span> меняется, только когда приёмник выключен: выключите его и дождитесь сигнала о потере телеметрии.</li>
+    <li>Вернитесь в <span class="ui">SETUP</span> и в строке <span class="ui">Switch</span> выберите «ON». Тогда модель всегда взведена, и динамическая мощность, если она включена, при потере телеметрии или связи поднимается до максимума. Чтобы потом поменять настройки ExpressLRS, поставьте на время «---».</li>
     <li>Если выходы приёмника переназначались, верните их по умолчанию: выход 1 — канал 1 и так далее до выхода 8 — канал 8.</li>
   </ol>
-  <div class="callout warn"><span class="t">Зачем нужен режим Full</span>В обычных режимах (Hybrid, Wide) канал 5 — канал арма, он передаётся только двумя положениями, а каналы 6–8 — с низким разрешением. Тогда правый закрылок на CH5 стоит в крайнем положении, а рули на CH6–CH8 двигаются ступеньками. Переносить каналы на другие выходы не нужно — режим Full решает проблему.</div>
-  <div class="callout note"><span class="t">Канал 5 остаётся каналом арма</span>При убранных тормозах правый закрылок (CH5) выше центра, и ExpressLRS считает модель взведённой (armed). Если скрипт ExpressLRS при этом не даёт поменять настройку, выпустите тормоза (тумблер тормозов вниз, ручка газа вверх; раздел 5) — канал 5 уйдёт ниже центра.</div>
+  <div class="callout warn"><span class="t">Зачем нужен режим Full</span>В режиме Full с 8ch ExpressLRS 4 передаёт каналы 1–8 с полным разрешением, канал 5 тоже. В обычных режимах (Hybrid, Wide) канал 5 передаётся только двумя положениями, а каналы 6–8 — с низким разрешением. Тогда правый закрылок на CH5 стоит в крайнем положении, а рули на CH6–CH8 двигаются ступеньками. Переносить каналы на другие выходы не нужно.</div>
 </section>
 
 <section id="s4">
@@ -560,8 +562,8 @@
       <tr><td>Подсказка закрывает страницу или не появляется</td><td>Нажмите <kbd>MDL</kbd>: она появляется и скрывается.</td></tr>
       <tr><td>Мотор не запускается</td><td>Сначала взведите. После работы мотора выведите тумблер взвода из нижнего положения и верните обратно. Пока открыта страница Alignment или Airbrakes, мотор не запускается.</td></tr>
       <tr><td><span class="ui">Elev</span> показывает N/A или триммер газа не меняет холостой ход</td><td>Модель создана из старого шаблона, без <code>BrE</code>, <code>L49</code> и <code>SF39</code>. Холостой ход меняйте колесом или восстановите модель из нового шаблона.</td></tr>
-      <tr><td>Правый закрылок (CH5) стоит в крайнем положении или CH6–CH8 двигаются ступеньками</td><td>Для ExpressLRS выставьте <span class="ui">Packet Rate</span> «100Hz Full» и <span class="ui">Switch Mode</span> «8ch» (раздел 3). Каналы не переносите.</td></tr>
-      <tr><td>Скрипт ExpressLRS не даёт поменять настройку</td><td>CH5 выше центра считается армом: тумблер тормозов вниз и ручка газа вверх (раздел 3).</td></tr>
+      <tr><td>Правый закрылок (CH5) стоит в крайнем положении или CH6–CH8 двигаются ступеньками</td><td>Прошейте модуль и приёмник ExpressLRS 4 и выставьте <span class="ui">Packet Rate</span> «100Hz Full» и <span class="ui">Switch Mode</span> «8ch» (раздел 3). Каналы не переносите.</td></tr>
+      <tr><td>Скрипт ExpressLRS не даёт поменять настройку</td><td>Модель взведена: выберите <span class="ui">Arm using</span> «Switch» и на время настройки в строке <span class="ui">Switch</span> «---», потом верните «ON». <span class="ui">Switch Mode</span> меняется только при выключенном приёмнике (раздел 3).</td></tr>
       <tr><td>Стартовая высота всегда 100</td><td>Нет сенсора <code>Alt</code>: найдите сенсоры на странице <span class="ui">TELEMETRY</span> модели.</td></tr>
       <tr><td>Нет голосовых подсказок полётных режимов</td><td>Скопируйте <code>SOUNDS/en/*.wav</code> в <code>/SOUNDS/en</code> и в папку вашего языка (раздел 2).</td></tr>
     </tbody>
