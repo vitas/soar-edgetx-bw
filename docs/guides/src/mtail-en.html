@@ -489,7 +489,7 @@
     <li>Open <span class="ui">1. Channel configuration</span> and press <kbd>ENTER</kbd> on the warning. The marker in the <span class="ui">3. Moto</span> row shows the motor channel CH3.</li>
     <li>Without arming, the marker stays at the left end (−100) whatever P1 and the sticks do.</li>
     <li>Arm (GX12 press <span class="sw">SA</span>, Pocket <span class="sw">SA↓</span>), then press and release the start button (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). The motor starts when you release it: the Motor flight mode comes on.</li>
-    <li>Turn P1 from end to end: the marker moves between the center mark (the lowest power) and the right end of the bar (+100, full power). Remember which end of P1 is the lowest power.</li>
+    <li>Turn P1 from end to end: the marker moves between the center mark (the lowest power) and the right end of the bar (+100, full power). Remember which end of P1 is the lowest power. The ends can be swapped (6.10).</li>
     <li>Stopping: the start button again, disarming (GX12 press <span class="sw">SA</span>, Pocket <span class="sw">SA↑</span>), or automatically after 30 seconds. The marker returns to the left end.</li>
     <li>Only after this check, connect the motor and fit the propeller.</li>
   </ol>
@@ -513,6 +513,31 @@
     <li>Range 0 to 100, the template has 99. At 0 the motor stops at the lowest P1 position.</li>
     <li>The value is the first point of the CV13 <code>Pot</code> curve. The page scales the middle point with it, so the P1 range keeps its shape.</li>
     <li>While the page is open, the throttle trim does not move the camber. In a model made from an older template (without <code>L49</code> and <code>SF39</code>) the throttle trim works as usual; use the roller.</li>
+  </ul>
+
+  <div class="keep">
+  <h3>6.10. P1 and stick direction, camber on a slider <span class="tag">optional</span></h3>
+  <p>In the template, P1 sets the motor power, and the throttle stick has two jobs: the thermal camber in Float and the brakes while crow is on. The stick up gives full thermal camber and full brakes. Each of these can be turned around in the model's inputs (<kbd>MDL</kbd> → <span class="ui">INPUTS</span>) and mixes (<span class="ui">MIXES</span>), and the camber can move from T3 to a slider. Check each change with the motor disconnected: the surfaces show the brakes and the camber, and the <span class="ui">3. Moto</span> row on page 1 shows the motor power (6.8).</p>
+  <table>
+    <thead><tr><th>What you want</th><th>Where</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><td>The lowest power at the other end of P1</td><td>input <code>I4:Mot</code>, line <code>On</code></td><td>curve <code>Mot</code> → <code>!Mot</code></td></tr>
+      <tr><td>Full brakes and full thermal camber with the stick down</td><td>input <code>I5:Brk</code></td><td>weight −100 → +100</td></tr>
+      <tr><td>Only the thermal camber with the stick down</td><td>CH25 mixes, line <code>CambrX</code></td><td>curve <code>LSl</code> → <code>!LSl</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="plain">
+    <li><code>!Mot</code> is the same curve inverted, so P1 keeps its range and only its ends swap. Keep the weight −100 and do not change the <code>Off</code> line. Do not set the weight to +100 instead: full power then comes as a jump in the last 5 % of the P1 travel, and the lowest power is only at the very end. In 6.9, turn P1 to its new lowest-power end.</li>
+    <li>The brakes and the thermal camber both come from <code>I5:Brk</code>, so its weight turns both around at once. The stick up then gives neither, and the top 5 % of the travel keep the brakes fully in, as the bottom 5 % did before. Nothing else needs changing: the brake curves follow the brake channel, and with crow off (Pocket <span class="sw">SD↑</span>, GX12 <span class="sw">SD</span> released) the brakes stay in.</li>
+    <li>At power-on, the throttle warning asks for the throttle stick down, which after this change is full brakes. To switch on with the brakes in, turn on the custom position of the throttle warning in <kbd>MDL</kbd> → <span class="ui">MODEL SETUP</span> and set it to 100: the warning then asks for the stick up.</li>
+    <li>Leave <code>I8:Adj</code> as it is: it selects the points on the setup pages (6.2, 6.3), and they keep the stick directions given in this guide. If you want them to follow the new direction too, set the weight of <code>I8:Adj</code> to +100 as well; then read the stick positions in 6.3 and 6.4 the other way round: the last point (brakes off) is then the stick up.</li>
+    <li>Leave the throttle reverse option in the model setup off: it turns the whole stick around at once, the setup pages included, and the directions in this guide no longer match.</li>
+  </ul>
+  <p><b>Camber on a slider.</b> On the GX12, the free <span class="sw">S1</span> or <span class="sw">S2</span> slider or <span class="sw">P2</span> can do this (section 5). If the control is missing from the source list, enable it in the radio's hardware settings (<kbd>SYS</kbd> → <span class="ui">HARDWARE</span>). There are two ways:</p>
+  <ul class="plain">
+    <li><b>In addition to T3: input <code>I7:Cmb</code>.</b> The template keeps it for a slider; its source <code>MAX</code> gives no camber. Set the source to the slider: its +100 end (the last 5 % of the travel) gives no camber, the −100 end gives 20, on the same scale as the thermal camber (32 in the template). T3 works as before and adds to it. This camber works in every flight mode and stays while the motor runs, so in the CH25 mixes open the <code>Slider</code> line and untick <span class="nb">FM1–FM4</span> (Adjust, Motor, KAPOW, Speed) in its flight modes: the slider then works only in Cruise and Float. Untick them in the mix line, not in the input: a switched-off input does not bring this camber to zero.</li>
+    <li><b>Instead of T3: input <code>I6:CbP</code>.</b> Change its source from <code>T3</code> to the slider. The slider then works like T3: below center it adds camber, at center and above it adds none. One slider position serves all modes, so Cruise and Float no longer keep their own camber. To keep Speed without camber, open the first line in the CH23 mixes (source <code>I6:CbP</code>) and untick FM1, FM3 and FM4 (Adjust, KAPOW, Speed) in its flight modes. As with T3, full motor power takes this camber away. T3 no longer moves the camber in flight, and the setup pages still use its buttons.</li>
   </ul>
 </section>
 

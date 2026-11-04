@@ -1015,6 +1015,75 @@ test("F5J uses separate motor and landing switches", function()
     "F5J landing does not use SD")
 end)
 
+-- The guide (6.10) and the README name these flight modes, inputs, curves and mix lines.
+test("F5J variants keep the lines named by the direction and camber slider steps", function()
+  local modes = { "Cruise", "Adjust", "Motor", "KAPOW", "Speed", "Float" }
+  local inputs = {
+    { chn = 3, name = "On", src = "P1", weight = "-100", curve = "3:9" },
+    { chn = 4, name = "Brake", src = "Thr", weight = "-100", curve = "0:0" },
+    { chn = 5, name = "CambPs", src = "T3", weight = "50", curve = "0:-100" },
+    { chn = 6, name = "Camber", src = "MAX", weight = "100", curve = "0:0" },
+    { chn = 7, name = "Adjust", src = "Thr", weight = "-100", curve = "3:8" }
+  }
+  local curves = { [7] = "Adj", [8] = "Mot", [10] = "DB", [11] = "LSl" }
+
+  for _, variant in ipairs(f5j_variants) do
+    local content = read_file(variant.path)
+    for index, name in ipairs(modes) do
+      assert_equal(scalar_field(indexed_block(content, "flightModeData", index - 1), "name"), name,
+        variant.label .. " FM" .. tostring(index - 1) .. " name")
+    end
+    for _, input in ipairs(inputs) do
+      local line = find_named_list_block(content, "expoData", input.chn, input.name)
+      local label = variant.label .. " I" .. tostring(input.chn + 1) .. " " .. input.name
+      assert_equal(scalar_field(line, "srcRaw"), input.src, label .. " source")
+      assert_equal(scalar_field(line, "weight"), input.weight, label .. " weight")
+      assert_equal(curve_signature(line), input.curve, label .. " curve")
+    end
+    for index, name in pairs(curves) do
+      assert_equal(scalar_field(indexed_block(content, "curves", index), "name"), name,
+        variant.label .. " CV" .. tostring(index + 1) .. " name")
+    end
+
+    -- !Mot mirrors P1 exactly only while CH20 takes I4:Mot alone
+    assert_mix_signatures(content, 19, {
+      "src=I3|weight=100|switch=NONE|curve=0:0|trim=1|mux=ADD|fm=000000000|offset=0|name=RwMot"
+    }, variant.label .. " CH20 exact mixes")
+    local first_camber = mix_blocks_for(content, 22)[1]
+    assert_equal(scalar_field(first_camber, "srcRaw"), "I5", variant.label .. " first CH23 line source")
+    assert_equal(scalar_field(first_camber, "flightModes"), "000000000", variant.label .. " first CH23 line modes")
+    local slider = find_mix_block_matching(mix_blocks_for(content, 24), { "name: Slider" })
+    assert(slider, variant.label .. " missing the CH25 Slider line")
+    assert_equal(mix_signature(slider),
+      "src=I6|weight=10|switch=NONE|curve=3:11|trim=0|mux=ADD|fm=000000000|offset=-10|name=Slider",
+      variant.label .. " CH25 Slider line")
+    local thermal = find_mix_block_matching(mix_blocks_for(content, 24), { "name: CambrX" })
+    assert(thermal, variant.label .. " missing the CH25 CambrX line")
+    assert_equal(mix_signature(thermal),
+      "src=I4|weight=32|switch=NONE|curve=3:12|trim=1|mux=ADD|fm=111110111|offset=-32|name=CambrX",
+      variant.label .. " CH25 CambrX line")
+    local adjust = find_mix_block_matching(mix_blocks_for(content, 20), { "name: Adjust" })
+    assert(adjust, variant.label .. " missing the CH21 Adjust line")
+    assert_equal(scalar_field(adjust, "srcRaw"), "I7", variant.label .. " CH21 Adjust source")
+
+    -- No logical switch reads the throttle stick, P1, or an input, so turning them around changes nothing else
+    for _, block in ipairs(indexed_blocks(content, "logicalSw")) do
+      local definition = scalar_field(block.text, "def") or ""
+      local label = variant.label .. " L" .. tostring(block.index + 1) .. " definition " .. definition
+      assert(not definition:find("Thr", 1, true), label .. " reads Thr")
+      assert(not definition:find("P1", 1, true), label .. " reads P1")
+      assert(not definition:find("%f[%w]I%d"), label .. " reads an input")
+    end
+
+    -- The throttle warning checks the throttle stick at the bottom (6.10)
+    assert_equal(content:match("\ndisableThrottleWarning:%s*([^\n]-)%s*\n"), "0",
+      variant.label .. " throttle warning")
+    assert_equal(content:match("\nenableCustomThrottleWarning:%s*([^\n]-)%s*\n"), "0",
+      variant.label .. " custom throttle warning position")
+    assert_equal(content:match("\nthrTraceSrc:%s*([^\n]-)%s*\n"), "Thr", variant.label .. " throttle source")
+  end
+end)
+
 test("F5J variants keep exact GVar definitions and every flight-mode value", function()
   local definitions = {
     [0] = "name=Ail|min=924|max=924|popup=0|prec=0|unit=0",
