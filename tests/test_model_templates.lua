@@ -1064,7 +1064,11 @@ end)
 test("F5J variants start physical curves linear and keep Sense brake and utility curves", function()
   local utility = {
     -100, -100, 0, 0, -50, 0, -100, -100, -50, -50, 0, 0, 50, 50, 100, 100,
-    -90, -90, -30, -30, 30, 30, 90, 90, -70, 75, 100, 100, 90, 90, 100, 0,
+    -90, -90, -30, -30, 30, 30, 90, 90,
+    -- CV9 Mot (points 54-59). I4 Mot applies it to P1 before the weight -100, so its first point
+    -- sets the full motor power: at -70 the motor channel stopped near +80 instead of +100.
+    -100, 75, 100, 100, 90, 90,
+    100, 0,
     100, -100, 100, 100, 90, 0, 100, 99, 32, 0, 0,
     67, 17, -33, -83, -100
   }
