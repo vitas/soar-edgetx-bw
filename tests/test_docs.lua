@@ -102,7 +102,9 @@ test("M-tail guides explain the stick and P1 direction and the camber slider", f
       "<code>I4:Mot</code>", "<code>!Mot</code>", "<code>I5:Brk</code>", "−100 → +100",
       "<code>CambrX</code>", "<code>!LSl</code>", "<code>I8:Adj</code>", "(6.2, 6.3)",
       "<code>I7:Cmb</code>", "<code>Slider</code>", "FM1–FM4", "<code>I6:CbP</code>", "FM1, FM3",
-      "S1", "P2", THROTTLE_WARNING[lang]
+      "S1", "P2", THROTTLE_WARNING[lang],
+      -- The B&W firmware labels of the throttle warning in MODEL SETUP
+      '<span class="ui">Preflight Checks</span>', '<span class="ui">T-Warning</span>', '<span class="ui">Cust-Pos</span>'
     }
     for _, needle in ipairs(needles) do
       assert_true(section:find(needle, 1, true), path .. " 6.10 does not mention " .. needle)
@@ -121,7 +123,7 @@ test("README explains the motor power and brake direction and the camber slider"
   local needles = {
     "### Motor Power Direction", "from `Mot` to `!Mot`",
     "### Brake and Camber Direction", "weight of its `Brake` line to `+100`", "from `LSl` to `!LSl`",
-    "`I8:Adj`", "throttle warning",
+    "`I8:Adj`", "throttle warning", "`Preflight Checks`", "`Cust-Pos`",
     "### Camber Slider", "`I7:Cmb`", "`FM1` to `FM4`", "`I6:CbP`", "`FM1`, `FM3`, and `FM4`"
   }
   for _, needle in ipairs(needles) do

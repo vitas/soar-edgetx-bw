@@ -196,8 +196,9 @@ or script reads `Thr` or `I5:Brk`.
 
 The templates keep the throttle warning on, with the throttle stick as its
 source, so at power-on it asks for the stick down. After this change that is
-full airbrakes. To switch on with the airbrakes retracted, enable the custom
-position of the throttle warning in the model setup and set it to `100`.
+full airbrakes. To switch on with the airbrakes retracted, open the model setup
+and, under `Preflight Checks`, tick `Cust-Pos` (the custom position of
+`T-Warning`) and set its value to `100`.
 
 To turn only the thermal camber around, open the `CH25` mixes and change the
 curve of the `CambrX` line from `LSl` to `!LSl`, curve CV12 inverted.
