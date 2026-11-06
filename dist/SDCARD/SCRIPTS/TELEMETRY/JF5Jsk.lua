@@ -9,6 +9,7 @@ local LS_TRIGGER = getFieldInfo("ls9").id -- Input ID for the trigger switch
 local LS_LANDING = getFieldInfo("ls7").id -- Input ID for the landing switch
 local LS_ARM = getFieldInfo("ls23").id -- Input ID for motor arming
 
+local landingInput = LS_LANDING -- Input ID that ends the flight in the glide
 local offTime -- Time motor off
 local prevCnt -- Previous motor off count
 local prevMt -- Previous motor timer value
@@ -31,6 +32,16 @@ sk.STATE_SAVE = 6 -- Ready to save
 sk.state = sk.STATE_INITIAL
 
 soarUtil.SetGVTmr(0) -- Flight timer off
+
+-- The landing switch L7 ends the flight. With Landing set to NONE on the Switches page, L7 reads
+-- the always-off "!ON", and the trigger ends the flight as in the original SoarOTX F5J.
+local function LandingInput()
+	if model.getLogicalSwitch(6).v1 == getSwitchIndex("!ON") then
+		return LS_TRIGGER
+	else
+		return LS_LANDING
+	end
+end -- LandingInput()
 
 local function background()
 	local cnt -- Count interval
@@ -90,6 +101,7 @@ local function background()
 			
 			if getValue(LS_TRIGGER) < 0 then -- Trigger switch released
 				prevFt = model.getTimer(0).value
+				landingInput = LandingInput()
 				sk.state = sk.STATE_GLIDE
 			end
 		end
@@ -146,7 +158,7 @@ local function background()
 			end
 		end
 		
-		if getValue(LS_LANDING) > 0 and offTime == 0 then
+		if getValue(landingInput) > 0 and offTime == 0 then
 			-- Stop timer and record scores
 			sk.state = sk.STATE_LANDINGPTS
 			soarUtil.SetGVTmr(0) -- Flight timer off

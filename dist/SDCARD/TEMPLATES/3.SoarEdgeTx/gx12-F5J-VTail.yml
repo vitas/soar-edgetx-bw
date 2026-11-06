@@ -433,7 +433,7 @@ mixData:
    flightModes: 000000000
    weight: 100
    offset: 0
-   swtch: "L36"
+   swtch: "L51"
    delayUp: 0
    delayDown: 0
    speedUp: 0
@@ -1841,9 +1841,9 @@ logicalSw:
       delay: 0
       duration: 0
    34:
-      func: FUNC_EDGE
-      def: "L6,1,7"
-      andsw: "!FM2"
+      func: FUNC_VPOS
+      def: "I4,90"
+      andsw: "!L34"
       lsPersist: 0
       lsState: 0
       delay: 0
@@ -1858,11 +1858,19 @@ logicalSw:
       duration: 0
    36:
       func: FUNC_AND
-      def: "L36,!L34"
+      def: "L38,!L34"
       andsw: "!L35"
       lsPersist: 0
       lsState: 0
       delay: 30
+      duration: 0
+   37:
+      func: FUNC_STICKY
+      def: "L34,L35"
+      andsw: "L50"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
       duration: 0
    38:
       func: FUNC_AND
@@ -1939,6 +1947,22 @@ logicalSw:
    48:
       func: FUNC_VPOS
       def: "gv(7),50"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   49:
+      func: FUNC_AND
+      def: "!ON,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   50:
+      func: FUNC_OR
+      def: "L36,L38"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -2052,7 +2076,7 @@ customFn:
    26:
       swtch: "L37"
       func: PLAY_TRACK
-      def: ",1,5"
+      def: "flapup,1,5"
    27:
       swtch: "L39"
       func: LOGS

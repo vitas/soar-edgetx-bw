@@ -20,6 +20,7 @@ dist/SDCARD/SOUNDS/**
 !dist/SDCARD/SOUNDS/en/f3j_t3.wav
 !dist/SDCARD/SOUNDS/en/f3jlau.wav
 !dist/SDCARD/SOUNDS/en/f3jlnd.wav
+!dist/SDCARD/SOUNDS/en/flapup.wav
 !dist/SDCARD/SOUNDS/en/landin.wav
 
 *.tmp

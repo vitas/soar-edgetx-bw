@@ -877,7 +877,7 @@ test("F5J variants keep the Sense behavior sets", function()
     assert_named_indexed_set(content, "inputNames", "val",
       { "Rud", "Ele", "Ail", "Mot", "Brk", "CbP", "Cmb", "Adj" }, variant.label .. " inputs")
     assert_index_set(content, "logicalSw",
-      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "38", "39", "42", "43", "44", "45", "47", "48" },
+      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "37", "38", "39", "42", "43", "44", "45", "47", "48", "49", "50" },
       variant.label .. " logical switches")
     for _, unsupported in ipairs({ "gv(11)", "!gv(11)" }) do
       assert_absent(content, unsupported, variant.label)
@@ -885,15 +885,17 @@ test("F5J variants keep the Sense behavior sets", function()
   end
 end)
 
+-- L1 and L8 read the arming through L5, as on the GX12, so the Switches page changes the arm
+-- switch in one place. SA has two positions on the Pocket, so !L5 is SA0.
 test("F5J variants keep the Sense switch assignments", function()
   local logical_switches = {
-    [0] = "SA0,L19",
+    [0] = "!L5,L19",
     [1] = "SA2,!SA2",
     [2] = "SC0,NONE",
     [3] = "SC2,NONE",
     [4] = "SA2,NONE",
     [6] = "SD2,NONE",
-    [7] = "SA2,L1",
+    [7] = "L5,L1",
     [8] = "SE2,L11",
     [11] = "SB2,NONE",
     [35] = "SD0,NONE"
@@ -993,7 +995,8 @@ test("F5J variants route landing and time controls through logical switches", fu
     assert(brake_off, variant.label .. " missing BrkOff replacement mix")
     assert_equal(scalar_field(brake_off, "srcRaw"), "MAX", variant.label .. " BrkOff source")
     assert_equal(scalar_field(brake_off, "mltpx"), "REPL", variant.label .. " BrkOff multiplex")
-    assert_equal(scalar_field(brake_off, "swtch"), "L36", variant.label .. " BrkOff logical switch")
+    -- L51 is the crow-off switch (L36) or the throttle crow lock (L38)
+    assert_equal(scalar_field(brake_off, "swtch"), "L51", variant.label .. " BrkOff logical switch")
 
     for index, expected in pairs(special_functions) do
       local custom_function = indexed_block(content, "customFn", index)
@@ -1007,12 +1010,53 @@ test("F5J variants route landing and time controls through logical switches", fu
   end
 end)
 
+-- With Crow off set to NONE on the Switches page, the brakes follow the throttle stick as in the
+-- original SoarETX F5J. The motor run locks them in (L38) until the motor is off and the stick is
+-- in the brakes-in zone (L35: I5:Brk above 90, where the DB curve is flat), and "flaps up" repeats
+-- while the lock waits (L37, SF27). The page turns L50 on only for NONE, so with a crow-off switch
+-- the lock and the reminder stay off, and BrkOff (L51) follows L36 alone as before.
+test("F5J variants lock the brakes in after the motor while Crow off is NONE", function()
+  local switches = {
+    [34] = { func = "FUNC_VPOS", def = "I4,90", andsw = "!L34", delay = "0" },
+    [36] = { func = "FUNC_AND", def = "L38,!L34", andsw = "!L35", delay = "30" },
+    [37] = { func = "FUNC_STICKY", def = "L34,L35", andsw = "L50", delay = "0" },
+    [49] = { func = "FUNC_AND", def = "!ON,NONE", andsw = "NONE", delay = "0" },
+    [50] = { func = "FUNC_OR", def = "L36,L38", andsw = "NONE", delay = "0" }
+  }
+
+  for _, template in ipairs(templates) do
+    if template.kind == "F5J" then
+      local content = read_file(template.path)
+      for index, expected in pairs(switches) do
+        local block = indexed_block(content, "logicalSw", index)
+        local label = template.name .. " L" .. tostring(index + 1)
+        for _, field in ipairs({ "func", "def", "andsw", "delay" }) do
+          assert_equal(scalar_field(block, field), expected[field], label .. " " .. field)
+        end
+        assert_equal(scalar_field(block, "duration"), "0", label .. " duration")
+        assert_equal(scalar_field(block, "lsPersist"), "0", label .. " persistence")
+      end
+
+      local reminder = indexed_block(content, "customFn", 26)
+      assert_equal(scalar_field(reminder, "swtch"), "L37", template.name .. " reminder switch")
+      assert_equal(scalar_field(reminder, "func"), "PLAY_TRACK", template.name .. " reminder function")
+      assert_equal(scalar_field(reminder, "def"), "flapup,1,5", template.name .. " reminder track")
+    end
+  end
+
+  local sound = io.open("dist/SDCARD/SOUNDS/en/flapup.wav", "rb")
+  assert(sound, "missing the flapup voice file")
+  sound:close()
+end)
+
+-- tests/test_config_pages.lua runs the landing with the switch and, with Landing at NONE, with the trigger
 test("F5J uses separate motor and landing switches", function()
   local script = read_file(F5J_SCRIPT)
   assert(script:find('local LS_TRIGGER = getFieldInfo("ls9").id', 1, true), "F5J missing SE motor trigger")
   assert(script:find('local LS_LANDING = getFieldInfo("ls7").id', 1, true), "F5J missing SD landing trigger")
-  assert(script:find("if getValue(LS_LANDING) > 0 and offTime == 0 then", 1, true),
-    "F5J landing does not use SD")
+  assert(script:find("local landingInput = LS_LANDING", 1, true), "F5J landing does not start with SD")
+  assert(script:find("if getValue(landingInput) > 0 and offTime == 0 then", 1, true),
+    "F5J landing does not use the landing input")
 end)
 
 -- The guide (6.10) and the README name these flight modes, inputs, curves and mix lines.
@@ -1066,13 +1110,19 @@ test("F5J variants keep the lines named by the direction and camber slider steps
     assert(adjust, variant.label .. " missing the CH21 Adjust line")
     assert_equal(scalar_field(adjust, "srcRaw"), "I7", variant.label .. " CH21 Adjust source")
 
-    -- No logical switch reads the throttle stick, P1, or an input, so turning them around changes nothing else
+    -- No logical switch reads the throttle stick, P1, or an input, so turning them around changes
+    -- nothing else. The one exception is the brakes-in zone of the throttle crow (L35): it reads
+    -- I5:Brk, so it follows the brake direction too.
     for _, block in ipairs(indexed_blocks(content, "logicalSw")) do
       local definition = scalar_field(block.text, "def") or ""
       local label = variant.label .. " L" .. tostring(block.index + 1) .. " definition " .. definition
       assert(not definition:find("Thr", 1, true), label .. " reads Thr")
       assert(not definition:find("P1", 1, true), label .. " reads P1")
-      assert(not definition:find("%f[%w]I%d"), label .. " reads an input")
+      if block.index == 34 then
+        assert_equal(definition, "I4,90", label .. " brakes-in zone")
+      else
+        assert(not definition:find("%f[%w]I%d"), label .. " reads an input")
+      end
     end
 
     -- The throttle warning checks the throttle stick at the bottom (6.10)
