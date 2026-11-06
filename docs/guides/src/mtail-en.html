@@ -29,7 +29,7 @@
   <div class="kicker">Soar EdgeTX BW · guide</div>
   <h1>F5J M-tail model on <span class="nb">the Pocket</span> and GX12</h1>
   <p class="lead">Step by step: from copying the files to the radio to checking the controls and the first F5J flight. The example is the <b>M-tail</b> template: the rudder on CH6 and an elevator in two halves, each with its own servo (CH7 and CH8).</p>
-  <div class="meta"><span>EdgeTX 2.12</span><span>RadioMaster Pocket</span><span>RadioMaster GX12</span><span>October 2026</span></div>
+  <div class="meta"><span>EdgeTX 2.12</span><span>RadioMaster Pocket</span><span>RadioMaster GX12</span><span>November 2026</span></div>
 </header>
 
 <p class="intro">Soar EdgeTX BW brings the SoarOTX soaring scripts by Jesper Frickmann to EdgeTX radios with a 128×64 black-and-white screen. For F5J it has two parts. The <b>timer screen</b> runs the flight: motor run, glide, landing, start height, the voice countdown of the working time and the score log. The <b>Configuration</b> menu lets you set up the model right on the radio, without a computer. The model template provides the flight modes, timers, logical switches, global variables, curves, mixes and channels, and the scripts read and change them.</p>
@@ -220,7 +220,7 @@
 <section id="s5">
   <div class="keep">
   <h2><span class="n">5</span>Screens, keys and switches</h2>
-  <p>The template has two telemetry screens. <b>Screen 1</b> is the F5J timer, <b>screen 2</b> is the <span class="ui">Configuration</span> menu with seven pages. <kbd>TELE</kbd> opens the screens, <kbd>PAGE&gt;</kbd> and <kbd>PAGE&lt;</kbd> switch between them.</p>
+  <p>The template has two telemetry screens. <b>Screen 1</b> is the F5J timer, <b>screen 2</b> is the <span class="ui">Configuration</span> menu with eight pages. <kbd>TELE</kbd> opens the screens, <kbd>PAGE&gt;</kbd> and <kbd>PAGE&lt;</kbd> switch between them.</p>
   <div class="shots">
     <figure><img class="screen" src="../../images/timer-ready.png" alt="Timer screen ready for a flight: Tgt 10:00"><figcaption>Screen 1: the timer, ready for a flight.</figcaption></figure>
     <figure><img class="screen" src="../../images/menu.png" alt="The Configuration menu"><figcaption>Screen 2: the Configuration menu.</figcaption></figure>
@@ -237,6 +237,7 @@
       <tr><td><span class="ui">5. Adjust other mixes</span></td><td><span class="ui">Adjust mixes</span></td><td>aileron to rudder, aileron differential, brake to elevator, snapflap</td></tr>
       <tr><td><span class="ui">6. Battery warning</span></td><td><span class="ui">Bat Warning</span></td><td>receiver battery warning level</td></tr>
       <tr><td><span class="ui">7. Motor idle</span></td><td><span class="ui">Motor idle</span></td><td>motor power at the lowest P1 position</td></tr>
+      <tr><td><span class="ui">8. Switches</span></td><td><span class="ui">Switches</span></td><td>the switches of the template's functions (6.11)</td></tr>
     </tbody>
   </table>
 
@@ -256,7 +257,7 @@
 
   <div class="keep">
   <h3>Switches and controls</h3>
-  <p>The Pocket and GX12 templates differ only in these switches:</p>
+  <p>The Pocket and GX12 templates differ only in these switches. The <span class="ui">8. Switches</span> page moves the functions to other switches (6.11).</p>
   <table>
     <thead><tr><th>Function</th><th>GX12</th><th>Pocket</th></tr></thead>
     <tbody>
@@ -273,7 +274,7 @@
   </div>
   <ul class="plain">
     <li>The motor stops when you press the start button again, when you disarm, or automatically after 30 seconds of motor run. To arm again on the Pocket, move <span class="sw">SA</span> out of the down position and back. The GX12 disarms by itself when the motor stops: press <span class="sw">SA</span> again. The radio skips <span class="sw">SA</span> presses less than half a second apart; the siren and “MOTOR ARMED” confirm the arming.</li>
-    <li><b>Throttle stick:</b> airbrakes (crow) while crow is on (Pocket <span class="sw">SD↓</span>, GX12 while <span class="sw">SD</span> is held); stick up deploys the brakes, stick down retracts them. In Float the throttle stick also adds thermal camber: none at the bottom, full at the top (6.4).</li>
+    <li><b>Throttle stick:</b> airbrakes (crow) while crow is on (Pocket <span class="sw">SD↓</span>, GX12 while <span class="sw">SD</span> is held); stick up deploys the brakes, stick down retracts them. With <span class="ui">Crow off</span> set to <span class="ui">NONE</span> (6.11), the stick moves the brakes all the time. In Float the throttle stick also adds thermal camber: none at the bottom, full at the top (6.4).</li>
     <li><b>Throttle trim</b> down from center adds thermal camber in Cruise and Float; each of the two modes keeps its own trim. Up from center it does nothing, and in Speed it is off.</li>
     <li><b>Elevator trim while the motor runs</b> sets the elevator compensation for the motor. It is stored in the Motor flight mode, and the elevator trim for the glide does not change.</li>
     <li>The radio announces the flight modes, crow off and motor off with the template's voice prompts.</li>
@@ -429,7 +430,7 @@
   </table>
   </div>
   <ul class="plain">
-    <li>The mixes work in Cruise, Speed and Float. To turn one on, press <kbd>MDL</kbd>, go with <kbd>PAGE&gt;</kbd> to <span class="ui">LOGICAL SWITCHES</span>, open <code>L46</code> or <code>L48</code> and change its first switch from <code>!ON</code> to a switch, or to <code>ON</code> to keep the mix on all the time.</li>
+    <li>The mixes work in Cruise, Speed and Float. To turn one on, choose a switch for <span class="ui">Ail-&gt;Ele</span> or <span class="ui">Rud-&gt;Ele</span> on the <span class="ui">8. Switches</span> page (6.11), or <span class="ui">ON</span> to keep the mix on all the time. The page sets the first switch of <code>L46</code> or <code>L48</code>.</li>
     <li>On the GX12 a free <span class="sw">SW1</span>–<span class="sw">SW6</span> button suits this. The Pocket has no free switch: there the choice is <code>ON</code> or off.</li>
     <li>The differential −50 halves the travel of the half that goes down. The weights are fixed in the mixes, because the Pocket and the GX12 have only nine global variables. To change the amount or the direction, edit the <code>AilEle</code> and <code>RudEle</code> lines of CH7 and CH8 in <kbd>MDL</kbd> → <span class="ui">MIXES</span>, and keep opposite signs on CH7 and CH8.</li>
   </ul>
@@ -464,7 +465,7 @@
 
   <h3>Direction check</h3>
   <ol class="steps">
-    <li>Turn the mix on with <code>L46</code>.</li>
+    <li>Turn the mix on: <span class="ui">Ail-&gt;Ele</span> to <span class="ui">ON</span> on the <span class="ui">8. Switches</span> page.</li>
     <li>Aileron stick right: the right elevator half should go up and the left one down, like the ailerons (Fig. 2). The half going down moves less.</li>
     <li>If it is the other way round, swap the signs in both <code>AilEle</code> lines: −20 on CH7 and +20 on CH8.</li>
     <li><code>RudEle</code> with the same signs moves the halves with the rudder stick right the same way as the aileron stick right does. If you swapped the <code>AilEle</code> signs, swap the <code>RudEle</code> signs too.</li>
@@ -517,7 +518,7 @@
 
   <div class="keep">
   <h3>6.10. P1 and stick direction, camber on a slider <span class="tag">optional</span></h3>
-  <p>In the template, P1 sets the motor power, and the throttle stick has two jobs: the thermal camber in Float and the brakes while crow is on. The stick up gives full thermal camber and full brakes. Each of these can be turned around in the model's inputs (<kbd>MDL</kbd> → <span class="ui">INPUTS</span>) and mixes (<span class="ui">MIXES</span>), and the camber can move from T3 to a slider. Check each change with the motor disconnected: the surfaces show the brakes and the camber, and the <span class="ui">3. Moto</span> row on page 1 shows the motor power (6.8).</p>
+  <p>In the template, P1 sets the motor power, and the throttle stick has two jobs: the thermal camber in Float and the brakes while crow is on. The stick up gives full thermal camber and full brakes. Each of these can be turned around in the model's inputs (<kbd>MDL</kbd> → <span class="ui">INPUTS</span>) and mixes (<span class="ui">MIXES</span>), and the camber can move from the stick or T3 to a pot or slider. Check each change with the motor disconnected: the surfaces show the brakes and the camber, and the <span class="ui">3. Moto</span> row on page 1 shows the motor power (6.8).</p>
   <table>
     <thead><tr><th>What you want</th><th>Where</th><th>Change</th></tr></thead>
     <tbody>
@@ -529,7 +530,7 @@
   </div>
   <ul class="plain">
     <li><code>!Mot</code> is the same curve inverted, so P1 keeps its range and only its ends swap. Keep the weight −100 and do not change the <code>Off</code> line. Do not set the weight to +100 instead: full power then comes as a jump in the last 5 % of the P1 travel, and the lowest power is only at the very end. In 6.9, turn P1 to its new lowest-power end.</li>
-    <li>The brakes and the thermal camber both come from <code>I5:Brk</code>, so its weight turns both around at once. The stick up then gives neither, and the top 5 % of the travel keep the brakes fully in, as the bottom 5 % did before. Nothing else needs changing: the brake curves follow the brake channel, and with crow off (Pocket <span class="sw">SD↑</span>, GX12 <span class="sw">SD</span> released) the brakes stay in.</li>
+    <li>The brakes and the thermal camber both come from <code>I5:Brk</code>, so its weight turns both around at once. The stick up then gives neither, and the top 5 % of the travel keep the brakes fully in, as the bottom 5 % did before. Nothing else needs changing: the brake curves follow the brake channel, with crow off (Pocket <span class="sw">SD↑</span>, GX12 <span class="sw">SD</span> released) the brakes stay in, and the brakes-in zone of the throttle crow (6.11) moves to the top with the brakes-in end.</li>
     <li>At power-on, the throttle warning (<span class="ui">T-Warning</span>) asks for the throttle stick down, which after this change is full brakes. To switch on with the brakes in, open <kbd>MDL</kbd> → <span class="ui">MODEL SETUP</span>, tick <span class="ui">Cust-Pos</span> (custom position) under <span class="ui">Preflight Checks</span> and set its value to 100: the warning then asks for the stick up.</li>
     <li>Leave <code>I8:Adj</code> as it is: it selects the points on the setup pages (6.2, 6.3), and they keep the stick directions given in this guide. If you want them to follow the new direction too, set the weight of <code>I8:Adj</code> to +100 as well; then read the stick positions in 6.3 and 6.4 the other way round: the last point (brakes off) is then the stick up.</li>
     <li>Leave the throttle reverse option in the model setup off: it turns the whole stick around at once, the setup pages included, and the directions in this guide no longer match.</li>
@@ -538,6 +539,45 @@
   <ul class="plain">
     <li><b>In addition to T3: input <code>I7:Cmb</code>.</b> The template keeps it for a slider; its source <code>MAX</code> gives no camber. Set the source to the slider: its +100 end (the last 5 % of the travel) gives no camber, the −100 end gives 20, on the same scale as the thermal camber (32 in the template). T3 works as before and adds to it. This camber works in every flight mode and stays while the motor runs, so in the CH25 mixes open the <code>Slider</code> line and untick <span class="nb">FM1–FM4</span> (Adjust, Motor, KAPOW, Speed) in its flight modes: the slider then works only in Cruise and Float. Untick them in the mix line, not in the input: a switched-off input does not bring this camber to zero.</li>
     <li><b>Instead of T3: input <code>I6:CbP</code>.</b> Change its source from <code>T3</code> to the slider. The slider then works like T3: below center it adds camber, at center and above it adds none. One slider position serves all modes, so Cruise and Float no longer keep their own camber. To keep Speed without camber, open the first line in the CH23 mixes (source <code>I6:CbP</code>) and untick FM1, FM3 and FM4 (Adjust, KAPOW, Speed) in its flight modes. As with T3, full motor power takes this camber away. T3 no longer moves the camber in flight, and the setup pages still use its buttons.</li>
+  </ul>
+  <p><b>Float camber on a pot or slider.</b> In Float the thermal camber of the throttle stick comes from the <code>CambrX</code> line in the CH25 mixes. To move it to a pot or slider, open that line and change its source from <code>I5:Brk</code> to the control; keep the weight, the offset and the curve. The control's +100 end then gives no camber and the −100 end the full 32; if it is the wrong way round, change the curve to <code>!LSl</code>. The throttle stick then moves only the brakes. On the GX12, <span class="sw">P2</span>, <span class="sw">S1</span> or <span class="sw">S2</span> is free for this; on other radios, any free pot or slider. The Pocket has no free control (P1 sets the motor power): there, untick FM5 (Float) in the flight modes of the <code>CambrX</code> line to take the camber off the stick; the throttle trim still adds camber in Float. Do one of the two when <span class="ui">Crow off</span> is <span class="ui">NONE</span> (6.11): the stick then moves the brakes all the time, and in Float it would add the camber with them.</p>
+
+  <div class="keep">
+  <h3>6.11. Switches <span class="tag">8. Switches</span></h3>
+  <div class="with-shot">
+    <div>
+      <p>The page moves the template's functions to other switches. Each row is one function, with the switch it uses now on the right. Select a row with the roller and press <kbd>ENTER</kbd>: the switch blinks. Turn the roller to choose another one, then press <kbd>ENTER</kbd> to save it or <kbd>RTN</kbd> to keep the old one.</p>
+      <p>The list starts with <span class="ui">NONE</span> (the function stays off) and <span class="ui">ON</span> (always on). Then come the positions with “!”, which means not: <span class="sw">!SB↓</span> is on whenever <span class="sw">SB</span> is not down, so on a three-position switch it is up or middle. After them come the switch positions, on the GX12 also the <span class="sw">SW1</span>–<span class="sw">SW6</span> buttons. It wraps around: one step back from <span class="ui">NONE</span> is the last entry. The page sets the first switch of a logical switch (see the table) and stores <span class="ui">NONE</span> there as <code>!ON</code>.</p>
+    </div>
+    <figure>
+      <img class="screen" src="../../images/page-switches.png" alt="Switches page with the GX12 switches">
+      <figcaption>The switches of the GX12 template.</figcaption>
+    </figure>
+  </div>
+  </div>
+  <table>
+    <thead><tr><th>Row</th><th>What it does</th><th>Logical switch</th><th>GX12</th><th>Pocket</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ui">Motor arm</span></td><td>arms the motor</td><td><code>L41</code> (GX12), <code>L5</code> (Pocket)</td><td><span class="sw">SA↓</span></td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td><span class="ui">Motor/timer</span></td><td>starts and stops the motor</td><td><code>L9</code></td><td><span class="sw">SG↓</span></td><td><span class="sw">SE↓</span></td></tr>
+      <tr><td><span class="ui">Speed</span></td><td>flight mode Speed</td><td><code>L3</code></td><td><span class="sw">SF↑</span></td><td><span class="sw">SC↑</span></td></tr>
+      <tr><td><span class="ui">Float</span></td><td>flight mode Float; with neither of the two, Cruise</td><td><code>L4</code></td><td><span class="sw">SF↓</span></td><td><span class="sw">SC↓</span></td></tr>
+      <tr><td><span class="ui">Landing</span></td><td>ends the flight once the 10-second count is over</td><td><code>L7</code></td><td><span class="sw">SD↓</span></td><td><span class="sw">SD↓</span></td></tr>
+      <tr><td><span class="ui">Crow off</span></td><td>keeps the brakes in; otherwise the throttle stick moves them</td><td><code>L36</code></td><td><span class="sw">SD↑</span></td><td><span class="sw">SD↑</span></td></tr>
+      <tr><td><span class="ui">Ail-&gt;Ele</span></td><td>the <code>AilEle</code> mix (6.6)</td><td><code>L46</code></td><td><span class="ui">NONE</span></td><td><span class="ui">NONE</span></td></tr>
+      <tr><td><span class="ui">Rud-&gt;Ele</span></td><td>the <code>RudEle</code> mix (6.6)</td><td><code>L48</code></td><td><span class="ui">NONE</span></td><td><span class="ui">NONE</span></td></tr>
+      <tr><td><span class="ui">Timer report</span></td><td>flight time callout every 10 s</td><td><code>L12</code></td><td><span class="sw">SC↓</span></td><td><span class="sw">SB↓</span></td></tr>
+    </tbody>
+  </table>
+  <ul class="plain">
+    <li>On the GX12, <span class="sw">SD↓</span> is the <span class="sw">SD</span> button held and <span class="sw">SD↑</span> released; the same goes for <span class="sw">SA</span> and <span class="sw">SG</span>. Two functions can share a switch, as <span class="ui">Landing</span> and <span class="ui">Crow off</span> share <span class="sw">SD</span>.</li>
+    <li>On the GX12 the arming stays a toggle: each time the chosen switch comes on, the arming flips. On the Pocket the motor is armed while the switch is on, and the start height callout (section 5) follows the arming instead of <span class="sw">SA</span>.</li>
+  </ul>
+  <p><b><span class="ui">Landing</span> at <span class="ui">NONE</span>.</b> No switch ends the flight. Press the start button instead (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>), as in the original SoarOTX F5J: once the 10-second count after the motor run is over, the flight timer stops and the radio says the flight time. Before that the press does nothing. It does not start the motor either: that needs a new arm.</p>
+  <p><b><span class="ui">Crow off</span> at <span class="ui">NONE</span>.</b> The throttle stick moves the brakes all the time, as in the original SoarOTX F5J. When the motor starts, the brakes lock in, so the stick position does not matter during the motor run. After the motor stops, they stay in until you move the stick to its brakes-in end, the last 5 % of the travel (the bottom in the template, the top after the change in 6.10); from there the stick moves the brakes again. While the brakes are locked and the stick is elsewhere, the radio says “Flaps up” 3 seconds after the motor stops and then every 5 seconds. In Float the stick would add the thermal camber together with the brakes, so move that camber to a pot or slider, or take it off the stick (6.10).</p>
+  <ul class="plain">
+    <li>The two settings are independent: either one can stay on its switch.</li>
+    <li>A model made from an older template (without <code>L50</code>) has no lock and no reminder: with <span class="ui">Crow off</span> at <span class="ui">NONE</span> the stick just moves the brakes all the time. Restore the model from the new template to get them.</li>
   </ul>
 </section>
 
@@ -569,7 +609,7 @@
     <li><b>Start</b>: press and release the start button (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). P1 sets the power. The voice calls 5, 10, 15 and 20 seconds of motor run, then counts 1…9 for the seconds 21 to 29.</li>
     <li><b>Motor off</b>: the start button again, disarming (GX12 press <span class="sw">SA</span>, Pocket <span class="sw">SA↑</span>), or automatically at 30 seconds. The radio counts 10 seconds. At 10 it records the start height, the highest altitude since arming, and says it if the motor is disarmed (the GX12 disarms by itself when the motor stops; Pocket <span class="sw">SA↑</span>); otherwise it says “10”.</li>
     <li><b>Glide:</b> the voice calls the remaining working time: every minute while more than 2 minutes remain; every 15 seconds from 2 to 1 minute; every 5 seconds from 1 minute to 10 seconds; then every second 10…1. To correct the remaining time, press <kbd>ENTER</kbd>: it blinks, rounded down to whole minutes. Turn the roller to change it and press <kbd>ENTER</kbd> to apply, or <kbd>RTN</kbd> to cancel.</li>
-    <li><b>Landing:</b> crow on (GX12 hold <span class="sw">SD</span>, Pocket <span class="sw">SD↓</span>): the throttle stick controls the brakes. Once the 10-second count is over, the flight timer stops at once and the radio says the flight time, so use crow only for the landing.</li>
+    <li><b>Landing:</b> crow on (GX12 hold <span class="sw">SD</span>, Pocket <span class="sw">SD↓</span>): the throttle stick controls the brakes. Once the 10-second count is over, the flight timer stops at once and the radio says the flight time, so use crow only for the landing. With <span class="ui">Landing</span> at <span class="ui">NONE</span> (6.11), press the start button to stop the timer; with <span class="ui">Crow off</span> at <span class="ui">NONE</span>, the stick moves the brakes without a switch.</li>
     <li><b>Scores:</b> turn the roller to set the landing points (steps of 5, 0 to 50) and press <kbd>ENTER</kbd>. Correct the start height (steps of 1 m, 0 to 300; 100 without an altitude sensor) and press <kbd>ENTER</kbd>. Correct the flight time (steps of 1 second) and press <kbd>ENTER</kbd>. <kbd>RTN</kbd> goes back one step.</li>
     <li><b>Save:</b> <kbd>ENTER</kbd> writes the flight to <code>/LOGS/JF F5J Scores.csv</code>, <kbd>RTN</kbd> discards it. The screen returns to Ready.</li>
   </ol>
@@ -580,9 +620,10 @@
     <thead><tr><th>What you see</th><th>What to do</th></tr></thead>
     <tbody>
       <tr><td>The model has no timer or Configuration screen</td><td>The model was made with <span class="ui">Create model</span> and is empty. Restore it from the template (section 3).</td></tr>
-      <tr><td>The menu has no <span class="ui">7. Motor idle</span>, or the screens do not open after an update</td><td>Delete the old <code>.luac</code> files (section 2) and restart the radio.</td></tr>
+      <tr><td>The menu has no <span class="ui">7. Motor idle</span> or <span class="ui">8. Switches</span>, or the screens do not open after an update</td><td>Delete the old <code>.luac</code> files (section 2) and restart the radio.</td></tr>
       <tr><td>Alignment opens with “did not pass all checks”</td><td>A wing curve or output was changed outside this page, so the page cannot align it. <kbd>ENTER</kbd> resets the four outputs and the curves CV1–CV4; then align the wing again (step 6.2). <kbd>RTN</kbd> leaves them as they are.</td></tr>
       <tr><td>T3 above center does nothing, no reflex</td><td>That is by design: T3 only adds camber. Reflex is the last points of the airbrake curves on page 3 (6.4).</td></tr>
+      <tr><td>After the motor run the brakes stay in and the radio says “Flaps up”</td><td><span class="ui">Crow off</span> is at <span class="ui">NONE</span> (6.11): move the throttle stick to its brakes-in end, and the stick moves the brakes again.</td></tr>
       <tr><td>No camber in Float</td><td>In Float the thermal camber comes from the throttle stick: at the bottom there is none. Raise the stick or lower T3 (6.4).</td></tr>
       <tr><td>The help covers the page, or does not show</td><td>Press <kbd>MDL</kbd>: it shows or hides the help.</td></tr>
       <tr><td>The motor does not start</td><td>Arm first. After a motor run, press <span class="sw">SA</span> again on the GX12, or move the Pocket's <span class="sw">SA</span> out of the down position and back. The motor does not start while the Alignment or Airbrakes page is open.</td></tr>
@@ -603,11 +644,12 @@
     <li>Without arming, CH3 is at minimum; the failsafe stops the motor.</li>
     <li>The motor stops with the start button, when you disarm, and automatically after 30 seconds.</li>
     <li>Crow (Pocket <span class="sw">SD↓</span>, GX12 <span class="sw">SD</span> held; throttle stick up): flaps down, ailerons up, and the throttle stick controls the brakes smoothly.</li>
+    <li>With <span class="ui">Crow off</span> at <span class="ui">NONE</span>: the brakes stay in while the motor runs and after it, until the throttle stick reaches its brakes-in end.</li>
     <li>The altitude and receiver voltage telemetry show, and the voice prompts are heard.</li>
     <li>A range check is done.</li>
   </ul>
 
-  <p class="endnote">The project page is <a href="https://github.com/vitas/soar-edgetx-bw">github.com/vitas/soar-edgetx-bw</a>; its README describes the templates in detail. This guide describes the templates and scripts as of October 2026.</p>
+  <p class="endnote">The project page is <a href="https://github.com/vitas/soar-edgetx-bw">github.com/vitas/soar-edgetx-bw</a>; its README describes the templates in detail. This guide describes the templates and scripts as of November 2026.</p>
   </div>
 </section>
 

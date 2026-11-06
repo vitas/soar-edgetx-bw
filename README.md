@@ -70,9 +70,11 @@ The opposite `CH8` sign keeps the two mirrored elevator servos moving together.
 Both mixes are active in `Cruise`, `Speed`, and `Float`, and disabled in
 `Adjust`, `Motor`, and `KAPOW`. `L46` and `L48` are defined on every F5J variant
 and are off by default: their first switch is `!ON`, because EdgeTX treats an
-empty switch (`NONE`) as always on. To use a mix, set that switch in the radio's
-Logical Switches menu to a physical switch, or to `ON` to keep the mix on. The
-`AilEle` differential of `-50` halves the travel of the elevator half that moves
+empty switch (`NONE`) as always on. To use a mix, choose its switch, or `ON` to
+keep the mix on, in the `Ail->Ele` or `Rud->Ele` row of the
+[F5J Switches Page](#f5j-switches-page), or set that first switch in the
+radio's Logical Switches menu. The `AilEle` differential of `-50` halves the
+travel of the elevator half that moves
 down; it is fixed because the Pocket and the GX12 have only nine global
 variables. The mixes are only present on `M-tail`; `X-tail` has a single
 elevator output and `V-tail` uses its two surfaces for the V-tail mix.
@@ -189,10 +191,12 @@ To turn both around, open the model inputs, select `I5:Brk`, and set the
 weight of its `Brake` line to `+100`. The stick down then gives full airbrakes
 and full thermal camber, the stick up gives neither, and the 5% zone with the
 airbrakes fully retracted moves to the top of the stick travel. Nothing else
-depends on this direction: the airbrake curves, the brake elevator
-compensation, and the `BrkOff` line that keeps the airbrakes retracted with
-crow off (`L36`) all work from the brake channel `CH21`, and no logical switch
-or script reads `Thr` or `I5:Brk`.
+needs changing: the airbrake curves, the brake elevator compensation, and the
+`BrkOff` line that keeps the airbrakes retracted (switch `L51`, see
+[F5J Switches Page](#f5j-switches-page)) all work from the brake channel
+`CH21`. The only logical switch that reads `I5:Brk` is `L35`, the
+brakes-retracted zone of the throttle crow, and it follows the new direction by
+itself. No script reads `Thr` or `I5:Brk`.
 
 The templates keep the throttle warning on, with the throttle stick as its
 source, so at power-on it asks for the stick down. After this change that is
@@ -240,6 +244,19 @@ the source `I6:CbP`, and untick `FM1`, `FM3`, and `FM4` (`Adjust`, `KAPOW`,
 power rises. `T3` no longer moves the camber in flight, and the setup pages
 still use its buttons.
 
+The Float thermal camber of the throttle stick comes from the `CambrX` line of
+`CH25`: source `I5:Brk`, weight `32`, offset `-32`, curve CV12 `LSl`, active
+only in `FM5` (`Float`). To move it to a pot or slider, change the source of
+that line to the control and keep the weight, offset, and curve. The `+100` end
+of the control then gives no camber and the `-100` end the full `-32`; `!LSl`
+swaps the ends. The throttle stick then moves only the airbrakes. On the GX12,
+`P2`, `S1`, or `S2` can do this. The Pocket has no free pot or slider (`P1`
+sets the motor power); there, untick `FM5` in the `CambrX` line to take the
+camber off the stick, and the throttle trim still adds camber in `Float`. Do
+one of the two when `Crow off` is `NONE` on the
+[F5J Switches Page](#f5j-switches-page): the stick then moves the airbrakes all
+the time, and in `Float` it would add the camber with them.
+
 ### Pocket Switch Assignments
 
 The Pocket templates use the following primary controls. EdgeTX position names
@@ -257,7 +274,8 @@ For F5J, arm with SA before using SE. After the motor run and motor-off count,
 move SD down to enable throttle-controlled proportional crow, finish the flight,
 and open landing-score entry. Move SD up to force crow off. Hold SB down for
 repeating flight-time announcements. Keep the motor disconnected while checking
-these assignments on a newly created model.
+these assignments on a newly created model. The F5J functions can move to other
+switches on the [F5J Switches Page](#f5j-switches-page).
 
 The templates are sanitized: they contain no personal binding, registration,
 or discovered telemetry data. Output calibration and flight trims are neutral,
@@ -324,11 +342,74 @@ The radio skips `SA` presses less than half a second apart; the siren and
 "MOTOR ARMED" confirm the arming. `P1` still sets the motor power. The `SH`
 button, the sliders, `P2`, and `SW1`-`SW6` are free in both templates. The GX12
 has no extended global variables, so the fixed `AilEle`/`RudEle` weights
-(`+20`/`-20`) and the `AilEle` differential are required there as well.
+(`+20`/`-20`) and the `AilEle` differential are required there as well. The
+[F5J Switches Page](#f5j-switches-page) moves the F5J functions to other
+controls, the free ones included.
 
 The GX12 has no SD card: over USB its internal storage appears as the SD card.
 Copy the same package parts to it (see [Install](#install)), then restore a
 `gx12-*` template on the radio.
+
+## F5J Switches Page
+
+The F5J Configuration menu (telemetry screen 2) has an `8. Switches` page. Each
+row sets the first switch of one logical switch, and the change is written to
+the model at once. The radio shows the positions with arrows: `SA2` is `SA↓`.
+
+![The Switches page of the GX12 F5J templates](docs/images/page-switches.png)
+
+| Row | Function | Logical switch | GX12 | Pocket |
+| --- | --- | --- | --- | --- |
+| `Motor arm` | Motor arming | `L41` (GX12), `L5` (Pocket) | `SA2` | `SA2` |
+| `Motor/timer` | Motor start and stop; trigger of the score keeper | `L9` | `SG2` | `SE2` |
+| `Speed` | Flight mode `Speed` | `L3` | `SF0` | `SC0` |
+| `Float` | Flight mode `Float`; `Cruise` when neither is on | `L4` | `SF2` | `SC2` |
+| `Landing` | Ends the flight after the motor-off count; landing announcement | `L7` | `SD2` | `SD2` |
+| `Crow off` | Keeps the airbrakes retracted; crow-off announcement | `L36` | `SD0` | `SD0` |
+| `Ail->Ele` | M-tail `AilEle` mixes | `L46` | `NONE` | `NONE` |
+| `Rud->Ele` | M-tail `RudEle` mixes | `L48` | `NONE` | `NONE` |
+| `Timer report` | Flight-time announcement every 10 seconds | `L12` | `SC2` | `SB2` |
+
+ENTER on a row starts the choice: the roller steps through `NONE`, `ON`, the
+inverted positions, and the switch positions, the GX12's `SW1`-`SW6` included,
+and wraps around. ENTER saves, RTN keeps the old switch. An inverted position
+is on while the switch is anywhere else: `!SB↓` is `SB` up or in the middle.
+The list leaves out trims, logical switches, and flight modes. `NONE` is stored
+as `!ON`, because EdgeTX treats an empty switch as always on. Only the M-tail
+templates have the mixes of `L46` and `L48`, so on the X-tail and V-tail the
+`Ail->Ele` and `Rud->Ele` rows change nothing.
+
+On the GX12, the `Motor arm` row writes `L41`, which flips the sticky arming
+`L5` each time the chosen switch comes on, as the `SA` button does. On the
+Pocket it writes `L5` itself, and the motor is armed while the chosen switch is
+on. `L1` and `L8`, the altitude-call switches of the score keeper, read `L5`,
+so the start-height callout follows the arming to its new switch.
+
+**Landing at `NONE`.** `L7` stays off, and the start button (`L9`, the trigger
+of the score keeper) ends the flight instead, as in the original SoarOTX F5J:
+once the 10-second count after the motor stop is over, a press stops the flight
+timer, the radio says the flight time, and the landing-score entry opens.
+Before that the press does nothing. It does not start the motor either, because
+a start needs a new arm (`L23`).
+
+**Crow off at `NONE`.** `L36` stays off, so the throttle stick moves the
+airbrakes all the time, and the page also sets the first switch of `L50` to
+`ON`. `L50` turns on the throttle crow lock of the original SoarOTX F5J
+templates:
+
+- When the motor starts (`L34`), the sticky `L38` locks the airbrakes
+  retracted: `L51`, the switch of the `BrkOff` line on `CH21`, is on while
+  `L36` or `L38` is on.
+- After the motor stops, the lock holds until the stick enters `L35`, the
+  brakes-retracted zone (`I5:Brk` above `90`, the last 5% of the travel).
+- While the lock holds and the stick is outside the zone, `L37` plays
+  `flapup.wav` ("flaps up") through `SF27`, 3 seconds after the motor stop and
+  then every 5 seconds.
+
+Choosing a switch for `Crow off` turns `L50` off again. Models made from older
+templates have no `L50`: there the page writes only `L36`, and `NONE` leaves
+the airbrakes on the stick without the lock. Move the Float camber off the
+stick when `Crow off` is `NONE` (see [Camber Slider](#camber-slider)).
 
 ## Install
 
