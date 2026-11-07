@@ -56,6 +56,12 @@ common F5J setup and use these channel assignments:
 | CH7 | Elevator | Left elevator | Left V-tail |
 | CH8 | Unused | Right elevator | Right V-tail |
 
+In every template, F3K included, the aileron line of `CH1` and `CH2` leaves the
+trim out. The line after it, `AilTrm`, adds the aileron trim `T4` after the
+differential, through the curve `Trm`, which gives the 25% that full trim adds
+to a line, and the aileron weight `GV1`, so both ailerons trim by the same
+amount.
+
 ### M-tail Elevator Mixes
 
 `M-tail` drives the two elevator servos from `CH7` and `CH8` and adds two
@@ -67,8 +73,8 @@ optional differential elevator mixes:
 | `RudEle` (rudder to elevator) | `L48` | Off | `+20` on `CH7`, `-20` on `CH8` |
 
 The opposite `CH8` sign keeps the two mirrored elevator servos moving together.
-Both mixes are active in `Cruise`, `Speed`, and `Float`, and disabled in
-`Adjust`, `Motor`, and `KAPOW`. `L46` and `L48` are defined on every F5J variant
+Both mixes are active in `Cruise`, `Landing`, `Speed`, and `Float`, and disabled
+in `Adjust` and `Motor`. `L46` and `L48` are defined on every F5J variant
 and are off by default: their first switch is `!ON`, because EdgeTX treats an
 empty switch (`NONE`) as always on. To use a mix, choose its switch, or `ON` to
 keep the mix on, in the `Ail->Ele` or `Rud->Ele` row of the
@@ -229,7 +235,7 @@ weight `10`, offset `-10`). With a slider as the source, `CH25` gets `0` in the
 last 5% of the travel at the `+100` end and `-20` at the `-100` end; for
 comparison, full Float thermal camber is `-32`. `T3` keeps working on top of
 the slider. The `Slider` line is active in every flight mode and is not reduced
-while the motor runs, so untick `FM1` to `FM4` (`Adjust`, `Motor`, `KAPOW`,
+while the motor runs, so untick `FM1` to `FM4` (`Adjust`, `Motor`, `Landing`,
 `Speed`) in that line and keep `Cruise` and `Float`. Untick them in the `CH25`
 line, not in the `I7:Cmb` input: a switched-off input line does not bring this
 camber to zero.
@@ -238,11 +244,11 @@ Instead of `T3`, change the source of the `CambPs` line of `I6:CbP` from `T3`
 to the slider. It then works like `T3`: below center it adds camber, center and
 above add none. One slider position serves all flight modes, so `Cruise` and
 `Float` no longer keep their own camber, and the slider would also add camber
-in `Adjust`, `KAPOW`, and `Speed`. Open the first `CH23` mix line, the one with
-the source `I6:CbP`, and untick `FM1`, `FM3`, and `FM4` (`Adjust`, `KAPOW`,
-`Speed`) in it. The `MotCbr` line still takes this camber away as the motor
-power rises. `T3` no longer moves the camber in flight, and the setup pages
-still use its buttons.
+in `Adjust`, `Landing`, and `Speed`. Open the first `CH23` mix line, the one
+with the source `I6:CbP`, and untick `FM1`, `FM3`, and `FM4` (`Adjust`,
+`Landing`, `Speed`) in it. The `MotCbr` line still takes this camber away as
+the motor power rises. `T3` no longer moves the camber in flight, and the setup
+pages still use its buttons.
 
 The Float thermal camber of the throttle stick comes from the `CambrX` line of
 `CH25`: source `I5:Brk`, weight `32`, offset `-32`, curve CV12 `LSl`, active
@@ -410,6 +416,24 @@ Choosing a switch for `Crow off` turns `L50` off again. Models made from older
 templates have no `L50`: there the page writes only `L36`, and `NONE` leaves
 the airbrakes on the stick without the lock. Move the Float camber off the
 stick when `Crow off` is `NONE` (see [Camber Slider](#camber-slider)).
+
+**Landing and Crow off both at `NONE`.** The page also sets the first switch of
+`L52` to `ON`, and only for this pair of settings. `L52` lets the throttle
+stick switch the flight mode `FM3` `Landing`, which takes over from `Cruise`,
+`Speed`, and `Float`:
+
+- `L53` (`L52` and `!L35`) comes on 0.5 seconds after the stick leaves the
+  brakes-retracted zone `L35`, and goes off as soon as the stick returns to it.
+  The radio says "landing".
+- `Landing` mixes as `Cruise`, with the same global variables and trims, but
+  its elevator trim buttons set the brake elevator compensation `BkE` (`GV5`,
+  shared with `Cruise`) and leave the elevator trim alone.
+- After a motor run, `Landing` waits like the airbrakes: `L53` stays off while
+  `L51` holds the lock, until the stick has been in the zone.
+
+With a switch in either row, `L52` is `!ON` and `FM3` never comes on, as before.
+Models made from older templates lack this flag, and the page leaves their
+`L52` alone.
 
 ## Install
 

@@ -592,10 +592,11 @@ end)
 
 -- Logical switches the Switches page writes (0-based like the EdgeTX API)
 local LS_ARM, LS_SPEED, LS_LANDING, LS_TIME = 4, 2, 6, 11
-local LS_CROW_OFF, LS_AIL_ELE, LS_RUD_ELE, LS_ARM_TOGGLE, LS_THROTTLE_CROW = 35, 45, 47, 40, 49
+local LS_CROW_OFF, LS_AIL_ELE, LS_RUD_ELE, LS_ARM_TOGGLE, LS_THROTTLE_CROW, LS_LANDING_MODE = 35, 45, 47, 40, 49, 51
 
 -- A model with the switches of the F5J templates, as on the Pocket or, with gx12, on the GX12.
--- Options: without_throttle_crow (older templates without L50), switches (more logical switches).
+-- Options: without_throttle_crow (older templates without L50), without_landing_mode (older
+-- templates without L52), switches (more logical switches).
 local function switch_radio(screen, gx12, options)
   options = options or {}
   local radio = new_radio(screen)
@@ -614,6 +615,9 @@ local function switch_radio(screen, gx12, options)
   ls[LS_TIME] = { func = AND, v1 = sw("SB" .. DOWN), v2 = 0 }
   if not options.without_throttle_crow then
     ls[LS_THROTTLE_CROW] = { func = AND, v1 = sw("!ON"), v2 = 0 }
+  end
+  if not options.without_landing_mode then
+    ls[LS_LANDING_MODE] = { func = AND, v1 = sw("!ON"), v2 = 0 }
   end
   if gx12 then
     -- The GX12 arming is a sticky switch that each press on L41 flips
@@ -752,26 +756,117 @@ test("switches page stores NONE as !ON and turns the throttle crow on for Crow o
     assert_equal(radio.logical_switches[LS_CROW_OFF].v1, SWITCH_IDS["SD" .. UP], screen_label(screen, "L36 back"))
     assert_equal(radio.logical_switches[LS_THROTTLE_CROW].v1, SWITCH_IDS["!ON"], screen_label(screen, "L50 off"))
 
-    -- Landing has no linked switch
+    -- Landing also writes the Landing mode flag
     press(radio, CONSTANTS.EVT_VIRTUAL_PREV)
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     choose(radio, "NONE")
     radio.ls_writes = {}
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     assert_equal(radio.logical_switches[LS_LANDING].v1, SWITCH_IDS["!ON"], screen_label(screen, "L7 off"))
-    assert_equal(table.concat(radio.ls_writes, ","), tostring(LS_LANDING), screen_label(screen, "Landing writes"))
+    assert_equal(table.concat(radio.ls_writes, ","), table.concat({ LS_LANDING, LS_LANDING_MODE }, ","),
+      screen_label(screen, "Landing writes"))
   end
 end)
 
 test("switches page leaves models without L50 to the crow-off switch", function()
   for _, screen in ipairs(SCREENS) do
-    local radio = switch_radio(screen, false, { without_throttle_crow = true })
+    local radio = switch_radio(screen, false, { without_throttle_crow = true, without_landing_mode = true })
     press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 5)
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     choose(radio, "NONE")
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     assert_equal(table.concat(radio.ls_writes, ","), tostring(LS_CROW_OFF), screen_label(screen, "writes"))
     assert_true(radio.logical_switches[LS_THROTTLE_CROW] == nil, screen_label(screen, "L50 stays undefined"))
+  end
+end)
+
+-- L52 lets the brake stick switch the Landing flight mode, so the page turns it on only while both
+-- Landing and Crow off are NONE. ON counts as a switch.
+test("switches page turns the Landing mode on only while Landing and Crow off are both NONE", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = switch_radio(screen)
+    local function flag() return radio.logical_switches[LS_LANDING_MODE] end
+    local function set(name)
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      choose(radio, name)
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+    end
+
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 5)
+    set("NONE")
+    assert_equal(flag().v1, SWITCH_IDS["!ON"], screen_label(screen, "L52 off while Landing has SD"))
+    assert_equal(table.concat(radio.ls_writes, ","),
+      table.concat({ LS_CROW_OFF, LS_THROTTLE_CROW, LS_LANDING_MODE }, ","), screen_label(screen, "Crow off writes"))
+
+    press(radio, CONSTANTS.EVT_VIRTUAL_PREV)
+    radio.ls_writes = {}
+    set("NONE")
+    assert_equal(flag().v1, SWITCH_IDS.ON, screen_label(screen, "L52 on"))
+    assert_equal(flag().func, CONSTANTS.LS_FUNC_AND, screen_label(screen, "L52 function kept"))
+    assert_equal(flag().v2, 0, screen_label(screen, "L52 second switch kept"))
+    assert_equal(table.concat(radio.ls_writes, ","), table.concat({ LS_LANDING, LS_LANDING_MODE }, ","),
+      screen_label(screen, "Landing writes"))
+
+    set("ON")
+    assert_equal(flag().v1, SWITCH_IDS["!ON"], screen_label(screen, "L52 off with Landing ON"))
+    set("NONE")
+    assert_equal(flag().v1, SWITCH_IDS.ON, screen_label(screen, "L52 on again"))
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT)
+    set("SD" .. UP)
+    assert_equal(flag().v1, SWITCH_IDS["!ON"], screen_label(screen, "L52 off with a crow-off switch"))
+  end
+end)
+
+-- Models from older templates have no L52, and a pilot may have used L52 for something else
+test("switches page leaves L52 alone unless it is the Landing mode flag", function()
+  local own = {
+    { func = CONSTANTS.LS_FUNC_OR, v1 = SWITCH_IDS["!ON"], v2 = 0 },
+    { func = CONSTANTS.LS_FUNC_AND, v1 = SWITCH_IDS["!ON"], v2 = SWITCH_IDS["SB" .. UP] }
+  }
+  local cases = { { without_landing_mode = true } }
+  for _, l52 in ipairs(own) do cases[#cases + 1] = { switches = { [LS_LANDING_MODE] = l52 } } end
+
+  for _, screen in ipairs(SCREENS) do
+    for case_index, options in ipairs(cases) do
+      local radio = switch_radio(screen, false, options)
+      local label = "case " .. tostring(case_index)
+      press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 4)
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      choose(radio, "NONE")
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      press(radio, CONSTANTS.EVT_VIRTUAL_NEXT)
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      choose(radio, "NONE")
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      assert_equal(table.concat(radio.ls_writes, ","),
+        table.concat({ LS_LANDING, LS_CROW_OFF, LS_THROTTLE_CROW }, ","), screen_label(screen, label .. " writes"))
+      local l52 = own[case_index - 1]
+      local kept = radio.logical_switches[LS_LANDING_MODE]
+      if l52 then
+        for _, field in ipairs({ "func", "v1", "v2" }) do
+          assert_equal(kept[field], l52[field], screen_label(screen, label .. " L52 " .. field))
+        end
+      else
+        assert_true(kept == nil, screen_label(screen, "L52 stays undefined"))
+      end
+    end
+  end
+end)
+
+-- An empty switch keeps a defined logical switch on, so an empty Landing counts as a switch. L52
+-- starts on here, as a model left it after both rows were NONE.
+test("switches page counts an empty Landing switch as assigned", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = switch_radio(screen, false, { switches = {
+      [LS_LANDING] = { func = CONSTANTS.LS_FUNC_AND, v1 = 0, v2 = 0 },
+      [LS_LANDING_MODE] = { func = CONSTANTS.LS_FUNC_AND, v1 = SWITCH_IDS.ON, v2 = 0 } } })
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 5)
+    press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+    choose(radio, "NONE")
+    press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+    assert_equal(radio.logical_switches[LS_LANDING_MODE].v1, SWITCH_IDS["!ON"], screen_label(screen, "L52 off"))
+    assert_equal(table.concat(radio.ls_writes, ","),
+      table.concat({ LS_CROW_OFF, LS_THROTTLE_CROW, LS_LANDING_MODE }, ","), screen_label(screen, "writes"))
   end
 end)
 

@@ -67,7 +67,7 @@ mixData:
  -
    destCh: 0
    srcRaw: "I2"
-   carryTrim: 0
+   carryTrim: 1
    mixWarn: 0
    mltpx: ADD
    delayPrec: 0
@@ -84,6 +84,26 @@ mixData:
    speedUp: 0
    speedDown: 0
    name: ""
+ -
+   destCh: 0
+   srcRaw: "T4"
+   carryTrim: 1
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 010000000
+   weight: "gv(0)"
+   offset: 0
+   swtch: "NONE"
+   curve:
+      type: 3
+      value: 15
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: "AilTrm"
  -
    destCh: 1
    srcRaw: "ch(29)"
@@ -104,7 +124,7 @@ mixData:
  -
    destCh: 1
    srcRaw: "I2"
-   carryTrim: 0
+   carryTrim: 1
    mixWarn: 0
    mltpx: ADD
    delayPrec: 0
@@ -121,6 +141,26 @@ mixData:
    speedUp: 0
    speedDown: 0
    name: ""
+ -
+   destCh: 1
+   srcRaw: "T4"
+   carryTrim: 1
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 010000000
+   weight: "gv(0)"
+   offset: 0
+   swtch: "NONE"
+   curve:
+      type: 3
+      value: 15
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: "AilTrm"
  -
    destCh: 2
    srcRaw: "MAX"
@@ -200,7 +240,7 @@ mixData:
    mltpx: ADD
    delayPrec: 0
    speedPrec: 0
-   flightModes: 000100000
+   flightModes: 000000000
    weight: 100
    offset: 0
    swtch: "NONE"
@@ -443,23 +483,6 @@ mixData:
    speedDown: 0
    name: "BrkEle"
  -
-   destCh: 21
-   srcRaw: "MAX"
-   carryTrim: 0
-   mixWarn: 0
-   mltpx: REPL
-   delayPrec: 0
-   speedPrec: 0
-   flightModes: 111011111
-   weight: "gv(4)"
-   offset: 0
-   swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
-   name: "KAPOW"
- -
    destCh: 22
    srcRaw: "I5"
    carryTrim: 0
@@ -637,23 +660,6 @@ mixData:
    speedPrec: 0
    flightModes: 010000000
    weight: "gv(6)"
-   offset: 0
-   swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
-   name: ""
- -
-   destCh: 25
-   srcRaw: "MAX"
-   carryTrim: 0
-   mixWarn: 0
-   mltpx: REPL
-   delayPrec: 0
-   speedPrec: 0
-   flightModes: 111011111
-   weight: 100
    offset: 0
    swtch: "NONE"
    delayUp: 0
@@ -858,23 +864,6 @@ mixData:
    delayPrec: 0
    speedPrec: 0
    flightModes: 010000000
-   weight: 100
-   offset: 0
-   swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
-   name: ""
- -
-   destCh: 30
-   srcRaw: "MAX"
-   carryTrim: 0
-   mixWarn: 0
-   mltpx: REPL
-   delayPrec: 0
-   speedPrec: 0
-   flightModes: 111011111
    weight: 100
    offset: 0
    swtch: "NONE"
@@ -1366,6 +1355,11 @@ curves:
       smooth: 0
       points: 0
       name: "BrE"
+   14:
+      type: 0
+      smooth: 0
+      points: 0
+      name: "Trm"
 points:
    0:
       val: -100
@@ -1505,6 +1499,16 @@ points:
       val: -83
    77:
       val: -100
+   78:
+      val: -25
+   79:
+      val: -12
+   80:
+      val: 0
+   81:
+      val: 12
+   82:
+      val: 25
 logicalSw:
    0:
       func: FUNC_AND
@@ -1850,6 +1854,22 @@ logicalSw:
       lsState: 0
       delay: 0
       duration: 0
+   51:
+      func: FUNC_AND
+      def: "!ON,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   52:
+      func: FUNC_AND
+      def: "L52,!L35"
+      andsw: "!L51"
+      lsPersist: 0
+      lsState: 0
+      delay: 5
+      duration: 0
 customFn:
    0:
       swtch: "ON"
@@ -1869,8 +1889,8 @@ customFn:
       def: "4,Src,T2,1"
    4:
       swtch: "FM3"
-      func: HAPTIC
-      def: "0,1,1x"
+      func: PLAY_TRACK
+      def: "f3jlnd,1,1x"
    5:
       swtch: "L2"
       func: VARIO
@@ -2078,17 +2098,14 @@ flightModeData:
       trim:
          1:
             value: 0
-            mode: 31
+            mode: 0
          2:
             value: 0
-            mode: 31
-      name: "KAPOW"
-      swtch: "L32"
-      fadeIn: 0
-      fadeOut: 0
-      gvars:
-         4:
-            val: -100
+            mode: 0
+      name: "Landing"
+      swtch: "L53"
+      fadeIn: 10
+      fadeOut: 10
    4:
       trim:
          1:

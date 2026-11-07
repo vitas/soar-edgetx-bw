@@ -663,7 +663,7 @@ test("Pocket F3K keeps Flitz behavior sets", function()
   assert_named_indexed_set(content, "gvars", "name",
     { "Ail", "Brk", "AiR", "Dif", "BkE", "Snp", "Cmb", "Adj", "Tmr" }, "F3K GVars")
   assert_named_indexed_set(content, "curves", "name",
-    { "Lft", "Rgt", "BrF", "Snp", "Abs", "DB", "Aln", "LSl" }, "F3K curves")
+    { "Lft", "Rgt", "BrF", "Snp", "Abs", "DB", "Aln", "LSl", "Trm" }, "F3K curves")
   assert_named_indexed_set(content, "inputNames", "val",
     { "Rud", "Ele", "Ail", "Brk", "CbP", "Cmb", "Aln", "Pok" }, "F3K inputs")
   assert_index_set(content, "logicalSw",
@@ -694,11 +694,13 @@ test("Pocket F3K keeps every functional physical and virtual mix", function()
   local expected = {
     [0] = {
       "src=ch(31)|weight=-100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-      "src=I2|weight=gv(0)|switch=NONE|curve=0:!gv(3)|trim=0|mux=ADD|fm=010000000|offset=0|name="
+      "src=I2|weight=gv(0)|switch=NONE|curve=0:!gv(3)|trim=1|mux=ADD|fm=010000000|offset=0|name=",
+      "src=T4|weight=gv(0)|switch=NONE|curve=3:9|trim=1|mux=ADD|fm=010000000|offset=0|name=AilTrm"
     },
     [1] = {
       "src=ch(31)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-      "src=I2|weight=gv(0)|switch=NONE|curve=0:gv(3)|trim=0|mux=ADD|fm=010000000|offset=0|name="
+      "src=I2|weight=gv(0)|switch=NONE|curve=0:gv(3)|trim=1|mux=ADD|fm=010000000|offset=0|name=",
+      "src=T4|weight=gv(0)|switch=NONE|curve=3:9|trim=1|mux=ADD|fm=010000000|offset=0|name=AilTrm"
     },
     [2] = {
       "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
@@ -812,11 +814,13 @@ local f5j_variants = {
 local common_f5j_mix_signatures = {
   [0] = {
     "src=ch(29)|weight=-100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=I2|weight=gv(0)|switch=NONE|curve=0:!gv(3)|trim=0|mux=ADD|fm=010000000|offset=0|name="
+    "src=I2|weight=gv(0)|switch=NONE|curve=0:!gv(3)|trim=1|mux=ADD|fm=010000000|offset=0|name=",
+    "src=T4|weight=gv(0)|switch=NONE|curve=3:15|trim=1|mux=ADD|fm=010000000|offset=0|name=AilTrm"
   },
   [1] = {
     "src=ch(29)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=I2|weight=gv(0)|switch=NONE|curve=0:gv(3)|trim=0|mux=ADD|fm=010000000|offset=0|name="
+    "src=I2|weight=gv(0)|switch=NONE|curve=0:gv(3)|trim=1|mux=ADD|fm=010000000|offset=0|name=",
+    "src=T4|weight=gv(0)|switch=NONE|curve=3:15|trim=1|mux=ADD|fm=010000000|offset=0|name=AilTrm"
   },
   [2] = {
     "src=MAX|weight=-100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=Idle",
@@ -867,17 +871,18 @@ test("F5J variants keep the Sense behavior sets", function()
     local content = read_file(variant.path)
     assert_named_indexed_set(content, "timers", "name", { "Fli", "Mot" }, variant.label .. " timers")
     assert_named_indexed_set(content, "flightModeData", "name",
-      { "Cruise", "Adjust", "Motor", "KAPOW", "Speed", "Float" }, variant.label .. " flight modes")
+      { "Cruise", "Adjust", "Motor", "Landing", "Speed", "Float" }, variant.label .. " flight modes")
     assert_named_indexed_set(content, "gvars", "name",
       { "Ail", "AiF", "AiR", "Dif", "BkE", "Snp", "CbA", "Adj", "Tmr" }, variant.label .. " GVars")
     assert_indexed_values(nested_section(indexed_block(content, "flightModeData", 0), "gvars"), "gvars",
       { 57, 24, 15, -11, 46, -16, 153, 0, 0 }, variant.label .. " Cruise GVar")
     assert_named_indexed_set(content, "curves", "name",
-      { "LA", "RA", "LF", "RF", "BrF", "BrA", "Snp", "Adj", "Mot", "Abs", "DB", "LSl", "Pot", "BrE" }, variant.label .. " curves")
+      { "LA", "RA", "LF", "RF", "BrF", "BrA", "Snp", "Adj", "Mot", "Abs", "DB", "LSl", "Pot", "BrE", "Trm" },
+      variant.label .. " curves")
     assert_named_indexed_set(content, "inputNames", "val",
       { "Rud", "Ele", "Ail", "Mot", "Brk", "CbP", "Cmb", "Adj" }, variant.label .. " inputs")
     assert_index_set(content, "logicalSw",
-      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "37", "38", "39", "42", "43", "44", "45", "47", "48", "49", "50" },
+      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "37", "38", "39", "42", "43", "44", "45", "47", "48", "49", "50", "51", "52" },
       variant.label .. " logical switches")
     for _, unsupported in ipairs({ "gv(11)", "!gv(11)" }) do
       assert_absent(content, unsupported, variant.label)
@@ -900,7 +905,7 @@ test("F5J variants keep the Sense switch assignments", function()
     [11] = "SB2,NONE",
     [35] = "SD0,NONE"
   }
-  local flight_modes = { "NONE", "L17", "L26", "L32", "L3", "L4" }
+  local flight_modes = { "NONE", "L17", "L26", "L53", "L3", "L4" }
   local timers = { "L19", "FM2" }
 
   for _, variant in ipairs(f5j_variants) do
@@ -941,8 +946,7 @@ test("F5J variants shape the brake elevator compensation with BrE", function()
     assert_mix_signatures(read_file(variant.path), 21, {
       "src=I3|weight=gv(4)|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=gv(4)|name=MotEle",
       "src=MAX|weight=10|switch=NONE|curve=0:0|trim=1|mux=MUL|fm=000000000|offset=0|name=MotEle",
-      "src=ch(20)|weight=gv(4)|switch=NONE|curve=3:14|trim=0|mux=ADD|fm=000000000|offset=gv(4)|name=BrkEle",
-      "src=MAX|weight=gv(4)|switch=NONE|curve=0:0|trim=0|mux=REPL|fm=111011111|offset=0|name=KAPOW"
+      "src=ch(20)|weight=gv(4)|switch=NONE|curve=3:14|trim=0|mux=ADD|fm=000000000|offset=gv(4)|name=BrkEle"
     }, variant.label .. " CH22 exact mixes")
   end
 end)
@@ -1049,6 +1053,65 @@ test("F5J variants lock the brakes in after the motor while Crow off is NONE", f
   sound:close()
 end)
 
+-- With Landing and Crow off both NONE, the Switches page turns L52 on, and L53 switches FM3
+-- Landing 0.5 s after the brake stick leaves the brakes-in zone (L35), unless Crow off or the crow
+-- lock holds the brakes in (L51). Landing has no GVars and no trims of its own, so it mixes as
+-- Cruise; the elevator trim sets BkE there (SF4), and "landing" plays once (SF5). L34 still reads
+-- the undefined L32, so the crow lock keeps its rule.
+test("F5J variants switch Landing from the brake stick while Landing and Crow off are NONE", function()
+  local switches = {
+    [51] = { func = "FUNC_AND", def = "!ON,NONE", andsw = "NONE", delay = "0" },
+    [52] = { func = "FUNC_AND", def = "L52,!L35", andsw = "!L51", delay = "5" }
+  }
+  local functions = {
+    [3] = { func = "ADJUST_GVAR", def = "4,Src,T2,1" },
+    [4] = { func = "PLAY_TRACK", def = "f3jlnd,1,1x" }
+  }
+
+  for _, template in ipairs(templates) do
+    if template.kind == "F5J" then
+      local content = read_file(template.path)
+      for index, expected in pairs(switches) do
+        local block = indexed_block(content, "logicalSw", index)
+        local label = template.name .. " L" .. tostring(index + 1)
+        for _, field in ipairs({ "func", "def", "andsw", "delay" }) do
+          assert_equal(scalar_field(block, field), expected[field], label .. " " .. field)
+        end
+        assert_equal(scalar_field(block, "duration"), "0", label .. " duration")
+      end
+      assert_equal(scalar_field(indexed_block(content, "logicalSw", 33), "def"), "L26,L32",
+        template.name .. " L34")
+      assert(not find_indexed_block(content, "logicalSw", 31), template.name .. " defines L32")
+
+      local landing = indexed_block(content, "flightModeData", 3)
+      for field, expected in pairs({ name = "Landing", swtch = "L53", fadeIn = "10", fadeOut = "10" }) do
+        assert_equal(scalar_field(landing, field), expected, template.name .. " FM3 " .. field)
+      end
+      local trims = nested_section(landing, "trim")
+      for _, index in ipairs({ 1, 2 }) do
+        assert_equal(scalar_field(indexed_block(trims, "trim", index), "mode"), "0",
+          template.name .. " FM3 trim " .. tostring(index))
+      end
+      assert_equal(flight_gvar_signature(landing), "", template.name .. " FM3 GVars")
+
+      for index, expected in pairs(functions) do
+        local custom_function = indexed_block(content, "customFn", index)
+        local label = template.name .. " SF" .. tostring(index + 1)
+        assert_equal(scalar_field(custom_function, "swtch"), "FM3", label .. " switch")
+        assert_equal(scalar_field(custom_function, "func"), expected.func, label .. " function")
+        assert_equal(scalar_field(custom_function, "def"), expected.def, label .. " definition")
+      end
+
+      local mixes = list_blocks(content, "mixData")
+      assert(#mixes <= 64, template.name .. " has " .. tostring(#mixes) .. " mix lines")
+      for _, block in ipairs(mixes) do
+        assert(scalar_field(block, "flightModes") ~= "111011111",
+          template.name .. " runs a mix line in FM3 only: " .. mix_signature(block))
+      end
+    end
+  end
+end)
+
 -- tests/test_config_pages.lua runs the landing with the switch and, with Landing at NONE, with the trigger
 test("F5J uses separate motor and landing switches", function()
   local script = read_file(F5J_SCRIPT)
@@ -1061,7 +1124,7 @@ end)
 
 -- The guide (6.10) and the README name these flight modes, inputs, curves and mix lines.
 test("F5J variants keep the lines named by the direction and camber slider steps", function()
-  local modes = { "Cruise", "Adjust", "Motor", "KAPOW", "Speed", "Float" }
+  local modes = { "Cruise", "Adjust", "Motor", "Landing", "Speed", "Float" }
   local inputs = {
     { chn = 3, name = "On", src = "P1", weight = "-100", curve = "3:9" },
     { chn = 4, name = "Brake", src = "Thr", weight = "-100", curve = "0:0" },
@@ -1150,7 +1213,7 @@ test("F5J variants keep exact GVar definitions and every flight-mode value", fun
     [0] = "0=57,1=24,2=15,3=-11,4=46,5=-16,6=153,7=0,8=0",
     [1] = "0=6,1=0,2=9,3=-12,4=0,6=69",
     [2] = "4=-4",
-    [3] = "4=-100",
+    [3] = "",
     [4] = "",
     [5] = ""
   }
@@ -1210,6 +1273,25 @@ test("F5J variants start physical curves linear and keep Sense brake and utility
   end
 end)
 
+-- EdgeTX adds a line's trim to its source before the differential, so the aileron lines leave the
+-- trim out and AilTrm adds T4 after it (see the CH1 and CH2 signatures). Trm is the ±25 % that full
+-- trim (128) adds to a source, on 5 points with the middle ones rounded. 5 points take the place of
+-- a default curve, so nothing moves.
+test("templates scale the aileron trim with the Trm curve", function()
+  local trim_curves = { F3K = { index = 8, first_point = 46 }, F5J = { index = 14, first_point = 78 } }
+  for _, template in ipairs(templates) do
+    local content = read_file(template.path)
+    local curve = trim_curves[template.kind]
+    local header = indexed_block(content, "curves", curve.index)
+    for field, expected in pairs({ name = "Trm", type = "0", smooth = "0", points = "0" }) do
+      assert_equal(scalar_field(header, field), expected, template.name .. " Trm " .. field)
+    end
+    assert_point_values(content, curve.first_point, { -25, -12, 0, 12, 25 }, template.name .. " Trm")
+    assert(not find_indexed_block(content, "points", curve.first_point + 5),
+      template.name .. " has a point after Trm")
+  end
+end)
+
 test("F5J X-tail maps rudder and one elevator exactly", function()
   local content = read_file(F5J_X)
   assert_equal(scalar_field(indexed_block(content, "limitData", 5), "name"), "Rudd", "X-tail CH6 name")
@@ -1220,7 +1302,7 @@ test("F5J X-tail maps rudder and one elevator exactly", function()
   }, "X-tail CH6 exact mixes")
   assert_mix_signatures(content, 6, {
     "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name="
+    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name="
   }, "X-tail CH7 exact mixes")
   assert_mix_signatures(content, 7, {}, "X-tail CH8 exact mixes")
   assert_equal(scalar_field(indexed_block(content, "failsafeChannels", 5), "val"), "0", "X-tail CH6 failsafe")
@@ -1238,17 +1320,17 @@ test("F5J M-tail maps rudder and two elevators with switchable AilEle and RudEle
   }, "M-tail CH6 exact mixes")
   local elevator_left = {
     "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name=",
-    "src=I2|weight=20|switch=L46|curve=0:-50|trim=0|mux=ADD|fm=011100111|offset=0|name=AilEle",
-    "src=I0|weight=20|switch=L48|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=RudEle"
+    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+    "src=I2|weight=20|switch=L46|curve=0:-50|trim=0|mux=ADD|fm=011000111|offset=0|name=AilEle",
+    "src=I0|weight=20|switch=L48|curve=0:0|trim=0|mux=ADD|fm=011000111|offset=0|name=RudEle"
   }
   -- EdgeTX applies the differential after the weight, so the same -50 on both lines halves the
   -- down-going travel of each half.
   local elevator_right = {
     "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name=",
-    "src=I2|weight=-20|switch=L46|curve=0:-50|trim=0|mux=ADD|fm=011100111|offset=0|name=AilEle",
-    "src=I0|weight=-20|switch=L48|curve=0:0|trim=0|mux=ADD|fm=011100111|offset=0|name=RudEle"
+    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
+    "src=I2|weight=-20|switch=L46|curve=0:-50|trim=0|mux=ADD|fm=011000111|offset=0|name=AilEle",
+    "src=I0|weight=-20|switch=L48|curve=0:0|trim=0|mux=ADD|fm=011000111|offset=0|name=RudEle"
   }
   assert_mix_signatures(content, 6, elevator_left, "M-tail CH7 exact mixes")
   assert_mix_signatures(content, 7, elevator_right, "M-tail CH8 exact mixes")
@@ -1281,7 +1363,7 @@ test("F5J V-tail mixes rudder and elevator through virtual channels", function()
   }, "V-tail CH18 exact mixes")
   assert_mix_signatures(content, 18, {
     "src=ch(21)|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name=",
-    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000100000|offset=0|name="
+    "src=I1|weight=100|switch=NONE|curve=0:0|trim=0|mux=ADD|fm=000000000|offset=0|name="
   }, "V-tail CH19 exact mixes")
   assert_equal(scalar_field(indexed_block(content, "failsafeChannels", 6), "val"), "0", "V-tail CH7 failsafe")
   assert_equal(scalar_field(indexed_block(content, "failsafeChannels", 7), "val"), "0", "V-tail CH8 failsafe")

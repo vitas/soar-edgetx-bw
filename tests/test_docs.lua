@@ -216,6 +216,33 @@ test("README explains the motor power and brake direction and the camber slider"
   end
 end)
 
+-- FM3 Landing replaced KAPOW: the brake stick switches it while Landing and Crow off are NONE
+test("M-tail guides explain the Landing flight mode", function()
+  for _, lang in ipairs(GUIDE_LANGS) do
+    local path = "docs/guides/src/mtail-" .. lang .. ".html"
+    local html = read_file(path)
+    local section = text_between(html, "<h3>6.11.", "</section>")
+    assert_true(section, path .. " has no section 6.11")
+    for _, needle in ipairs({ "<code>FM3</code>", "<code>L52</code>", "<code>L53</code>", "<code>BkE</code>" }) do
+      assert_true(section:find(needle, 1, true), path .. " 6.11 does not mention " .. needle)
+    end
+    assert_true(not html:find("KAPOW", 1, true), path .. " still mentions KAPOW")
+  end
+end)
+
+test("README explains the Landing flight mode and the aileron trim line", function()
+  local readme = read_file("README.md")
+  local switches = text_between(readme, "## F5J Switches Page", "\n## ")
+  for _, needle in ipairs({ "`FM3`", "`L52`", "`L53`" }) do
+    assert_true(switches and switches:find(needle, 1, true), "README Switches page does not mention " .. needle)
+  end
+  local pocket = text_between(readme, "## Pocket Templates", "\n## ")
+  for _, needle in ipairs({ "`AilTrm`", "`T4`", "`Trm`" }) do
+    assert_true(pocket and pocket:find(needle, 1, true), "README Pocket Templates does not mention " .. needle)
+  end
+  assert_true(not readme:find("KAPOW", 1, true), "README still mentions KAPOW")
+end)
+
 local failures = 0
 for index, case in ipairs(tests) do
   local ok, message = pcall(case.fn)

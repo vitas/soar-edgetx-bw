@@ -198,12 +198,31 @@ mixData:
     speedPrec: 0
     speedUp: 0
     speedDown: 0
-    carryTrim: 0
+    carryTrim: 1
     mltpx: ADD
     mixWarn: 0
     flightModes: 010000000
     offset: 0
     name: ""
+  - destCh: 0
+    srcRaw: T4
+    weight: gv(0)
+    swtch: NONE
+    curve:
+      type: 3
+      value: 9
+    delayPrec: 0
+    delayUp: 0
+    delayDown: 0
+    speedPrec: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 1
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 010000000
+    offset: 0
+    name: AilTrm
   - destCh: 1
     srcRaw: ch(31)
     weight: 100
@@ -236,12 +255,31 @@ mixData:
     speedPrec: 0
     speedUp: 0
     speedDown: 0
-    carryTrim: 0
+    carryTrim: 1
     mltpx: ADD
     mixWarn: 0
     flightModes: 010000000
     offset: 0
     name: ""
+  - destCh: 1
+    srcRaw: T4
+    weight: gv(0)
+    swtch: NONE
+    curve:
+      type: 3
+      value: 9
+    delayPrec: 0
+    delayUp: 0
+    delayDown: 0
+    speedPrec: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 1
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 010000000
+    offset: 0
+    name: AilTrm
   - destCh: 2
     srcRaw: I1
     weight: 100
@@ -1019,6 +1057,11 @@ curves:
     smooth: 0
     points: -3
     name: LSl
+  8:
+    type: 0
+    smooth: 0
+    points: 0
+    name: Trm
 points:
   0:
     val: -100
@@ -1112,6 +1155,16 @@ points:
     val: 0
   45:
     val: 100
+  46:
+    val: -25
+  47:
+    val: -12
+  48:
+    val: 0
+  49:
+    val: 12
+  50:
+    val: 25
 logicalSw:
   0:
     func: FUNC_AND

@@ -372,7 +372,7 @@
       <figcaption>The template values.</figcaption>
     </figure>
   </div>
-  <p>The values are shared by Cruise, Speed and Float. After you leave the page, the trims work as usual again.</p>
+  <p>The values are shared by Cruise, Landing, Speed and Float. After you leave the page, the trims work as usual again.</p>
   <p><b>In flight, camber</b> comes from the throttle trim T3 (input <code>CbP</code>), and in Float also from the throttle stick. T3 is kept separately for Cruise and Float.</p>
   <table>
     <thead><tr><th>Mode</th><th>Position of the flaps and ailerons</th></tr></thead>
@@ -416,7 +416,7 @@
       <figcaption>The template values.</figcaption>
     </figure>
   </div>
-  <p>As on page 4, the trims change the values instead of moving, and the values are shared by Cruise, Speed and Float. The Motor flight mode keeps its own <code>BkE</code>: there it is the elevator compensation for the motor, set with the elevator trim while the motor runs.</p>
+  <p>As on page 4, the trims change the values instead of moving, and the values are shared by Cruise, Landing, Speed and Float. The Motor flight mode keeps its own <code>BkE</code>: there it is the elevator compensation for the motor, set with the elevator trim while the motor runs.</p>
 
   <div class="keep">
   <h3>6.6. M-tail elevator mixes <span class="tag">MDL menu</span></h3>
@@ -430,7 +430,7 @@
   </table>
   </div>
   <ul class="plain">
-    <li>The mixes work in Cruise, Speed and Float. To turn one on, choose a switch for <span class="ui">Ail-&gt;Ele</span> or <span class="ui">Rud-&gt;Ele</span> on the <span class="ui">8. Switches</span> page (6.11), or <span class="ui">ON</span> to keep the mix on all the time. The page sets the first switch of <code>L46</code> or <code>L48</code>.</li>
+    <li>The mixes work in Cruise, Landing, Speed and Float. To turn one on, choose a switch for <span class="ui">Ail-&gt;Ele</span> or <span class="ui">Rud-&gt;Ele</span> on the <span class="ui">8. Switches</span> page (6.11), or <span class="ui">ON</span> to keep the mix on all the time. The page sets the first switch of <code>L46</code> or <code>L48</code>.</li>
     <li>On the GX12 a free <span class="sw">SW1</span>–<span class="sw">SW6</span> button suits this. The Pocket has no free switch: there the choice is <code>ON</code> or off.</li>
     <li>The differential −50 halves the travel of the half that goes down. The weights are fixed in the mixes, because the Pocket and the GX12 have only nine global variables. To change the amount or the direction, edit the <code>AilEle</code> and <code>RudEle</code> lines of CH7 and CH8 in <kbd>MDL</kbd> → <span class="ui">MIXES</span>, and keep opposite signs on CH7 and CH8.</li>
   </ul>
@@ -537,8 +537,8 @@
   </ul>
   <p><b>Camber on a slider.</b> On the GX12, the free <span class="sw">S1</span> or <span class="sw">S2</span> slider or <span class="sw">P2</span> can do this (section 5). If the control is missing from the source list, enable it in the radio's hardware settings (<kbd>SYS</kbd> → <span class="ui">HARDWARE</span>). There are two ways:</p>
   <ul class="plain">
-    <li><b>In addition to T3: input <code>I7:Cmb</code>.</b> The template keeps it for a slider; its source <code>MAX</code> gives no camber. Set the source to the slider: its +100 end (the last 5 % of the travel) gives no camber, the −100 end gives 20, on the same scale as the thermal camber (32 in the template). T3 works as before and adds to it. This camber works in every flight mode and stays while the motor runs, so in the CH25 mixes open the <code>Slider</code> line and untick <span class="nb">FM1–FM4</span> (Adjust, Motor, KAPOW, Speed) in its flight modes: the slider then works only in Cruise and Float. Untick them in the mix line, not in the input: a switched-off input does not bring this camber to zero.</li>
-    <li><b>Instead of T3: input <code>I6:CbP</code>.</b> Change its source from <code>T3</code> to the slider. The slider then works like T3: below center it adds camber, at center and above it adds none. One slider position serves all modes, so Cruise and Float no longer keep their own camber. To keep Speed without camber, open the first line in the CH23 mixes (source <code>I6:CbP</code>) and untick FM1, FM3 and FM4 (Adjust, KAPOW, Speed) in its flight modes. As with T3, full motor power takes this camber away. T3 no longer moves the camber in flight, and the setup pages still use its buttons.</li>
+    <li><b>In addition to T3: input <code>I7:Cmb</code>.</b> The template keeps it for a slider; its source <code>MAX</code> gives no camber. Set the source to the slider: its +100 end (the last 5 % of the travel) gives no camber, the −100 end gives 20, on the same scale as the thermal camber (32 in the template). T3 works as before and adds to it. This camber works in every flight mode and stays while the motor runs, so in the CH25 mixes open the <code>Slider</code> line and untick <span class="nb">FM1–FM4</span> (Adjust, Motor, Landing, Speed) in its flight modes: the slider then works only in Cruise and Float. Untick them in the mix line, not in the input: a switched-off input does not bring this camber to zero.</li>
+    <li><b>Instead of T3: input <code>I6:CbP</code>.</b> Change its source from <code>T3</code> to the slider. The slider then works like T3: below center it adds camber, at center and above it adds none. One slider position serves all modes, so Cruise and Float no longer keep their own camber. To keep Speed without camber, open the first line in the CH23 mixes (source <code>I6:CbP</code>) and untick FM1, FM3 and FM4 (Adjust, Landing, Speed) in its flight modes. As with T3, full motor power takes this camber away. T3 no longer moves the camber in flight, and the setup pages still use its buttons.</li>
   </ul>
   <p><b>Float camber on a pot or slider.</b> In Float the thermal camber of the throttle stick comes from the <code>CambrX</code> line in the CH25 mixes. To move it to a pot or slider, open that line and change its source from <code>I5:Brk</code> to the control; keep the weight, the offset and the curve. The control's +100 end then gives no camber and the −100 end the full 32; if it is the wrong way round, change the curve to <code>!LSl</code>. The throttle stick then moves only the brakes. On the GX12, <span class="sw">P2</span>, <span class="sw">S1</span> or <span class="sw">S2</span> is free for this; on other radios, any free pot or slider. The Pocket has no free control (P1 sets the motor power): there, untick FM5 (Float) in the flight modes of the <code>CambrX</code> line to take the camber off the stick; the throttle trim still adds camber in Float. Do one of the two when <span class="ui">Crow off</span> is <span class="ui">NONE</span> (6.11): the stick then moves the brakes all the time, and in Float it would add the camber with them.</p>
 
@@ -579,6 +579,13 @@
     <li>The two settings are independent: either one can stay on its switch.</li>
     <li>A model made from an older template (without <code>L50</code>) has no lock and no reminder: with <span class="ui">Crow off</span> at <span class="ui">NONE</span> the stick just moves the brakes all the time. Restore the model from the new template to get them.</li>
   </ul>
+<p><b><span class="ui">Landing</span> and <span class="ui">Crow off</span> both at <span class="ui">NONE</span>.</b> Only with this pair of settings does the page also turn on <code>L52</code>. The throttle stick then switches the flight mode <code>FM3</code> Landing, which takes over from Cruise, Speed and Float:</p>
+<ul class="plain">
+  <li>Half a second after the stick leaves its brakes-in end (<code>L35</code>), <code>L53</code> (<code>L52</code> and not <code>L35</code>) turns Landing on, and the radio says “landing”. When the stick returns to that end, Landing goes off at once.</li>
+  <li>Landing has the mixes of Cruise, with the same values and trims. Its elevator trim buttons set <code>BkE</code>, the elevator compensation for the airbrakes (6.5), and the elevator trim itself does not move.</li>
+  <li>After a motor run, Landing waits like the airbrakes: it stays off until the stick has been at its brakes-in end.</li>
+  <li>With a switch in either row, <code>L52</code> stays off and Landing never comes on, as before. A model made from an older template (without <code>L52</code>) has no Landing flight mode: restore the model from the new template to get it.</li>
+</ul>
 </section>
 
 <section id="s7">

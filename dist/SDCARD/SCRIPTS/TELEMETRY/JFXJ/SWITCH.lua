@@ -1,12 +1,14 @@
 -- JFXJ/SWITCH.lua
--- Timestamp: 2026-11-06
+-- Timestamp: 2026-11-07
 -- Switches page, ported from the SoarF5J setup page for color screens. Each row sets the switch
 -- that one logical switch of the F5J templates reads first.
 
 local LS_ARM = 4 -- Index of L5, the motor arming
 local LS_ARM_TOGGLE = 40 -- Index of L41: on the GX12, L5 is a sticky switch that each L41 press flips
+local LS_LANDING = 6 -- Index of L7
 local LS_CROW_OFF = 35 -- Index of L36
 local LS_THROTTLE_CROW = 49 -- Index of L50, which lets the throttle crow lock (L38) work
+local LS_LANDING_MODE = 51 -- Index of L52, which lets the brake stick switch the Landing flight mode
 
 -- 1. row label 2. index of the logical switch
 local rows = {
@@ -14,7 +16,7 @@ local rows = {
 	{ "Motor/timer", 8 },
 	{ "Speed", 2 },
 	{ "Float", 3 },
-	{ "Landing", 6 },
+	{ "Landing", LS_LANDING },
 	{ "Crow off", LS_CROW_OFF },
 	{ "Ail->Ele", 45 },
 	{ "Rud->Ele", 47 },
@@ -95,23 +97,36 @@ for i, row in ipairs(rows) do
 	values[i] = names[position] or getSwitchName(index) or "???"
 end
 
+-- Turns on or off a flag that the F5J templates define as AND(!ON, NONE). Models from older
+-- templates lack the flag, and any other logical switch there is left alone.
+local function SetFlag(index, on)
+	local flag = model.getLogicalSwitch(index)
+
+	if flag.func == LS_FUNC_AND and flag.v2 == 0 then
+		if on then
+			flag.v1 = ON
+		else
+			flag.v1 = NONE
+		end
+		model.setLogicalSwitch(index, flag)
+	end
+end -- SetFlag()
+
 local function SetSwitch(row, index)
 	local ls = model.getLogicalSwitch(row[2])
 	ls.v1 = index
 	model.setLogicalSwitch(row[2], ls)
 
-	-- With Crow off at NONE, L50 turns on the throttle crow. Models from older templates have no L50.
+	-- With Crow off at NONE, L50 turns on the throttle crow
 	if row[2] == LS_CROW_OFF then
-		local flag = model.getLogicalSwitch(LS_THROTTLE_CROW)
+		SetFlag(LS_THROTTLE_CROW, index == NONE)
+	end
 
-		if flag.func == LS_FUNC_AND and flag.v2 == 0 then
-			if index == NONE then
-				flag.v1 = ON
-			else
-				flag.v1 = NONE
-			end
-			model.setLogicalSwitch(LS_THROTTLE_CROW, flag)
-		end
+	-- With Landing and Crow off both at NONE, L52 lets the brake stick switch the Landing flight mode
+	if row[2] == LS_LANDING or row[2] == LS_CROW_OFF then
+		local landing = model.getLogicalSwitch(LS_LANDING).v1
+		local crowOff = model.getLogicalSwitch(LS_CROW_OFF).v1
+		SetFlag(LS_LANDING_MODE, landing == NONE and crowOff == NONE)
 	end
 end -- SetSwitch()
 
