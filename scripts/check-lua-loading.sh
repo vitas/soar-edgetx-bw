@@ -31,12 +31,13 @@ require_absent "$jfutil" 'return collectgarbage()'
 require_absent "dist/SDCARD/SCRIPTS/TELEMETRY/JF3K/MENU.lua" 'return collectgarbage()'
 require_absent "dist/SDCARD/SCRIPTS/TELEMETRY/JF5K/MENU.lua" 'return collectgarbage()'
 
+# The package ships the telemetry scripts as sources only. EdgeTX runs a .luac instead of its .lua
+# unless the .lua is newer, and a copied .luac and .lua have the same date, so a compiled copy in
+# the package would hide every later change to its source. The radio compiles its own copies.
 while IFS= read -r luac; do
-	if ! file "$luac" | rg -q 'Lua bytecode, version 5\.2$'; then
-		printf 'unsupported EdgeTX telemetry bytecode: %s (%s)\n' "$luac" "$(file "$luac")" >&2
-		fail=1
-	fi
-done < <(find dist/SDCARD/SCRIPTS/TELEMETRY -name '*.luac' -print | sort)
+	printf 'compiled script in the package: %s (ship the .lua only)\n' "$luac" >&2
+	fail=1
+done < <(find dist/SDCARD/SCRIPTS/TELEMETRY dist/SDCARD/SCRIPTS/FUNCTIONS -name '*.luac' -print | sort)
 
 files=(
 	dist/SDCARD/SCRIPTS/FUNCTIONS/JFutil.lua
