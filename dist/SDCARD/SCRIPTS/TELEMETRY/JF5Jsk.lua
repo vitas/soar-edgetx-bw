@@ -15,6 +15,8 @@ local prevCnt -- Previous motor off count
 local prevMt -- Previous motor timer value
 local prevFt -- Previous flight timer value
 local prevArm = (getValue(LS_ARM) > 0) -- Previous arming state
+local workTime -- Working time set in Ready, for a flight started again by a motor restart
+local altPeak -- Highest altitude since a motor restart; nil in a flight started from Ready
 
 local FlashArmed = soarUtil.LoadWxH("ARMED.lua") -- Screen size specific warning function
 local sk = { } -- Variables shared with the loadable part
@@ -30,6 +32,7 @@ sk.STATE_STARTHEIGHT = 4 -- Input start height
 sk.STATE_TIME = 5 -- Input flight time
 sk.STATE_SAVE = 6 -- Ready to save
 sk.state = sk.STATE_INITIAL
+sk.save = false -- EXIT, not SAVE, is selected first on the Save screen
 
 soarUtil.SetGVTmr(0) -- Flight timer off
 
@@ -43,12 +46,25 @@ local function LandingInput()
 	end
 end -- LandingInput()
 
+-- Start the flight timer and count the motor run
+local function StartFlight()
+	sk.state = sk.STATE_MOTOR
+	soarUtil.SetGVTmr(1) -- Flight timer on
+	prevMt = model.getTimer(1).value
+	offTime = 0
+	sk.target = 0
+end -- StartFlight()
+
 local function background()
 	local cnt -- Count interval
 	local motorOn = (getFlightMode() == soarUtil.FM_LAUNCH) -- Motor running
 
 	local armedNow = (getValue(LS_ARM) > 0)
-	prevArm, armedNow = armedNow, armedNow and not prevArm	
+	prevArm, armedNow = armedNow, armedNow and not prevArm
+
+	if altPeak and soarUtil.alt > altPeak then
+		altPeak = soarUtil.alt
+	end
 
 	soarUtil.callAlt = (getValue(LS_ALT10) > 0) -- Call alt every 10 sec.
 	
@@ -65,11 +81,9 @@ local function background()
 		end
 		
 		if motorOn then
-			sk.state = sk.STATE_MOTOR
-			soarUtil.SetGVTmr(1) -- Flight timer on
-			prevMt = model.getTimer(1).value
-			offTime = 0
-			sk.target = 0
+			workTime = model.getTimer(0).start
+			altPeak = nil
+			StartFlight()
 		end
 
 	elseif sk.state == sk.STATE_MOTOR then
@@ -141,7 +155,7 @@ local function background()
 					offTime = 0 -- No more counts
 
 					-- Time to record start height
-					local alt = soarUtil.altMax
+					local alt = altPeak or soarUtil.altMax
 					if alt > 0 then
 						sk.startHeight = alt
 					end
@@ -168,11 +182,15 @@ local function background()
 		end
 	end
 	
-	-- Motor restart; score a zero
-	if (sk.state == sk.STATE_GLIDE or sk.state == sk.STATE_LANDINGPTS) and motorOn then
-		sk.state = sk.STATE_SAVE
-		model.setTimer(0, {value = 0})
-		sk.startHeight = 0
+	-- A motor restart after the motor run starts a new flight with the full working time, and the
+	-- interrupted flight is not recorded. The altimeter keeps its zero in the air, so the start
+	-- height is the highest altitude after the restart.
+	if sk.state >= sk.STATE_GLIDE and motorOn then
+		model.setTimer(0, {start = workTime, value = workTime})
+		sk.landingPts = 0
+		sk.startHeight = 100 -- default if no Alt
+		altPeak = soarUtil.alt
+		StartFlight()
 	end
 end  --  background()
 

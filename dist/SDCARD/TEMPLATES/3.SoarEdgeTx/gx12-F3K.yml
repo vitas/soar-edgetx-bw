@@ -165,6 +165,18 @@ flightModeData:
     gvars:
       6:
         val: 35
+  6:
+    trim:
+      1:
+        value: 0
+        mode: 0
+      2:
+        value: 0
+        mode: 0
+    swtch: L53
+    name: Landing
+    fadeIn: 10
+    fadeOut: 10
 mixData:
   - destCh: 0
     srcRaw: ch(31)
@@ -1084,11 +1096,11 @@ points:
   9:
     val: 100
   10:
-    val: 0
+    val: -100
   11:
-    val: 0
+    val: 50
   12:
-    val: 0
+    val: 100
   13:
     val: -100
   14:
@@ -1184,7 +1196,7 @@ logicalSw:
     lsState: 0
   2:
     func: FUNC_AND
-    def: SF0,NONE
+    def: "SF0,!L53"
     delay: 0
     duration: 0
     andsw: NONE
@@ -1192,7 +1204,7 @@ logicalSw:
     lsState: 0
   3:
     func: FUNC_AND
-    def: SF2,NONE
+    def: "SF2,!L53"
     delay: 0
     duration: 0
     andsw: NONE
@@ -1224,7 +1236,7 @@ logicalSw:
     lsState: 0
   7:
     func: FUNC_AND
-    def: SD2,NONE
+    def: "!ON,NONE"
     delay: 0
     duration: 0
     andsw: NONE
@@ -1328,7 +1340,7 @@ logicalSw:
     lsState: 0
   24:
     func: FUNC_STICKY
-    def: L34,L24
+    def: L34,L39
     delay: 0
     duration: 0
     andsw: NONE
@@ -1392,10 +1404,74 @@ logicalSw:
     lsState: 0
   34:
     func: FUNC_AND
-    def: SD0,NONE
+    def: "!ON,NONE"
     delay: 0
     duration: 0
     andsw: NONE
+    lsPersist: 0
+    lsState: 0
+  35:
+    func: FUNC_VPOS
+    def: I3,90
+    delay: 0
+    duration: 0
+    andsw: NONE
+    lsPersist: 0
+    lsState: 0
+  36:
+    func: FUNC_AND
+    def: "L50,!L34"
+    delay: 0
+    duration: 0
+    andsw: NONE
+    lsPersist: 0
+    lsState: 0
+  37:
+    func: FUNC_AND
+    def: L36,L37
+    delay: 0
+    duration: 0
+    andsw: NONE
+    lsPersist: 0
+    lsState: 0
+  38:
+    func: FUNC_OR
+    def: L24,L38
+    delay: 0
+    duration: 0
+    andsw: NONE
+    lsPersist: 0
+    lsState: 0
+  39:
+    func: FUNC_AND
+    def: "L25,!L36"
+    delay: 30
+    duration: 0
+    andsw: L37
+    lsPersist: 0
+    lsState: 0
+  49:
+    func: FUNC_AND
+    def: ON,NONE
+    delay: 0
+    duration: 0
+    andsw: NONE
+    lsPersist: 0
+    lsState: 0
+  51:
+    func: FUNC_AND
+    def: ON,NONE
+    delay: 0
+    duration: 0
+    andsw: NONE
+    lsPersist: 0
+    lsState: 0
+  52:
+    func: FUNC_AND
+    def: "L52,!L36"
+    delay: 5
+    duration: 0
+    andsw: "!L26"
     lsPersist: 0
     lsState: 0
 customFn:
@@ -1479,6 +1555,18 @@ customFn:
     swtch: L35
     func: PLAY_TRACK
     def: "crowof\x00\x00,1,1x"
+  28:
+    swtch: FM6
+    func: PLAY_TRACK
+    def: "f3jlnd\x00\x00,1,1x"
+  29:
+    swtch: FM6
+    func: ADJUST_GVAR
+    def: 4,Src,T2,1
+  30:
+    swtch: L40
+    func: PLAY_TRACK
+    def: "flapup\x00\x00,1,5"
 thrTraceSrc: Thr
 thrTrimSw: 0
 potsWarnMode: WARN_OFF

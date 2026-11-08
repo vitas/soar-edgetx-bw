@@ -8,13 +8,14 @@ local lastRun = 0
 local cf = {} -- List of shared variables
 local selection = 1
 
--- Menu texts
+-- Menu texts. The switches come first, because the other pages are set up with them.
 local texts = {
-	"1. Channel configuration",
-	"2. Align flaperons",
-	"3. Center flaperons",
-	"4. Adjust other mixes",
-	"5. Battery warning" }
+	"1. Switches",
+	"2. Channel configuration",
+	"3. Align flaperons",
+	"4. Center flaperons",
+	"5. Adjust other mixes",
+	"6. Battery warning" }
 
 local menu = soarUtil.LoadWxH("MENU.lua") -- Screen size specific menu
 menu.items = texts
@@ -22,6 +23,7 @@ menu.title = "Configuration"
 	
 -- Lua files to be loaded and unloaded
 local files = {
+	"/SCRIPTS/TELEMETRY/JFXK/SWITCH.lua",
 	"/SCRIPTS/TELEMETRY/JF/CHANNELS.lua",
 	"/SCRIPTS/TELEMETRY/JFXK/ALIGN.lua",
 	"/SCRIPTS/TELEMETRY/JFXK/CENTER.lua",

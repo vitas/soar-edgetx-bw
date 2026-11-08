@@ -45,9 +45,14 @@ local 	function Draw()
 		lcd.drawNumber(95, 38, sk.startHeight, DBLSIZE + RIGHT)
 	end
 	
+	-- The selected one of EXIT and SAVE blinks inverted
 	if sk.state == sk.STATE_SAVE then
-		lcd.drawText(4, LCD_H - 10, "EXIT", SMLSIZE + BLINK)
-		lcd.drawText(LCD_W - 3, LCD_H - 10, "SAVE", SMLSIZE + BLINK + RIGHT)
+		local exitFlags, saveFlags = SMLSIZE, SMLSIZE + INVERS + BLINK
+		if not sk.save then
+			exitFlags, saveFlags = saveFlags, exitFlags
+		end
+		lcd.drawText(4, LCD_H - 10, "EXIT", exitFlags)
+		lcd.drawText(LCD_W - 3, LCD_H - 10, "SAVE", saveFlags + RIGHT)
 	end
 end  --  Draw()
 

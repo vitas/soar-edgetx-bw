@@ -1,10 +1,11 @@
 -- JFXJ/SWITCH.lua
--- Timestamp: 2026-11-07
+-- Timestamp: 2026-11-08
 -- Switches page, ported from the SoarF5J setup page for color screens. Each row sets the switch
 -- that one logical switch of the F5J templates reads first.
 
-local LS_ARM = 4 -- Index of L5, the motor arming
-local LS_ARM_TOGGLE = 40 -- Index of L41: on the GX12, L5 is a sticky switch that each L41 press flips
+local LS_ARM = 4 -- Index of L5, the motor arming, a sticky switch
+local LS_ARM_ON = 40 -- Index of L41, which turns L5 on
+local LS_ARM_OFF = 41 -- Index of L42, which turns L5 off, as the end of a motor run does
 local LS_LANDING = 6 -- Index of L7
 local LS_CROW_OFF = 35 -- Index of L36
 local LS_THROTTLE_CROW = 49 -- Index of L50, which lets the throttle crow lock (L38) work
@@ -12,7 +13,8 @@ local LS_LANDING_MODE = 51 -- Index of L52, which lets the brake stick switch th
 
 -- 1. row label 2. index of the logical switch
 local rows = {
-	{ "Motor arm", LS_ARM },
+	{ "Motor arm", LS_ARM_ON },
+	{ "Motor disarm", LS_ARM_OFF },
 	{ "Motor/timer", 8 },
 	{ "Speed", 2 },
 	{ "Float", 3 },
@@ -36,8 +38,20 @@ local names = { "NONE", "ON" } -- And their names
 
 soarUtil.LoadWxH("JFXJ/SWITCH.lua", ui) -- Screen size specific function
 
-if model.getLogicalSwitch(LS_ARM).func == LS_FUNC_STICKY then
-	rows[1][2] = LS_ARM_TOGGLE
+-- Models from older templates have no disarm switch, so they lose that row. On the Pocket, L5
+-- itself was the arm switch; on the GX12, each L41 press flipped L5, and L42 lengthened the press.
+do
+	local olderPocket = model.getLogicalSwitch(LS_ARM).func ~= LS_FUNC_STICKY
+
+	if olderPocket or model.getLogicalSwitch(LS_ARM_ON).func ~= LS_FUNC_AND then
+		if olderPocket then
+			rows[1][2] = LS_ARM
+		end
+		for i = 2, #rows - 1 do
+			rows[i] = rows[i + 1]
+		end
+		rows[#rows] = nil
+	end
 end
 
 -- Offer the physical and customizable switches, renamed ones too, but not trims, logical

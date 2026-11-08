@@ -1744,7 +1744,7 @@ logicalSw:
       duration: 0
    32:
       func: FUNC_OR
-      def: "L41,L31"
+      def: "L42,L31"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1807,8 +1807,8 @@ logicalSw:
       delay: 0
       duration: 0
    40:
-      func: FUNC_OR
-      def: "SA2,L42"
+      func: FUNC_AND
+      def: "SA2,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1816,12 +1816,12 @@ logicalSw:
       duration: 0
    41:
       func: FUNC_AND
-      def: "L41,NONE"
+      def: "SA0,NONE"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
       delay: 0
-      duration: 3
+      duration: 0
    42:
       func: FUNC_AND
       def: "!FM2,!L6"
@@ -2309,6 +2309,23 @@ screens:
             file: "JFXJcf"
 view: 0
 modelRegistrationID: ""
+customSwitches:
+   SA:
+      name: ""
+      type: 2POS
+      group: 0
+      start: START_OFF
+      state: 0
+      onColorLuaOverride: OFF
+      offColorLuaOverride: OFF
+      onColor:
+         r: 255
+         g: 255
+         b: 255
+      offColor:
+         r: 0
+         g: 0
+         b: 0
 usbJoystickExtMode: 0
 usbJoystickIfMode: JOYSTICK
 usbJoystickCircularCut: 0

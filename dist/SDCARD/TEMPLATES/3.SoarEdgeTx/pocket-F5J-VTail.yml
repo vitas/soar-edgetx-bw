@@ -1629,8 +1629,8 @@ logicalSw:
       delay: 0
       duration: 0
    4:
-      func: FUNC_AND
-      def: "SA2,NONE"
+      func: FUNC_STICKY
+      def: "L41,L33"
       andsw: "NONE"
       lsPersist: 0
       lsState: 0
@@ -1820,6 +1820,22 @@ logicalSw:
       lsState: 0
       delay: 0
       duration: 0
+   30:
+      func: FUNC_EDGE
+      def: "L26,0,-"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   32:
+      func: FUNC_OR
+      def: "L42,L31"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
    33:
       func: FUNC_OR
       def: "L26,L32"
@@ -1872,6 +1888,22 @@ logicalSw:
       func: FUNC_AND
       def: "L10,!FM2"
       andsw: "L19"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   40:
+      func: FUNC_AND
+      def: "SA2,NONE"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   41:
+      func: FUNC_AND
+      def: "SA0,NONE"
+      andsw: "NONE"
       lsPersist: 0
       lsState: 0
       delay: 0

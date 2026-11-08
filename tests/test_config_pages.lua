@@ -45,7 +45,7 @@ local CRV_FLP, CRV_AIL, CRV_POT, CRV_ELE = 4, 5, 12, 13
 local GV_FLP, GV_AIL, GV_ELE, GV_ADJ = 1, 3, 2, 7
 local LS_TRIM, SF_TRIM = 48, 38
 local FM_NORMAL, FM_ADJUST = 0, 1
-local PAGE_ALIGN, PAGE_BRAKES, PAGE_MOTOR, PAGE_SWITCHES = 2, 3, 7, 8
+local PAGE_SWITCHES, PAGE_ALIGN, PAGE_BRAKES, PAGE_MOTOR = 1, 3, 4, 8
 
 -- The wing outputs CH1, CH2, CH4 and CH5 and the alignment curves they use
 local WING = {
@@ -118,7 +118,10 @@ local function new_radio(screen)
     timers = {},
     fm = 0,
     played = {},
-    frame = {}
+    numbers = {},
+    log = "",
+    frame = {},
+    blinks = {}
   }
   local env = setmetatable({}, { __index = _G })
   for name, value in pairs(CONSTANTS) do
@@ -128,7 +131,7 @@ local function new_radio(screen)
 
   env.getVersion = function() return "2.12.0", "test", 2, 12, 0 end
   env.getTime = function() return radio.time end
-  env.getDateTime = function() return { hour = 12, min = 0 } end
+  env.getDateTime = function() return { year = 2026, mon = 11, day = 8, hour = 12, min = 0 } end
   env.getValue = function(id) return radio.values[id] or 0 end
   env.getFieldInfo = function(name)
     local id = FIELD_IDS[name]
@@ -161,8 +164,24 @@ local function new_radio(screen)
   env.loadScript = function(path) return loadfile(SDCARD .. path, "t", env) end
   env.getFlightMode = function() return radio.fm, "" end
   local function play(kind) return function() radio.played[#radio.played + 1] = kind end end
-  env.playNumber, env.playDuration = play("number"), play("duration")
+  env.playDuration = play("duration")
   env.playFile, env.playHaptic = play("file"), play("haptic")
+  env.playNumber = function(value)
+    radio.played[#radio.played + 1] = "number"
+    radio.numbers[#radio.numbers + 1] = value
+  end
+
+  -- The score log as the EdgeTX io library writes it; radio.log keeps the text written
+  env.io = {
+    open = function(path, mode)
+      radio.log_path, radio.log_mode = path, mode
+      return {}
+    end,
+    write = function(_, ...)
+      radio.log = radio.log .. table.concat({ ... })
+    end,
+    close = function() end
+  }
 
   env.model = {
     getCurve = function(index) return copy(radio.curves[index] or EMPTY_CURVE) end,
@@ -199,25 +218,30 @@ local function new_radio(screen)
       end
     end,
     getSensor = function() return { name = "" } end,
-    resetSensor = function() end
+    resetSensor = function() end,
+    getInfo = function() return { name = "F5J" } end
   }
 
-  -- The texts and numbers drawn since the last lcd.clear(), and the last blinking text
+  -- The texts and numbers drawn since the last lcd.clear(), the last blinking text, and all the
+  -- blinking texts
   local function draw(item) radio.frame[#radio.frame + 1] = item end
   local function ignore() end
   env.lcd = {
     clear = function()
       radio.frame = {}
       radio.blinking = nil
+      radio.blinks = {}
     end,
     drawScreenTitle = function(title) draw(title) end,
     drawText = function(_, _, text, flags)
       draw(tostring(text))
       if flags and math.floor(flags / CONSTANTS.BLINK) % 2 == 1 then
         radio.blinking = tostring(text)
+        radio.blinks[#radio.blinks + 1] = tostring(text)
       end
     end,
     drawNumber = function(_, _, value) draw(value) end,
+    drawTimer = function(_, _, value) draw(value) end,
     drawLine = ignore,
     drawFilledRectangle = ignore,
     drawRectangle = ignore,
@@ -407,7 +431,7 @@ test("alignment page offers a reset for wing outputs that fail the checks", func
 
     radio.menu.run(CONSTANTS.EVT_VIRTUAL_EXIT)
     radio.menu.run(0)
-    assert_true(shows(radio, "2. Align flaps & ailerons"), screen_label(screen, "back in the menu"))
+    assert_true(shows(radio, "3. Align flaps & ailerons"), screen_label(screen, "back in the menu"))
     assert_equal(#radio.curve_writes + #radio.output_writes, 0, screen_label(screen, "writes"))
   end
 end)
@@ -450,7 +474,7 @@ test("configuration menu lists the Motor idle page", function()
     for _ = 2, PAGE_MOTOR do
       radio.menu.run(CONSTANTS.EVT_VIRTUAL_NEXT)
     end
-    assert_true(shows(radio, "7. Motor idle"), screen_label(screen, "menu item"))
+    assert_true(shows(radio, "8. Motor idle"), screen_label(screen, "menu item"))
   end
 end)
 
@@ -575,7 +599,7 @@ test("motor page releases the throttle trim on EXIT", function()
     assert_equal(points(radio.curves[CRV_POT]), "98,32,0", screen_label(screen, "last click applied"))
     assert_equal(gv(radio, GV_ADJ, FM_NORMAL), 0, screen_label(screen, "GV8 released"))
     radio.menu.run(0)
-    assert_true(shows(radio, "7. Motor idle"), screen_label(screen, "back in the menu"))
+    assert_true(shows(radio, "8. Motor idle"), screen_label(screen, "back in the menu"))
   end
 end)
 
@@ -592,11 +616,15 @@ end)
 
 -- Logical switches the Switches page writes (0-based like the EdgeTX API)
 local LS_ARM, LS_SPEED, LS_LANDING, LS_TIME = 4, 2, 6, 11
-local LS_CROW_OFF, LS_AIL_ELE, LS_RUD_ELE, LS_ARM_TOGGLE, LS_THROTTLE_CROW, LS_LANDING_MODE = 35, 45, 47, 40, 49, 51
+local LS_CROW_OFF, LS_AIL_ELE, LS_RUD_ELE, LS_THROTTLE_CROW, LS_LANDING_MODE = 35, 45, 47, 49, 51
+local LS_ARM_ON, LS_ARM_OFF = 40, 41
+-- Ids of L33, L41 and L42 as switches that other logical switches read
+local ID_L33, ID_L41, ID_L42 = 133, 141, 142
 
 -- A model with the switches of the F5J templates, as on the Pocket or, with gx12, on the GX12.
--- Options: without_throttle_crow (older templates without L50), without_landing_mode (older
--- templates without L52), switches (more logical switches).
+-- Options: older_arming (older templates: on the Pocket L5 is the arm switch, on the GX12 each
+-- L41 press flips L5), without_throttle_crow (older templates without L50), without_landing_mode
+-- (older templates without L52), switches (more logical switches).
 local function switch_radio(screen, gx12, options)
   options = options or {}
   local radio = new_radio(screen)
@@ -604,7 +632,18 @@ local function switch_radio(screen, gx12, options)
   local ls = radio.logical_switches
   local function sw(name) return SWITCH_IDS[name] end
 
-  ls[LS_ARM] = { func = AND, v1 = sw("SA" .. DOWN), v2 = 0 }
+  -- L41 turns the arming L5 on, and L42 or the end of a motor run (L33) turns it off
+  ls[LS_ARM] = { func = CONSTANTS.LS_FUNC_STICKY, v1 = ID_L41, v2 = ID_L33 }
+  ls[LS_ARM_ON] = { func = AND, v1 = sw("SA" .. DOWN), v2 = 0 }
+  ls[LS_ARM_OFF] = { func = AND, v1 = sw("SA" .. UP), v2 = 0 }
+  if options.older_arming and gx12 then
+    -- L42 kept each press on L41 at least 0.3 s long
+    ls[LS_ARM_ON] = { func = OR, v1 = sw("SA" .. DOWN), v2 = ID_L42 }
+    ls[LS_ARM_OFF] = { func = AND, v1 = ID_L41, v2 = 0, duration = 3 }
+  elseif options.older_arming then
+    ls[LS_ARM] = { func = AND, v1 = sw("SA" .. DOWN), v2 = 0 }
+    ls[LS_ARM_ON], ls[LS_ARM_OFF] = nil, nil
+  end
   ls[8] = { func = OR, v1 = sw("SE" .. DOWN), v2 = 111 }
   ls[LS_SPEED] = { func = AND, v1 = sw("SC" .. UP), v2 = 0 }
   ls[3] = { func = AND, v1 = sw("SC" .. DOWN), v2 = 0 }
@@ -620,9 +659,6 @@ local function switch_radio(screen, gx12, options)
     ls[LS_LANDING_MODE] = { func = AND, v1 = sw("!ON"), v2 = 0 }
   end
   if gx12 then
-    -- The GX12 arming is a sticky switch that each press on L41 flips
-    ls[LS_ARM] = { func = CONSTANTS.LS_FUNC_STICKY, v1 = 141, v2 = 133 }
-    ls[LS_ARM_TOGGLE] = { func = OR, v1 = sw("SA" .. DOWN), v2 = 142 }
     ls[8] = { func = OR, v1 = sw("SG" .. DOWN), v2 = 111 }
     ls[LS_SPEED] = { func = AND, v1 = sw("SF" .. UP), v2 = 0 }
     ls[3] = { func = AND, v1 = sw("SF" .. DOWN), v2 = 0 }
@@ -652,26 +688,31 @@ local function choose(radio, name)
   error("cannot choose " .. name, 0)
 end
 
-test("configuration menu lists the Switches page", function()
+test("configuration menu lists the Switches page first", function()
   for _, screen in ipairs(SCREENS) do
     local radio = new_radio(screen)
     start_menu(radio)
-    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, PAGE_SWITCHES - 1)
-    assert_true(shows(radio, "8. Switches"), screen_label(screen, "menu item"))
+    press(radio, 0)
+    local items = {}
+    for _, text in ipairs(radio.frame) do
+      if type(text) == "string" and text:match("^%d%. ") then items[#items + 1] = text end
+    end
+    assert_equal(items[1], "1. Switches", screen_label(screen, "first menu item"))
+    assert_equal(items[2], "2. Channel configuration", screen_label(screen, "second menu item"))
   end
 end)
 
 test("switches page shows the switch of each row", function()
   for _, screen in ipairs(SCREENS) do
     local radio = switch_radio(screen)
-    for _, text in ipairs({ "Switches", "Motor arm", "SA" .. DOWN, "Motor/timer", "SE" .. DOWN, "Speed",
-      "SC" .. UP, "Float", "SC" .. DOWN, "Landing", "SD" .. DOWN, "Crow off", "SD" .. UP }) do
+    for _, text in ipairs({ "Switches", "Motor arm", "SA" .. DOWN, "Motor disarm", "SA" .. UP, "Motor/timer",
+      "SE" .. DOWN, "Speed", "SC" .. UP, "Float", "SC" .. DOWN, "Landing", "SD" .. DOWN }) do
       assert_true(shows(radio, text), screen_label(screen, "shows " .. text))
     end
-    assert_true(not shows(radio, "Timer report"), screen_label(screen, "six rows on the screen"))
+    assert_true(not shows(radio, "Crow off"), screen_label(screen, "six rows on the screen"))
 
-    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 8)
-    for _, text in ipairs({ "Ail->Ele", "NONE", "Rud->Ele", "Timer report", "SB" .. DOWN }) do
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 9)
+    for _, text in ipairs({ "Crow off", "SD" .. UP, "Ail->Ele", "NONE", "Rud->Ele", "Timer report", "SB" .. DOWN }) do
       assert_true(shows(radio, text), screen_label(screen, "after scrolling shows " .. text))
     end
     assert_equal(#radio.ls_writes, 0, screen_label(screen, "writes"))
@@ -707,7 +748,7 @@ end)
 test("switches page writes the chosen switch after ENTER", function()
   for _, screen in ipairs(SCREENS) do
     local radio = switch_radio(screen)
-    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 2)
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 3)
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     assert_equal(radio.blinking, "SC" .. UP, screen_label(screen, "choosing starts at the current switch"))
     press(radio, CONSTANTS.EVT_VIRTUAL_NEXT)
@@ -733,7 +774,7 @@ test("switches page keeps the switch after EXIT while choosing", function()
 
     press(radio, CONSTANTS.EVT_VIRTUAL_EXIT)
     press(radio, 0)
-    assert_true(shows(radio, "8. Switches"), screen_label(screen, "back in the menu"))
+    assert_true(shows(radio, "1. Switches"), screen_label(screen, "back in the menu"))
   end
 end)
 
@@ -741,7 +782,7 @@ end)
 test("switches page stores NONE as !ON and turns the throttle crow on for Crow off", function()
   for _, screen in ipairs(SCREENS) do
     local radio = switch_radio(screen)
-    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 5)
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 6)
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     choose(radio, "NONE")
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
@@ -771,7 +812,7 @@ end)
 test("switches page leaves models without L50 to the crow-off switch", function()
   for _, screen in ipairs(SCREENS) do
     local radio = switch_radio(screen, false, { without_throttle_crow = true, without_landing_mode = true })
-    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 5)
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 6)
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     choose(radio, "NONE")
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
@@ -792,7 +833,7 @@ test("switches page turns the Landing mode on only while Landing and Crow off ar
       press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     end
 
-    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 5)
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 6)
     set("NONE")
     assert_equal(flag().v1, SWITCH_IDS["!ON"], screen_label(screen, "L52 off while Landing has SD"))
     assert_equal(table.concat(radio.ls_writes, ","),
@@ -830,7 +871,7 @@ test("switches page leaves L52 alone unless it is the Landing mode flag", functi
     for case_index, options in ipairs(cases) do
       local radio = switch_radio(screen, false, options)
       local label = "case " .. tostring(case_index)
-      press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 4)
+      press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 5)
       press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
       choose(radio, "NONE")
       press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
@@ -860,7 +901,7 @@ test("switches page counts an empty Landing switch as assigned", function()
     local radio = switch_radio(screen, false, { switches = {
       [LS_LANDING] = { func = CONSTANTS.LS_FUNC_AND, v1 = 0, v2 = 0 },
       [LS_LANDING_MODE] = { func = CONSTANTS.LS_FUNC_AND, v1 = SWITCH_IDS.ON, v2 = 0 } } })
-    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 5)
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 6)
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     choose(radio, "NONE")
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
@@ -870,17 +911,61 @@ test("switches page counts an empty Landing switch as assigned", function()
   end
 end)
 
-test("switches page moves the GX12 arming press on L41", function()
+-- As Landing and Crow off, the arming has two rows: Motor arm writes L41, Motor disarm L42, and
+-- the sticky arming L5 keeps reading both
+test("switches page writes the Motor arm switch to L41 and the Motor disarm switch to L42", function()
   for _, screen in ipairs(SCREENS) do
-    local radio = switch_radio(screen, true)
-    assert_true(shows(radio, "SA" .. DOWN) and shows(radio, "SG" .. DOWN), screen_label(screen, "GX12 switches"))
+    for _, gx12 in ipairs({ false, true }) do
+      local radio = switch_radio(screen, gx12)
+      local label = screen_label(screen, gx12 and "GX12" or "Pocket")
+      assert_true(shows(radio, "Motor disarm") and shows(radio, "SA" .. UP), label .. " Motor disarm")
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      choose(radio, "SB" .. DOWN)
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      press(radio, CONSTANTS.EVT_VIRTUAL_NEXT)
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      choose(radio, "SB" .. UP)
+      press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+      local ls = radio.logical_switches
+      assert_equal(table.concat(radio.ls_writes, ","), LS_ARM_ON .. "," .. LS_ARM_OFF, label .. " writes")
+      assert_equal(ls[LS_ARM_ON].v1, SWITCH_IDS["SB" .. DOWN], label .. " L41")
+      assert_equal(ls[LS_ARM_OFF].v1, SWITCH_IDS["SB" .. UP], label .. " L42")
+      for _, index in ipairs({ LS_ARM_ON, LS_ARM_OFF }) do
+        local name = label .. " L" .. tostring(index + 1)
+        assert_equal(ls[index].func, CONSTANTS.LS_FUNC_AND, name .. " function")
+        assert_equal(ls[index].v2, 0, name .. " second switch")
+      end
+      assert_true(ls[LS_ARM].v1 == ID_L41 and ls[LS_ARM].v2 == ID_L33, label .. " L5 kept")
+    end
+  end
+end)
+
+-- In models from older Pocket templates, L5 itself is the arm switch, and there is no disarm switch
+test("switches page writes the Motor arm switch of older Pocket models to L5", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = switch_radio(screen, false, { older_arming = true })
+    assert_true(not shows(radio, "Motor disarm"), screen_label(screen, "no Motor disarm"))
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     choose(radio, "SB" .. UP)
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
-    assert_equal(table.concat(radio.ls_writes, ","), tostring(LS_ARM_TOGGLE), screen_label(screen, "writes"))
-    assert_equal(radio.logical_switches[LS_ARM_TOGGLE].v1, SWITCH_IDS["SB" .. UP], screen_label(screen, "L41"))
-    assert_equal(radio.logical_switches[LS_ARM_TOGGLE].v2, 142, screen_label(screen, "L41 keeps L42"))
-    assert_equal(radio.logical_switches[LS_ARM].v1, 141, screen_label(screen, "L5 keeps L41"))
+    assert_equal(table.concat(radio.ls_writes, ","), tostring(LS_ARM), screen_label(screen, "writes"))
+    assert_equal(radio.logical_switches[LS_ARM].v1, SWITCH_IDS["SB" .. UP], screen_label(screen, "L5"))
+  end
+end)
+
+-- In models from older GX12 templates, each L41 press flips L5, and L42 lengthens the press
+test("switches page moves the arming press of older GX12 models on L41", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = switch_radio(screen, true, { older_arming = true })
+    assert_true(shows(radio, "SA" .. DOWN) and shows(radio, "SG" .. DOWN), screen_label(screen, "GX12 switches"))
+    assert_true(not shows(radio, "Motor disarm"), screen_label(screen, "no Motor disarm"))
+    press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+    choose(radio, "SB" .. UP)
+    press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+    assert_equal(table.concat(radio.ls_writes, ","), tostring(LS_ARM_ON), screen_label(screen, "writes"))
+    assert_equal(radio.logical_switches[LS_ARM_ON].v1, SWITCH_IDS["SB" .. UP], screen_label(screen, "L41"))
+    assert_equal(radio.logical_switches[LS_ARM_ON].v2, ID_L42, screen_label(screen, "L41 keeps L42"))
+    assert_equal(radio.logical_switches[LS_ARM].v1, ID_L41, screen_label(screen, "L5 keeps L41"))
   end
 end)
 
@@ -892,7 +977,7 @@ test("switches page shows an empty switch as ON and other switches by name", fun
       [LS_AIL_ELE] = { func = CONSTANTS.LS_FUNC_AND, v1 = 0, v2 = 0 },
       [LS_RUD_ELE] = { func = CONSTANTS.LS_FUNC_AND, v1 = SWITCH_IDS.L1, v2 = 0 }
     } })
-    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 7)
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 8)
     assert_true(shows(radio, "ON") and shows(radio, "L1"), screen_label(screen, "ON and L1"))
     press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
     assert_equal(radio.blinking, "NONE", screen_label(screen, "choosing starts at NONE"))
@@ -904,13 +989,167 @@ test("switches page shows an empty switch as ON and other switches by name", fun
   end
 end)
 
+-- Logical switches the F3K Switches page writes (0-based like the EdgeTX API)
+local F3K_ALT, F3K_SPEED, F3K_FLOAT, F3K_ALT10, F3K_LAUNCH, F3K_LANDING = 0, 2, 3, 5, 6, 7
+local F3K_CROW_OFF, F3K_STICK_CROW, F3K_LANDING_MODE = 34, 49, 51
+-- Ids of L1, L9, L17 and L53 as switches that other logical switches read
+local ID_L1, ID_L9, ID_L17, ID_L53 = 101, 109, 117, 153
+
+-- A model with the switches of the F3K templates, as on the Pocket or, with gx12, on the GX12:
+-- Landing and Crow off at NONE, so the brake stick frees the brakes (L50) and switches the Landing
+-- flight mode (L52). Options: older (older templates: Landing and Crow off on SD, no L50 and L52),
+-- switches (more logical switches).
+local function f3k_switch_radio(screen, gx12, options)
+  options = options or {}
+  local radio = new_radio(screen)
+  local AND, OR = CONSTANTS.LS_FUNC_AND, CONSTANTS.LS_FUNC_OR
+  local ls = radio.logical_switches
+  local function sw(name) return SWITCH_IDS[name] end
+
+  ls[F3K_ALT] = { func = AND, v1 = sw((gx12 and "SE" or "SA") .. DOWN), v2 = ID_L17 }
+  ls[F3K_SPEED] = { func = AND, v1 = sw((gx12 and "SF" or "SC") .. UP), v2 = -ID_L53 }
+  ls[F3K_FLOAT] = { func = AND, v1 = sw((gx12 and "SF" or "SC") .. DOWN), v2 = -ID_L53 }
+  ls[F3K_ALT10] = { func = AND, v1 = sw("SB" .. DOWN), v2 = ID_L1 }
+  ls[F3K_LAUNCH] = { func = OR, v1 = sw((gx12 and "SG" or "SE") .. DOWN), v2 = ID_L9 }
+  ls[F3K_LANDING] = { func = AND, v1 = sw("!ON"), v2 = 0 }
+  ls[F3K_CROW_OFF] = { func = AND, v1 = sw("!ON"), v2 = 0 }
+  ls[F3K_STICK_CROW] = { func = AND, v1 = sw("ON"), v2 = 0 }
+  ls[F3K_LANDING_MODE] = { func = AND, v1 = sw("ON"), v2 = 0 }
+  if options.older then
+    ls[F3K_SPEED].v2, ls[F3K_FLOAT].v2 = 0, 0
+    ls[F3K_LANDING].v1, ls[F3K_CROW_OFF].v1 = sw("SD" .. DOWN), sw("SD" .. UP)
+    ls[F3K_STICK_CROW], ls[F3K_LANDING_MODE] = nil, nil
+  end
+  for index, value in pairs(options.switches or {}) do
+    ls[index] = value
+  end
+  start_menu(radio, "JFXKcf")
+  open_page(radio, 1)
+  radio.menu.run(0)
+  return radio
+end
+
+-- Sets the selected row to the switch name
+local function set_row(radio, name)
+  press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+  choose(radio, name)
+  press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+end
+
+test("F3K configuration menu lists the Switches page first", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = new_radio(screen)
+    start_menu(radio, "JFXKcf")
+    press(radio, 0)
+    local items = {}
+    for _, text in ipairs(radio.frame) do
+      if type(text) == "string" and text:match("^%d%. ") then items[#items + 1] = text end
+    end
+    assert_equal(table.concat(items, ", "), "1. Switches, 2. Channel configuration, 3. Align flaperons, "
+      .. "4. Center flaperons, 5. Adjust other mixes, 6. Battery warning", screen_label(screen, "menu items"))
+  end
+end)
+
+test("F3K switches page shows the switch of each row", function()
+  for _, screen in ipairs(SCREENS) do
+    for _, gx12 in ipairs({ false, true }) do
+      local radio = f3k_switch_radio(screen, gx12)
+      local label = screen_label(screen, gx12 and "GX12" or "Pocket")
+      local launch, modes, alt = gx12 and "SG" or "SE", gx12 and "SF" or "SC", gx12 and "SE" or "SA"
+      for _, text in ipairs({ "Switches", "Launch", launch .. DOWN, "Speed", modes .. UP, "Float", modes .. DOWN,
+        "Landing", "NONE", "Crow off", "Alt calls", alt .. DOWN }) do
+        assert_true(shows(radio, text), label .. " shows " .. text)
+      end
+      assert_true(not shows(radio, "Alt 10 sec"), label .. " six rows on the screen")
+
+      press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 6)
+      assert_true(shows(radio, "Alt 10 sec") and shows(radio, "SB" .. DOWN), label .. " after scrolling")
+      assert_equal(#radio.ls_writes, 0, label .. " writes")
+    end
+  end
+end)
+
+-- The Launch, Speed, Float and altitude rows change only the first switch, so L3 and L4 keep
+-- giving way to the Landing flight mode (L53), and L7 keeps its 0.3 s hold (L9)
+test("F3K switches page writes each row to its logical switch", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = f3k_switch_radio(screen)
+    local ls = radio.logical_switches
+    local rows = {
+      { F3K_LAUNCH, "SG" .. UP, ID_L9 }, { F3K_SPEED, "SB" .. UP, -ID_L53 }, { F3K_FLOAT, "SB" .. DOWN, -ID_L53 },
+      { F3K_ALT, "SF" .. DOWN, ID_L17 }, { F3K_ALT10, "SF" .. UP, ID_L1 }
+    }
+    local positions = { 1, 2, 3, 6, 7 } -- Rows on the page
+    for i, row in ipairs(rows) do
+      press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, positions[i] - (positions[i - 1] or 1))
+      radio.ls_writes = {}
+      set_row(radio, row[2])
+      local name = screen_label(screen, "L" .. tostring(row[1] + 1))
+      assert_equal(table.concat(radio.ls_writes, ","), tostring(row[1]), name .. " writes")
+      assert_equal(ls[row[1]].v1, SWITCH_IDS[row[2]], name .. " switch")
+      assert_equal(ls[row[1]].v2, row[3], name .. " second switch kept")
+    end
+  end
+end)
+
+-- L50 lets the brake stick free the brakes after a launch while Landing is NONE; L52 lets it switch
+-- the Landing flight mode while Landing and Crow off are both NONE. ON counts as a switch.
+test("F3K switches page turns the brake stick flags on only for NONE", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = f3k_switch_radio(screen)
+    local ls = radio.logical_switches
+    local function flags() return { ls[F3K_STICK_CROW].v1, ls[F3K_LANDING_MODE].v1 } end
+    local NONE, ON = SWITCH_IDS["!ON"], SWITCH_IDS.ON
+
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 3)
+    radio.ls_writes = {}
+    set_row(radio, "SD" .. DOWN)
+    assert_equal(ls[F3K_LANDING].v1, SWITCH_IDS["SD" .. DOWN], screen_label(screen, "L8"))
+    assert_equal(table.concat(flags(), ","), NONE .. "," .. NONE, screen_label(screen, "flags with a Landing switch"))
+    assert_equal(table.concat(radio.ls_writes, ","), table.concat({ F3K_LANDING, F3K_STICK_CROW, F3K_LANDING_MODE }, ","),
+      screen_label(screen, "Landing writes"))
+
+    set_row(radio, "NONE")
+    assert_equal(table.concat(flags(), ","), ON .. "," .. ON, screen_label(screen, "flags with Landing back at NONE"))
+    set_row(radio, "ON")
+    assert_equal(table.concat(flags(), ","), NONE .. "," .. NONE, screen_label(screen, "flags with Landing ON"))
+    set_row(radio, "NONE")
+
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT)
+    radio.ls_writes = {}
+    set_row(radio, "SD" .. UP)
+    assert_equal(ls[F3K_CROW_OFF].v1, SWITCH_IDS["SD" .. UP], screen_label(screen, "L35"))
+    assert_equal(table.concat(flags(), ","), ON .. "," .. NONE, screen_label(screen, "flags with a crow-off switch"))
+    assert_equal(table.concat(radio.ls_writes, ","), table.concat({ F3K_CROW_OFF, F3K_LANDING_MODE }, ","),
+      screen_label(screen, "Crow off writes"))
+    for _, index in ipairs({ F3K_STICK_CROW, F3K_LANDING_MODE }) do
+      assert_equal(ls[index].func, CONSTANTS.LS_FUNC_AND, screen_label(screen, "flag function kept"))
+      assert_equal(ls[index].v2, 0, screen_label(screen, "flag second switch kept"))
+    end
+  end
+end)
+
+-- In models from older templates, the Landing switch alone frees the brakes after a launch, so
+-- NONE there would keep them retracted for the rest of the flight. The page leaves both rows out.
+test("F3K switches page leaves the Landing and Crow off rows out on older models", function()
+  for _, screen in ipairs(SCREENS) do
+    local radio = f3k_switch_radio(screen, false, { older = true })
+    assert_true(shows(radio, "Launch") and shows(radio, "Alt 10 sec"), screen_label(screen, "five rows"))
+    assert_true(not shows(radio, "Landing") and not shows(radio, "Crow off"), screen_label(screen, "no brake rows"))
+    press(radio, CONSTANTS.EVT_VIRTUAL_NEXT, 3)
+    set_row(radio, "SC" .. UP)
+    assert_equal(table.concat(radio.ls_writes, ","), tostring(F3K_ALT), screen_label(screen, "Alt calls writes"))
+  end
+end)
+
 -- Logical switch values as getValue returns them
 local LS_ON, LS_OFF = 1024, -1024
 
 -- A model in the glide after a motor run of 30 s. The landing switch L7 is SD down as in the
 -- template; with landing_none the Switches page sets it to NONE after the score keeper started.
-local function glide_radio(landing_none)
-  local radio = new_radio(SCREENS[1])
+-- The screen is 128x64 unless another one is given.
+local function glide_radio(landing_none, screen)
+  local radio = new_radio(screen or SCREENS[1])
   radio.time = 1000
   radio.logical_switches[LS_LANDING] = { func = CONSTANTS.LS_FUNC_AND, v1 = SWITCH_IDS["SD" .. DOWN], v2 = 0 }
   radio.timers[0] = { start = 600, value = 600 }
@@ -976,6 +1215,164 @@ test("score keeper ends the flight with the trigger while Landing is NONE", func
   assert_true(not flight_timer_on(radio), "the trigger lands")
   assert_equal(radio.timers[0].value, 30, "flight time")
   assert_true(contains(radio.played, "duration"), "flight time announced")
+end)
+
+-- The score keeper's own screen. The loader needs four runs before an event reaches the screen.
+local function keeper_screen(radio)
+  for _ = 1, 4 do
+    radio.keeper.run(0)
+  end
+end
+
+local function keeper_press(radio, event, times)
+  for _ = 1, times or 1 do
+    radio.keeper.run(event)
+  end
+end
+
+-- Flights written to the score log
+local function log_lines(radio)
+  return select(2, radio.log:gsub("\n", ""))
+end
+
+-- A landed model on the Save screen: ENTER confirms the landing points, the start height and the
+-- flight time
+local function save_radio(screen)
+  local radio = glide_radio(false, screen)
+  after_count(radio)
+  radio.values[FIELD_IDS.ls7] = LS_ON
+  radio.keeper.background()
+  radio.values[FIELD_IDS.ls7] = LS_OFF
+  keeper_screen(radio)
+  keeper_press(radio, CONSTANTS.EVT_VIRTUAL_ENTER, 3)
+  return radio
+end
+
+test("score keeper Save screen selects EXIT first and SAVE with the roller", function()
+  for _, screen in ipairs(SCREENS) do
+    local size = screen.w .. "x" .. screen.h .. ": "
+    local radio = save_radio(screen)
+    assert_true(shows(radio, "EXIT") and shows(radio, "SAVE"), size .. "Save screen")
+    assert_equal(table.concat(radio.blinks, ","), "EXIT", size .. "selected first")
+    keeper_press(radio, CONSTANTS.EVT_VIRTUAL_INC)
+    assert_equal(table.concat(radio.blinks, ","), "SAVE", size .. "selected after a roller step")
+    keeper_press(radio, CONSTANTS.EVT_VIRTUAL_DEC)
+    assert_equal(table.concat(radio.blinks, ","), "EXIT", size .. "selected after a step back")
+  end
+end)
+
+test("score keeper writes the flight with ENTER on SAVE", function()
+  local radio = save_radio()
+  keeper_press(radio, CONSTANTS.EVT_VIRTUAL_INC)
+  keeper_press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+  assert_equal(log_lines(radio), 1, "flights in the log")
+  assert_equal(radio.log_path, "/LOGS/JF F5J Scores.csv", "log file")
+  assert_true(shows(radio, "Tgt"), "back in Ready")
+end)
+
+-- EXIT is the default, so ENTER alone does not save the flight
+test("score keeper leaves the flight out of the log with ENTER on the first choice, EXIT", function()
+  local radio = save_radio()
+  keeper_press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+  assert_equal(log_lines(radio), 0, "flights in the log")
+  assert_true(shows(radio, "Tgt"), "back in Ready")
+end)
+
+test("score keeper goes back to the flight time with RTN on the Save screen", function()
+  local radio = save_radio()
+  keeper_press(radio, CONSTANTS.EVT_VIRTUAL_INC)
+  keeper_press(radio, CONSTANTS.EVT_VIRTUAL_EXIT)
+  assert_true(not shows(radio, "SAVE"), "Save screen left")
+  assert_true(shows(radio, "Flt"), "the flight time, not Ready")
+  assert_equal(log_lines(radio), 0, "flights in the log")
+  keeper_press(radio, CONSTANTS.EVT_VIRTUAL_ENTER)
+  assert_true(shows(radio, "SAVE"), "ENTER returns to the Save screen")
+  assert_equal(table.concat(radio.blinks, ","), "EXIT", "selected again on the return")
+end)
+
+test("score keeper starts a new flight when the motor restarts in the glide", function()
+  local radio = glide_radio(false)
+  after_count(radio)
+  radio.timers[0].value = 400
+
+  -- After a new arm, the motor starts again
+  radio.fm = 2
+  radio.keeper.background()
+  assert_true(flight_timer_on(radio), "flight timer on")
+  assert_equal(radio.timers[0].start, 600, "working time")
+  assert_equal(radio.timers[0].value, 600, "working time left")
+
+  -- The new flight runs as one from Ready
+  radio.timers[0].value = 590
+  radio.fm = 0
+  radio.keeper.background()
+  after_count(radio)
+  radio.values[FIELD_IDS.ls7] = LS_ON
+  radio.keeper.background()
+  assert_true(not flight_timer_on(radio), "the landing switch lands")
+  assert_equal(radio.timers[0].value, 10, "flight time")
+  assert_equal(log_lines(radio), 0, "flights in the log")
+end)
+
+test("score keeper starts a new flight when the motor restarts after the landing", function()
+  local radio = glide_radio(false)
+  after_count(radio)
+  radio.values[FIELD_IDS.ls7] = LS_ON
+  radio.keeper.background()
+  radio.values[FIELD_IDS.ls7] = LS_OFF
+  assert_true(not flight_timer_on(radio), "landed")
+
+  radio.fm = 2
+  radio.keeper.background()
+  assert_true(flight_timer_on(radio), "flight timer on")
+  assert_equal(radio.timers[0].value, 600, "working time left")
+  assert_equal(log_lines(radio), 0, "flights in the log")
+end)
+
+test("score keeper starts a new flight when the motor restarts on the Save screen", function()
+  local radio = save_radio()
+  radio.fm = 2
+  radio.keeper.background()
+  keeper_press(radio, 0)
+  assert_true(flight_timer_on(radio), "flight timer on")
+  assert_equal(radio.timers[0].value, 600, "working time left")
+  assert_true(shows(radio, "Rem") and not shows(radio, "SAVE"), "the flight screen")
+  assert_equal(log_lines(radio), 0, "flights in the log")
+end)
+
+-- The altimeter keeps its zero in the air, so the start height of a restarted flight is the
+-- highest altitude after the restart, not the highest one since the arming on the ground
+test("score keeper takes the start height of a restarted flight from the climb after the restart", function()
+  local radio = glide_radio(false)
+  local util = radio.env.soarUtil
+  util.alt, util.altMax = 150, 150
+  after_count(radio)
+
+  util.alt = 60
+  radio.fm = 2
+  radio.keeper.background()
+  util.alt = 120
+  radio.keeper.background()
+  util.alt = 118
+  radio.fm = 0
+  radio.keeper.background()
+  radio.values[FIELD_IDS.ls1] = LS_ON
+  after_count(radio)
+  assert_equal(radio.numbers[#radio.numbers], 120, "start height called")
+end)
+
+test("score keeper keeps the altimeter zero when the motor is armed again in the air", function()
+  local radio = glide_radio(false)
+  local resets = 0
+  radio.env.model.getSensor = function(index) return { name = index == 0 and "Alt" or "" } end
+  radio.env.model.resetSensor = function() resets = resets + 1 end
+  after_count(radio)
+
+  radio.values[FIELD_IDS.ls23] = LS_ON
+  radio.keeper.background()
+  radio.fm = 2
+  radio.keeper.background()
+  assert_equal(resets, 0, "altimeter resets")
 end)
 
 print("1.." .. tostring(#tests))

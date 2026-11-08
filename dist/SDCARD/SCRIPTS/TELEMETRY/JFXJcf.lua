@@ -9,16 +9,16 @@ local lastRun = 0
 local cf = {} -- List of shared variables
 local selection = 1
 
--- Menu texts
+-- Menu texts. The switches come first, because the other pages are set up with them.
 local texts = {
-	"1. Channel configuration",
-	"2. Align flaps & ailerons",
-	"3. Adjust airbrake curves",
-	"4. Aileron and camber",
-	"5. Adjust other mixes",
-	"6. Battery warning",
-	"7. Motor idle",
-	"8. Switches" }
+	"1. Switches",
+	"2. Channel configuration",
+	"3. Align flaps & ailerons",
+	"4. Adjust airbrake curves",
+	"5. Aileron and camber",
+	"6. Adjust other mixes",
+	"7. Battery warning",
+	"8. Motor idle" }
 
 local menu = soarUtil.LoadWxH("MENU.lua") -- Screen size specific menu
 menu.items = texts
@@ -26,14 +26,14 @@ menu.title = "Configuration"
 	
 -- Lua files to be loaded and unloaded
 local files = {
+	"/SCRIPTS/TELEMETRY/JFXJ/SWITCH.lua",
 	"/SCRIPTS/TELEMETRY/JF/CHANNELS.lua",
 	"/SCRIPTS/TELEMETRY/JFXJ/ALIGN.lua",
 	"/SCRIPTS/TELEMETRY/JFXJ/BRKCRV.lua",
 	"/SCRIPTS/TELEMETRY/JFXJ/AILCMB.lua",
 	"/SCRIPTS/TELEMETRY/JFXJ/ADJMIX.lua",
 	"/SCRIPTS/TELEMETRY/JF/BATTERY.lua",
-	"/SCRIPTS/TELEMETRY/JFXJ/MOTOR.lua",
-	"/SCRIPTS/TELEMETRY/JFXJ/SWITCH.lua" }
+	"/SCRIPTS/TELEMETRY/JFXJ/MOTOR.lua" }
 
 -- Enable/disable adjustment function. GV8 is written only when it changes: background() calls this
 -- on every cycle, and every GV write makes EdgeTX wait again before it saves the model.

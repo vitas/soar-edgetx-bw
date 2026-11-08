@@ -119,39 +119,45 @@ local function run(event)
 		
 		if event == EVT_VIRTUAL_ENTER then
 			sk.state = sk.STATE_SAVE
+			sk.save = false -- EXIT is selected first, so ENTER alone does not save
 		elseif event == EVT_VIRTUAL_EXIT then
 			sk.state = sk.STATE_STARTHEIGHT
 		end
-		
+
 		soarUtil.ShowHelp({ enter = "FINISH", exit = "BACK", ud = "SET TIME" })
-		
+
 	elseif sk.state == sk.STATE_SAVE then
-		-- Record scores if user pressed ENTER
+		-- The roller selects SAVE or EXIT, ENTER does what is selected, and EXIT goes back
+		if event == EVT_VIRTUAL_INC or event == EVT_VIRTUAL_DEC then
+			sk.save = not sk.save
+		end
+
 		if event == EVT_VIRTUAL_ENTER then
-			local logFile = io.open("/LOGS/JF F5J Scores.csv", "a")
-			if logFile then
-				local nameStr = model.getInfo().name
+			if sk.save then
+				local logFile = io.open("/LOGS/JF F5J Scores.csv", "a")
+				if logFile then
+					local nameStr = model.getInfo().name
 
-				local now = getDateTime()
-				local dateStr = string.format("%04d-%02d-%02d", now.year, now.mon, now.day)
-				local timeStr = string.format("%02d:%02d", now.hour, now.min)
+					local now = getDateTime()
+					local dateStr = string.format("%04d-%02d-%02d", now.year, now.mon, now.day)
+					local timeStr = string.format("%02d:%02d", now.hour, now.min)
 
-				io.write(logFile, string.format("%s,%s,%s,", nameStr, dateStr, timeStr))
-				io.write(logFile, string.format("%s,%4.1f,", sk.landingPts, sk.startHeight))
-				io.write(logFile, string.format("%s,%s\n", sk.flightTimer.start, sk.flightTimer.value))
+					io.write(logFile, string.format("%s,%s,%s,", nameStr, dateStr, timeStr))
+					io.write(logFile, string.format("%s,%4.1f,", sk.landingPts, sk.startHeight))
+					io.write(logFile, string.format("%s,%s\n", sk.flightTimer.start, sk.flightTimer.value))
 
-				io.close(logFile)
+					io.close(logFile)
+				end
 			end
-			
+
 			sk.state = sk.STATE_INITIAL
 			sk.target = math.max(60, sk.flightTimer.start)
 
 		elseif event == EVT_VIRTUAL_EXIT then
-			 -- Do not record scores if user pressed EXIT
-			sk.state = sk.STATE_INITIAL
-			sk.target = math.max(60, sk.flightTimer.start)
-
+			sk.state = sk.STATE_TIME
 		end
+
+		soarUtil.ShowHelp({ enter = "OK", exit = "BACK", ud = "SAVE/EXIT" })
 	end
 	
 	Draw()

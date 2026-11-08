@@ -576,10 +576,19 @@ for _, template in ipairs(templates) do
   end)
 end
 
-test("GX12 variants mirror the Pocket templates except for the model name and the switches", function()
+-- Returns content without the top-level section name, or content itself if it has no such section
+local function without_section(content, name)
+  if not content:find("\n" .. name .. ":", 1, true) then return content end
+  local section = top_level_section(content, name)
+  local first, last = content:find(section .. "\n", 1, true)
+  return content:sub(1, first - 1) .. content:sub(last + 1)
+end
+
+-- The GX12 F5J templates also latch the SA button in customSwitches, which the Pocket lacks
+test("GX12 variants mirror the Pocket templates except for the model name, the switches and the SA latch", function()
   for _, mirror in ipairs(gx12_mirrors) do
     local pocket = read_file(mirror.pocket)
-    local gx12 = read_file(mirror.gx12)
+    local gx12 = without_section(read_file(mirror.gx12), "customSwitches")
     local expected = pocket:gsub(mirror.pocket_name, mirror.gx12_name, 1)
     assert(expected ~= pocket, mirror.label .. " Pocket name was not found in the header")
     local switches = top_level_section(gx12, "logicalSw")
@@ -591,27 +600,19 @@ end)
 
 -- The stock GX12 has SA, SD, SG and SH buttons. SG starts the motor or the launch, SD holds
 -- the brakes while pressed, SF picks the flight modes, and in F5J SC calls the working time.
--- A button is down only while pressed, so in F5J the SA press lasts at least 0.3 s (L41, L42)
--- like the SG start (L9, L11), each press flips the arming (L5), and the end of a motor run
--- (L31) drops the arming (L33).
+-- In F5J, SA arms as on the Pocket: the template makes it latch, as the next tests check.
 test("GX12 variants use the GX12 switch layout", function()
   local definitions = {
     F5J = {
-      [0] = "!L5,L19", [1] = "SA2,!SA2", [2] = "SF0,NONE", [3] = "SF2,NONE", [4] = "L41,L33",
-      [6] = "SD2,NONE", [7] = "L5,L1", [8] = "SG2,L11", [11] = "SC2,NONE", [30] = "L26,0,-",
-      [32] = "L41,L31", [35] = "SD0,NONE", [40] = "SA2,L42", [41] = "L41,NONE"
+      [0] = "!L5,L19", [1] = "SA2,!SA2", [2] = "SF0,NONE", [3] = "SF2,NONE", [6] = "SD2,NONE",
+      [7] = "L5,L1", [8] = "SG2,L11", [11] = "SC2,NONE", [35] = "SD0,NONE"
     },
     F3K = {
-      [0] = "SE2,L17", [1] = "SC2,!SC2", [2] = "SF0,NONE", [3] = "SF2,NONE", [4] = "SB0,NONE",
-      [5] = "SB2,L1", [6] = "SG2,L9", [7] = "SD2,NONE", [34] = "SD0,NONE"
+      [0] = "SE2,L17", [1] = "SC2,!SC2", [2] = "SF0,!L53", [3] = "SF2,!L53", [4] = "SB0,NONE",
+      [5] = "SB2,L1", [6] = "SG2,L9", [7] = "!ON,NONE", [34] = "!ON,NONE"
     }
   }
-  local functions = {
-    F5J = { [4] = "FUNC_STICKY", [30] = "FUNC_EDGE", [32] = "FUNC_OR", [40] = "FUNC_OR", [41] = "FUNC_AND" },
-    F3K = {}
-  }
-  local durations = { F5J = { [30] = "0", [40] = "0", [41] = "3" }, F3K = {} }
-  local free_switches = { F5J = "S[BEH]%d", F3K = "S[AH]%d" }
+  local free_switches = { F5J = "S[BEH]%d", F3K = "S[ADH]%d" }
 
   for _, template in ipairs(templates) do
     if template.name:match("^GX12") then
@@ -620,19 +621,72 @@ test("GX12 variants use the GX12 switch layout", function()
         assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "def"), expected,
           template.name .. " L" .. tostring(index + 1))
       end
-      for index, expected in pairs(functions[template.kind]) do
-        assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "func"), expected,
-          template.name .. " L" .. tostring(index + 1) .. " function")
-      end
-      for index, expected in pairs(durations[template.kind]) do
-        assert_equal(scalar_field(indexed_block(content, "logicalSw", index), "duration"), expected,
-          template.name .. " L" .. tostring(index + 1) .. " duration")
-      end
       for _, block in ipairs(indexed_blocks(content, "logicalSw")) do
         local definition = scalar_field(block.text, "def") or ""
         assert(not definition:match(free_switches[template.kind]), template.name .. " L" ..
           tostring(block.index + 1) .. " uses a free switch: " .. definition)
       end
+    end
+  end
+end)
+
+-- The arming (L5) is a sticky switch, as Landing and Crow off are two switches: the Motor arm
+-- switch (L41, SA down) turns it on, and the Motor disarm switch (L42, SA up) or the end of a
+-- motor run (L31, through L33) turns it off. So the arming drops when the motor stops, and the
+-- start height is called, while SA is still down.
+test("F5J templates arm on L41 and disarm on L42 or when the motor stops", function()
+  local arming = {
+    [4] = { func = "FUNC_STICKY", def = "L41,L33" },
+    [30] = { func = "FUNC_EDGE", def = "L26,0,-" },
+    [32] = { func = "FUNC_OR", def = "L42,L31" },
+    [40] = { func = "FUNC_AND", def = "SA2,NONE" },
+    [41] = { func = "FUNC_AND", def = "SA0,NONE" }
+  }
+  for _, template in ipairs(templates) do
+    if template.kind == "F5J" then
+      local content = read_file(template.path)
+      for index, expected in pairs(arming) do
+        local block = indexed_block(content, "logicalSw", index)
+        local label = template.name .. " L" .. tostring(index + 1)
+        assert_equal(scalar_field(block, "func"), expected.func, label .. " function")
+        assert_equal(scalar_field(block, "def"), expected.def, label)
+        for _, field in ipairs({ "andsw", "delay", "duration" }) do
+          assert_equal(scalar_field(block, field), field == "andsw" and "NONE" or "0", label .. " " .. field)
+        end
+      end
+    end
+  end
+end)
+
+-- The GX12's SA is a button. The F5J templates make it latch in the model: a press locks it down
+-- and lights it, the next press releases it. It starts released, so a model never starts armed.
+-- The radio settings still decide the other buttons.
+test("GX12 F5J templates latch the SA button and start it released", function()
+  local latch = table.concat({
+    "customSwitches:",
+    "   SA:",
+    '      name: ""',
+    "      type: 2POS",
+    "      group: 0",
+    "      start: START_OFF",
+    "      state: 0",
+    "      onColorLuaOverride: OFF",
+    "      offColorLuaOverride: OFF",
+    "      onColor:",
+    "         r: 255",
+    "         g: 255",
+    "         b: 255",
+    "      offColor:",
+    "         r: 0",
+    "         g: 0",
+    "         b: 0"
+  }, "\n")
+  for _, template in ipairs(templates) do
+    local content = read_file(template.path)
+    if template.name:match("^GX12 F5J") then
+      assert_equal(top_level_section(content, "customSwitches"), latch, template.name .. " SA latch")
+    else
+      assert_absent(content, "\ncustomSwitches:", template.name)
     end
   end
 end)
@@ -659,7 +713,7 @@ test("Pocket F3K keeps Flitz behavior sets", function()
   local content = read_file(F3K)
   assert_named_indexed_set(content, "timers", "name", { "Fli", "Win" }, "F3K timer names")
   assert_named_indexed_set(content, "flightModeData", "name",
-    { "Cruise", "Adjust", "Launch", "Zoom", "Speed", "Float" }, "F3K flight modes")
+    { "Cruise", "Adjust", "Launch", "Zoom", "Speed", "Float", "Landing" }, "F3K flight modes")
   assert_named_indexed_set(content, "gvars", "name",
     { "Ail", "Brk", "AiR", "Dif", "BkE", "Snp", "Cmb", "Adj", "Tmr" }, "F3K GVars")
   assert_named_indexed_set(content, "curves", "name",
@@ -667,7 +721,8 @@ test("Pocket F3K keeps Flitz behavior sets", function()
   assert_named_indexed_set(content, "inputNames", "val",
     { "Rud", "Ele", "Ail", "Brk", "CbP", "Cmb", "Aln", "Pok" }, "F3K inputs")
   assert_index_set(content, "logicalSw",
-    { "0", "1", "2", "3", "4", "5", "6", "7", "8", "10", "11", "12", "13", "15", "16", "18", "19", "20", "21", "23", "24", "25", "26", "28", "29", "30", "32", "33", "34" },
+    { "0", "1", "2", "3", "4", "5", "6", "7", "8", "10", "11", "12", "13", "15", "16", "18", "19", "20", "21", "23", "24", "25", "26", "28", "29", "30", "32", "33", "34",
+      "35", "36", "37", "38", "39", "49", "51", "52" },
     "F3K logical switches")
 end)
 
@@ -680,7 +735,8 @@ test("Pocket F3K plays flight announcements once", function()
     [24] = "f3j_t3\\x00\\x00,1,1x",
     [25] = "f3j_t1\\x00\\x00,1,1x",
     [26] = "f3jlnd\\x00\\x00,1,1x",
-    [27] = "crowof\\x00\\x00,1,1x"
+    [27] = "crowof\\x00\\x00,1,1x",
+    [28] = "f3jlnd\\x00\\x00,1,1x"
   }
   for index, expected in pairs(tracks) do
     local custom_function = indexed_block(content, "customFn", index)
@@ -784,16 +840,84 @@ test("Pocket F3K keeps exact GVar definitions and flight-mode values", function(
     [2] = "",
     [3] = "",
     [4] = "",
-    [5] = "6=35"
+    [5] = "6=35",
+    [6] = ""
   }, "F3K GVars")
 end)
 
-test("Pocket F3K starts physical curves linear and keeps utility curve shapes", function()
+-- With Landing and Crow off at NONE, the brake stick does what SD did. After a launch the brakes
+-- stay retracted (L25) until the stick has been in the brakes-retracted zone (L36), and a move out
+-- of the zone then switches the Landing flight mode (L53), which takes over from Speed and Float.
+-- The flags L50 and L52 are on for this; the Switches page turns them off for a Landing switch.
+-- L37 lets the stick free the brakes only outside the launch and while Crow off is off, and
+-- "flaps up" (L40) reminds the pilot of the zone in the same conditions.
+test("F3K templates land with the brake stick by default", function()
+  local switches = {
+    [7] = { "FUNC_AND", "!ON,NONE", "NONE", "0" },
+    [24] = { "FUNC_STICKY", "L34,L39", "NONE", "0" },
+    [34] = { "FUNC_AND", "!ON,NONE", "NONE", "0" },
+    [35] = { "FUNC_VPOS", "I3,90", "NONE", "0" },
+    [36] = { "FUNC_AND", "L50,!L34", "NONE", "0" },
+    [37] = { "FUNC_AND", "L36,L37", "NONE", "0" },
+    [38] = { "FUNC_OR", "L24,L38", "NONE", "0" },
+    [39] = { "FUNC_AND", "L25,!L36", "L37", "30" },
+    [49] = { "FUNC_AND", "ON,NONE", "NONE", "0" },
+    [51] = { "FUNC_AND", "ON,NONE", "NONE", "0" },
+    [52] = { "FUNC_AND", "L52,!L36", "!L26", "5" }
+  }
+  local functions = {
+    [28] = { "FM6", "PLAY_TRACK", "f3jlnd\\x00\\x00,1,1x" },
+    [29] = { "FM6", "ADJUST_GVAR", "4,Src,T2,1" },
+    [30] = { "L40", "PLAY_TRACK", "flapup\\x00\\x00,1,5" }
+  }
+  local modes = { Pocket = "SC", GX12 = "SF" }
+
+  for _, template in ipairs(templates) do
+    if template.kind == "F3K" then
+      local content = read_file(template.path)
+      local radio = template.name:match("^(%S+)")
+      switches[2] = { "FUNC_AND", modes[radio] .. "0,!L53", "NONE", "0" }
+      switches[3] = { "FUNC_AND", modes[radio] .. "2,!L53", "NONE", "0" }
+      for index, expected in pairs(switches) do
+        local block = indexed_block(content, "logicalSw", index)
+        local label = template.name .. " L" .. tostring(index + 1)
+        assert_equal(scalar_field(block, "func"), expected[1], label .. " function")
+        assert_equal(scalar_field(block, "def"), expected[2], label)
+        assert_equal(scalar_field(block, "andsw"), expected[3], label .. " AND switch")
+        assert_equal(scalar_field(block, "delay"), expected[4], label .. " delay")
+        assert_equal(scalar_field(block, "duration"), "0", label .. " duration")
+      end
+
+      local landing = indexed_block(content, "flightModeData", 6)
+      for field, expected in pairs({ name = "Landing", swtch = "L53", fadeIn = "10", fadeOut = "10" }) do
+        assert_equal(scalar_field(landing, field), expected, template.name .. " FM6 " .. field)
+      end
+      local trims = {}
+      for _, block in ipairs(indexed_blocks(nested_section(landing, "trim"), "trim")) do
+        trims[#trims + 1] = tostring(block.index) .. "=" .. tostring(scalar_field(block.text, "mode"))
+      end
+      assert_equal(table.concat(trims, ","), "1=0,2=0", template.name .. " FM6 trims follow Cruise")
+
+      for index, expected in pairs(functions) do
+        local block = indexed_block(content, "customFn", index)
+        local label = template.name .. " SF" .. tostring(index + 1)
+        assert_equal(scalar_field(block, "swtch"), expected[1], label .. " switch")
+        assert_equal(scalar_field(block, "func"), expected[2], label .. " function")
+        assert_equal(scalar_field(block, "def"), expected[3], label)
+      end
+    end
+  end
+end)
+
+-- BrF turns the brake channel into flaperon travel and brake elevator. A flat BrF leaves the
+-- flaperons and the elevator where they are whatever the brake stick does; the F3K models the
+-- template comes from all use -100, 50, 100.
+test("Pocket F3K starts physical curves linear and keeps brake and utility curve shapes", function()
   local content = read_file(F3K)
   assert_point_values(content, 0, {
     -100, -50, 0, 50, 100,
     -100, -50, 0, 50, 100,
-    0, 0, 0
+    -100, 50, 100
   }, "F3K setup")
   assert_equal(scalar_field(indexed_block(content, "limitData", 0), "curve"), "1", "F3K CH1 curve")
   assert_equal(scalar_field(indexed_block(content, "limitData", 1), "curve"), "2", "F3K CH2 curve")
@@ -882,7 +1006,7 @@ test("F5J variants keep the Sense behavior sets", function()
     assert_named_indexed_set(content, "inputNames", "val",
       { "Rud", "Ele", "Ail", "Mot", "Brk", "CbP", "Cmb", "Adj" }, variant.label .. " inputs")
     assert_index_set(content, "logicalSw",
-      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "33", "34", "35", "36", "37", "38", "39", "42", "43", "44", "45", "47", "48", "49", "50", "51", "52" },
+      { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "47", "48", "49", "50", "51", "52" },
       variant.label .. " logical switches")
     for _, unsupported in ipairs({ "gv(11)", "!gv(11)" }) do
       assert_absent(content, unsupported, variant.label)
@@ -891,14 +1015,13 @@ test("F5J variants keep the Sense behavior sets", function()
 end)
 
 -- L1 and L8 read the arming through L5, as on the GX12, so the Switches page changes the arm
--- switch in one place. SA has two positions on the Pocket, so !L5 is SA0.
+-- and the disarm switch (L41, L42) in one place each.
 test("F5J variants keep the Sense switch assignments", function()
   local logical_switches = {
     [0] = "!L5,L19",
     [1] = "SA2,!SA2",
     [2] = "SC0,NONE",
     [3] = "SC2,NONE",
-    [4] = "SA2,NONE",
     [6] = "SD2,NONE",
     [7] = "L5,L1",
     [8] = "SE2,L11",
