@@ -94,7 +94,7 @@
         <tbody>
           <tr><td class="nowrap"><code>SCRIPTS/TELEMETRY</code> (вся папка)</td><td class="nowrap"><code>/SCRIPTS/TELEMETRY</code></td><td>экран таймера и меню Configuration</td></tr>
           <tr><td class="nowrap"><code>SCRIPTS/FUNCTIONS/JFutil.lua</code></td><td class="nowrap"><code>/SCRIPTS/FUNCTIONS</code></td><td>общие функции, которые загружают скрипты</td></tr>
-          <tr><td class="nowrap"><code>TEMPLATES/3.SoarEdgeTx/*.yml</code></td><td class="nowrap"><code>/BACKUP</code></td><td>шаблоны моделей; в разделе 3 один из них восстанавливается как модель</td></tr>
+          <tr><td class="nowrap"><code>TEMPLATES/3.SoarEdgeTx/*.yml</code></td><td class="nowrap"><code>/BACKUP</code></td><td>шаблоны моделей; в разделе 3 один из них восстанавливается как модель (если папки нет, создайте её)</td></tr>
           <tr><td class="nowrap"><code>SOUNDS/en/*.wav</code></td><td class="nowrap"><code>/SOUNDS/en</code></td><td>голосовые подсказки шаблона: полётные режимы, старт, посадка, мотор выключен и другие</td></tr>
         </tbody>
       </table>
@@ -102,16 +102,16 @@
     <li>Безопасно извлеките диск, отключите кабель и перезагрузите пульт.</li>
   </ol>
   <div class="callout warn"><span class="t">Не копируйте папку dist/SDCARD целиком</span>Кроме пакета в ней лежат модели (<code>MODELS</code>), настройки пульта (<code>RADIO</code>), прошивка и другие файлы с пульта автора. Скопированные на вашу карту, они заменят ваши модели и настройки.</div>
-  <div class="callout note"><span class="t">Обновление со старого пакета</span>Удалите старые скомпилированные файлы, если они есть на карте: <code>JFXJcf.luac</code> и <code>JF5Jsk.luac</code> в <code>/SCRIPTS/TELEMETRY</code>, а также <code>ARMED.luac</code>, <code>JFutil.luac</code> и <code>MENU.luac</code> в <code>/SCRIPTS/TELEMETRY/128x64</code>. EdgeTX запускает файл <code>.luac</code> вместо <code>.lua</code>, если <code>.lua</code> не новее, поэтому старые файлы оставляют старое меню (без <span class="ui">7. Motor idle</span>) или не дают открыться экранам.</div>
+  <div class="callout note"><span class="t">Обновление со старого пакета</span>Удалите старые скомпилированные файлы, если они есть на карте: <code>JFXJcf.luac</code> и <code>JF5Jsk.luac</code> в <code>/SCRIPTS/TELEMETRY</code>, а также <code>ARMED.luac</code>, <code>JFutil.luac</code> и <code>MENU.luac</code> в <code>/SCRIPTS/TELEMETRY/128x64</code>. EdgeTX запускает файл <code>.luac</code> вместо <code>.lua</code>, если <code>.lua</code> не новее, поэтому старые файлы оставляют старое меню (без <span class="ui">8. Motor idle</span>) или не дают открыться экранам.</div>
   <div class="callout tip"><span class="t">Пульт говорит не по-английски?</span>Подсказки шаблона записаны на английском и лежат в <code>/SOUNDS/en</code>. Скопируйте эти же файлы <code>.wav</code> и в папку языка вашего пульта, например <code>/SOUNDS/ru</code>, — иначе они могут не прозвучать.</div>
 </section>
 
 <section id="s3">
   <h2><span class="n">3</span>Создайте модель из шаблона</h2>
-  <p>На чёрно-белых пультах в EdgeTX нет списка шаблонов для новой модели. Шаблон восстанавливается как резервная копия модели из папки <code>/BACKUP</code>.</p>
+  <p>На чёрно-белых пультах в EdgeTX нет списка шаблонов для новой модели: <span class="ui">Create model</span> сразу создаёт пустую модель с именем по номеру ячейки, например MODEL02. Шаблон восстанавливается как резервная копия модели через <span class="ui">Restore model</span>, а этот пункт показывает файлы из папки <code>/BACKUP</code>. Папку <code>/TEMPLATES</code> EdgeTX на чёрно-белых пультах не читает: если шаблоны лежат там, а папка <code>/BACKUP</code> пуста или её нет, <span class="ui">Restore model</span> пишет «No models on SD».</p>
   <div class="with-shot">
     <ol class="steps">
-      <li>Нажмите <kbd>MDL</kbd> — откроется список моделей. Выберите колесом пустую ячейку и нажмите <kbd>ENTER</kbd>.</li>
+      <li>Нажмите <kbd>MDL</kbd> — откроется список моделей. Выберите колесом пустую ячейку и нажмите <kbd>ENTER</kbd>. В меню будут <span class="ui">Create model</span> и <span class="ui">Restore model</span>; на занятой ячейке пункта <span class="ui">Restore model</span> нет.</li>
       <li>Выберите <span class="ui">Restore model</span>, затем шаблон для своего пульта и нажмите <kbd>ENTER</kbd>: <code>pocket-F5J-MTail</code> для Pocket, <code>gx12-F5J-MTail</code> для GX12. Они отличаются только именем модели и тумблерами (раздел 5).</li>
       <li>Выберите новую модель: <kbd>ENTER</kbd> на ней, затем <span class="ui">Select model</span>.</li>
       <li>При желании переименуйте модель: <kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> до <span class="ui">SETUP</span>, поле <span class="ui">Name</span>.</li>
@@ -123,6 +123,7 @@
       <figcaption>Restore model: шаблоны из <code>/BACKUP</code>.</figcaption>
     </figure>
   </div>
+  <div class="callout note"><span class="t">Пустая модель уже создана через Create model?</span>Восстановите шаблон в другую пустую ячейку и выберите эту модель: <kbd>ENTER</kbd> на ней, <span class="ui">Select model</span>. Выбранную модель EdgeTX не удаляет, поэтому только после этого удалите пустую: <kbd>ENTER</kbd> на ней, <span class="ui">Delete model</span> и <kbd>ENTER</kbd> для подтверждения.</div>
 
   <h3>ExpressLRS: обновление и полное разрешение</h3>
   <ol class="steps">
@@ -230,14 +231,14 @@
   <table>
     <thead><tr><th>Пункт меню</th><th>Заголовок страницы</th><th>Что настраивает</th></tr></thead>
     <tbody>
-      <tr><td><span class="ui">1. Channel configuration</span></td><td><span class="ui">Channel Config</span></td><td>порядок каналов, направление, центр и концы</td></tr>
-      <tr><td><span class="ui">2. Align flaps &amp; ailerons</span></td><td><span class="ui">Alignment</span></td><td>выравнивание элеронов и закрылков</td></tr>
-      <tr><td><span class="ui">3. Adjust airbrake curves</span></td><td><span class="ui">Airbrakes</span></td><td>кривые тормозов (crow) для закрылков, элеронов и компенсации рулём высоты</td></tr>
-      <tr><td><span class="ui">4. Aileron and camber</span></td><td><span class="ui">Aile &amp; camber</span></td><td>ход элеронов, элероны → закрылки, камбер → элероны</td></tr>
-      <tr><td><span class="ui">5. Adjust other mixes</span></td><td><span class="ui">Adjust mixes</span></td><td>элероны → РН, дифференциал элеронов, тормоза → РВ, снапфлап</td></tr>
-      <tr><td><span class="ui">6. Battery warning</span></td><td><span class="ui">Bat Warning</span></td><td>порог предупреждения о батарее приёмника</td></tr>
-      <tr><td><span class="ui">7. Motor idle</span></td><td><span class="ui">Motor idle</span></td><td>мощность мотора при нижнем положении P1</td></tr>
-      <tr><td><span class="ui">8. Switches</span></td><td><span class="ui">Switches</span></td><td>тумблеры функций шаблона (6.11)</td></tr>
+      <tr><td><span class="ui">1. Switches</span></td><td><span class="ui">Switches</span></td><td>тумблеры функций шаблона (6.11)</td></tr>
+      <tr><td><span class="ui">2. Channel configuration</span></td><td><span class="ui">Channel Config</span></td><td>порядок каналов, направление, центр и концы</td></tr>
+      <tr><td><span class="ui">3. Align flaps &amp; ailerons</span></td><td><span class="ui">Alignment</span></td><td>выравнивание элеронов и закрылков</td></tr>
+      <tr><td><span class="ui">4. Adjust airbrake curves</span></td><td><span class="ui">Airbrakes</span></td><td>кривые тормозов (crow) для закрылков, элеронов и компенсации рулём высоты</td></tr>
+      <tr><td><span class="ui">5. Aileron and camber</span></td><td><span class="ui">Aile &amp; camber</span></td><td>ход элеронов, элероны → закрылки, камбер → элероны</td></tr>
+      <tr><td><span class="ui">6. Adjust other mixes</span></td><td><span class="ui">Adjust mixes</span></td><td>элероны → РН, дифференциал элеронов, тормоза → РВ, снапфлап</td></tr>
+      <tr><td><span class="ui">7. Battery warning</span></td><td><span class="ui">Bat Warning</span></td><td>порог предупреждения о батарее приёмника</td></tr>
+      <tr><td><span class="ui">8. Motor idle</span></td><td><span class="ui">Motor idle</span></td><td>мощность мотора при нижнем положении P1</td></tr>
     </tbody>
   </table>
 
@@ -257,23 +258,24 @@
 
   <div class="keep">
   <h3>Тумблеры и органы управления</h3>
-  <p>Шаблоны Pocket и GX12 отличаются только этими тумблерами. Страница <span class="ui">8. Switches</span> переносит функции на другие тумблеры (6.11).</p>
+  <p>Шаблоны Pocket и GX12 отличаются только этими тумблерами. Страница <span class="ui">1. Switches</span> переносит функции на другие тумблеры (6.11).</p>
   <table>
     <thead><tr><th>Функция</th><th>GX12</th><th>Pocket</th></tr></thead>
     <tbody>
-      <tr><td>Взвод мотора</td><td>кнопка <span class="sw">SA</span>: нажать — взвод, нажать ещё раз — снять</td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td>Взвод мотора</td><td>кнопка <span class="sw">SA</span>: нажатие фиксирует её и зажигает подсветку</td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td>Снятие взвода (выключение мотора тоже снимает его)</td><td>кнопка <span class="sw">SA</span>: следующее нажатие отпускает её</td><td><span class="sw">SA↑</span></td></tr>
       <tr><td>Запуск и остановка мотора</td><td>кнопка <span class="sw">SG</span>: нажать и отпустить</td><td><span class="sw">SE</span> (подпружиненный): потянуть и отпустить</td></tr>
       <tr><td>Полётный режим Speed / Cruise / Float</td><td><span class="sw">SF↑</span> / середина / <span class="sw">SF↓</span></td><td><span class="sw">SC↑</span> / середина / <span class="sw">SC↓</span></td></tr>
       <tr><td>Тормоза (crow) на ручке газа и посадка</td><td>кнопка <span class="sw">SD</span>, пока нажата</td><td><span class="sw">SD↓</span></td></tr>
       <tr><td>Тормоза выключены</td><td><span class="sw">SD</span> отпущена</td><td><span class="sw">SD↑</span></td></tr>
       <tr><td>Озвучка времени полёта каждые 10 с</td><td><span class="sw">SC↓</span></td><td><span class="sw">SB↓</span></td></tr>
-      <tr><td>Озвучка стартовой высоты после работы мотора</td><td>взвод снят: он снимается сам, когда мотор выключается</td><td><span class="sw">SA↑</span></td></tr>
       <tr><td>Мощность мотора</td><td><span class="sw">P1</span></td><td><span class="sw">P1</span></td></tr>
     </tbody>
   </table>
   </div>
   <ul class="plain">
-    <li>Мотор выключается повторным нажатием кнопки запуска, снятием взвода или автоматически через 30 секунд работы. Чтобы взвести снова, на Pocket выведите <span class="sw">SA</span> из нижнего положения и верните обратно. GX12 снимает взвод сам, когда мотор выключается: нажмите <span class="sw">SA</span> ещё раз. Нажатия <span class="sw">SA</span> чаще чем раз в полсекунды пульт пропускает; взвод подтверждают сирена и «MOTOR ARMED».</li>
+    <li>Мотор выключается повторным нажатием кнопки запуска, снятием взвода или автоматически через 30 секунд работы. Оба пульта сами снимают взвод, когда мотор выключается, поэтому после 10-секундного отсчёта пульт называет стартовую высоту (раздел 7). Чтобы взвести снова, на Pocket выведите <span class="sw">SA</span> из нижнего положения и верните обратно. На GX12 после выключения кнопкой запуска или на 30-й секунде кнопка <span class="sw">SA</span> остаётся нажатой: нажмите её дважды — первое нажатие отпускает её, второе взводит. Взвод подтверждают сирена и «MOTOR ARMED»; подсветка <span class="sw">SA</span> показывает только, что кнопка нажата.</li>
+    <li><b><span class="sw">SA</span> на GX12</b> — кнопка. Шаблон делает её фиксируемой в настройках модели (<kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> до <span class="ui">SETUP</span>, блок <span class="ui">Customizable Switches</span>): у <span class="sw">SA</span> выбран тип <span class="ui">2POS</span>, и при включении пульта кнопка отпущена. Нажатие фиксирует кнопку и зажигает её подсветку, следующее нажатие отпускает её, поэтому <span class="sw">SA↓</span> — кнопка зафиксирована, <span class="sw">SA↑</span> — отпущена.</li>
     <li><b>Ручка газа</b> — тормоза (crow), когда они включены (Pocket <span class="sw">SD↓</span>, GX12 — пока нажата <span class="sw">SD</span>): ручка вверх выпускает тормоза, вниз — убирает. Если у <span class="ui">Crow off</span> выбрано <span class="ui">NONE</span> (6.11), ручка управляет тормозами всегда. В Float ручка газа ещё добавляет термический камбер: внизу его нет, вверху — полный (6.4).</li>
     <li><b>Триммер газа</b> вниз от центра добавляет термический камбер в Cruise и Float; у каждого из двух режимов свой триммер. Вверх от центра он ничего не делает, в Speed выключен.</li>
     <li><b>Триммер руля высоты при работающем моторе</b> задаёт компенсацию рулём высоты для мотора. Она хранится в полётном режиме Motor, а триммер руля высоты для планирования не меняется.</li>
@@ -287,7 +289,7 @@
   <h2><span class="n">6</span>Настройка модели по шагам</h2>
   <p>Откройте экран Configuration (<kbd>PAGE&gt;</kbd> с экрана таймера), выберите страницу колесом и нажмите <kbd>ENTER</kbd>; <kbd>RTN</kbd> возвращает в меню. Выполняйте шаги по порядку. Мотор отключён (кроме шага 6.9), модель надёжно закреплена.</p>
 
-  <h3>6.1. Каналы и направления <span class="tag">1. Channel configuration</span></h3>
+  <h3>6.1. Каналы и направления <span class="tag">2. Channel configuration</span></h3>
   <div class="with-shot">
     <div>
       <p>Страница сначала предупреждает: «Disconnect the motor!». Нажмите <kbd>ENTER</kbd> только после того, как мотор отключён. В каждой строке — номер канала, имя, направление (<code>&gt;</code> или <code>&lt;</code>) и полоска с тремя метками (нижний конец, центр, верхний конец) и указателем текущего положения.</p>
@@ -314,7 +316,7 @@
   </table>
   <p><b>Для <span class="nb">M-tail</span></b> сначала добейтесь, чтобы обе половины руля высоты двигались вместе: при необходимости реверсируйте <code>Ele-L</code> или <code>Ele-R</code>. Потом подгоните центр и концы: в нейтрали половины должны стоять ровно, ход вверх и вниз — одинаковый.</p>
 
-  <h3>6.2. Выравнивание крыла <span class="tag">2. Align flaps &amp; ailerons</span></h3>
+  <h3>6.2. Выравнивание крыла <span class="tag">3. Align flaps &amp; ailerons</span></h3>
   <div class="with-shot">
     <div>
       <p>Выравнивает четыре поверхности крыла: <span class="ui">LA</span> и <span class="ui">RA</span> (элероны), <span class="ui">LF</span> и <span class="ui">RF</span> (закрылки). Изменения записываются в кривые CV1–CV4 и в центр и концы каналов.</p>
@@ -332,7 +334,7 @@
   </div>
   <div class="callout note"><span class="t">Начать заново</span><kbd>ENTER</kbd> на этой странице спрашивает, сбросить ли выходы закрылков и элеронов. Второе нажатие <kbd>ENTER</kbd> выпрямляет кривые CV1–CV4 и возвращает центр и концы четырёх выходов к 0 и ±100; <kbd>RTN</kbd> оставляет всё как есть. Если кривые и выходы не проходят проверки страницы, она сразу открывается с этим вопросом; тогда <kbd>RTN</kbd> выходит со страницы без изменений.</div>
 
-  <h3>6.3. Тормоза <span class="tag">3. Adjust airbrake curves</span></h3>
+  <h3>6.3. Тормоза <span class="tag">4. Adjust airbrake curves</span></h3>
   <div class="with-shot">
     <div>
       <p>Три графика: <span class="ui">Flap</span> (кривая BrF), <span class="ui">Aile</span> (BrA) и <span class="ui">Elev</span> (BrE). Левый край каждого графика — тормоза выпущены полностью, правый — тормоза убраны.</p>
@@ -349,12 +351,12 @@
   </div>
   <ul class="plain">
     <li>Обычно при полностью выпущенных тормозах закрылки опущены, а элероны подняты.</li>
-    <li>Величину компенсации рулём высоты задаёт <code>BkE</code> на странице 5, а кривая <span class="ui">Elev</span> — то, как она нарастает по ходу тормозов: при −100 её нет, при 0 она равна <code>BkE</code>, при +100 — вдвое больше. Последняя точка остаётся на −100, так что в обычном полёте руль высоты стоит по триммеру.</li>
+    <li>Величину компенсации рулём высоты задаёт <code>BkE</code> на странице 6, а кривая <span class="ui">Elev</span> — то, как она нарастает по ходу тормозов: при −100 её нет, при 0 она равна <code>BkE</code>, при +100 — вдвое больше. Последняя точка остаётся на −100, так что в обычном полёте руль высоты стоит по триммеру.</li>
     <li>На этой странице руль высоты не двигается. Проверьте компенсацию после выхода со страницы: тормоза включены (Pocket <span class="sw">SD↓</span>, на GX12 держите <span class="sw">SD</span>), ручка газа вверх. Если модель при выпуске тормозов задирает или опускает нос, заметьте, на каком ходе это происходит, и подправьте эту точку кривой <span class="ui">Elev</span>.</li>
     <li>В моделях из старых шаблонов кривой BrE нет: <span class="ui">Elev</span> показывает N/A.</li>
   </ul>
 
-  <h3>6.4. Элероны и камбер <span class="tag">4. Aileron and camber</span></h3>
+  <h3>6.4. Элероны и камбер <span class="tag">5. Aileron and camber</span></h3>
   <div class="with-shot">
     <div>
       <p>Пока страница открыта, триммеры не сдвигаются, а меняют три значения:</p>
@@ -387,20 +389,20 @@
 
   <p><b>Как настроить камбер</b> (мотор отключён):</p>
   <ol class="steps">
-    <li>Выключите тормоза (Pocket <span class="sw">SD↑</span>, на GX12 отпустите <span class="sw">SD</span>), включите Float (Pocket <span class="sw">SC↓</span>, GX12 <span class="sw">SF↓</span>) и поставьте ручку газа вверх. Откройте страницу 4: пока она открыта, режим остаётся Float, и поверхности показывают полный камбер Float.</li>
+    <li>Выключите тормоза (Pocket <span class="sw">SD↑</span>, на GX12 отпустите <span class="sw">SD</span>), включите Float (Pocket <span class="sw">SC↓</span>, GX12 <span class="sw">SF↓</span>) и поставьте ручку газа вверх. Откройте страницу 5: пока она открыта, режим остаётся Float, и поверхности показывают полный камбер Float.</li>
     <li>Триммер руля высоты меняет только <code>CbA</code>: вверх — элероны опускаются сильнее, вниз — слабее; закрылки не двигаются.</li>
     <li>Выйдите со страницы, включите Cruise и выставьте камбер триммером T3 (вниз — больше). Во Float T3 так же добавляет камбер к камберу от ручки газа.</li>
   </ol>
 
-  <p><b>Рефлекс для Speed.</b> В Speed поверхности стоят в нейтрали, в последних точках кривых тормозов, поэтому рефлекс задаётся на странице 3 (6.3), мотор отключён:</p>
+  <p><b>Рефлекс для Speed.</b> В Speed поверхности стоят в нейтрали, в последних точках кривых тормозов, поэтому рефлекс задаётся на странице 4 (6.3), мотор отключён:</p>
   <ol class="steps">
-    <li>Откройте страницу 3 и поставьте ручку газа вниз: выбрана последняя точка, закрылки и элероны стоят в нейтрали.</li>
+    <li>Откройте страницу 4 и поставьте ручку газа вниз: выбрана последняя точка, закрылки и элероны стоят в нейтрали.</li>
     <li>Триммером газа поднимите оба закрылка, триммером элеронов — оба элерона на нужный рефлекс.</li>
     <li>Выйдите со страницы и проверьте в Speed (Pocket <span class="sw">SC↑</span>, GX12 <span class="sw">SF↑</span>): поверхности стоят с рефлексом.</li>
     <li>Cruise и Float отсчитывают камбер от этой же нейтрали. В Cruise опустите поверхности триммером T3 вниз до нужного положения, например до прежней нейтрали; во Float при необходимости тоже опустите T3.</li>
   </ol>
 
-  <h3>6.5. Другие миксы <span class="tag">5. Adjust other mixes</span></h3>
+  <h3>6.5. Другие миксы <span class="tag">6. Adjust other mixes</span></h3>
   <div class="with-shot">
     <table>
       <thead><tr><th>Триммер</th><th>Код</th><th>Что задаёт</th></tr></thead>
@@ -416,7 +418,7 @@
       <figcaption>Значения шаблона.</figcaption>
     </figure>
   </div>
-  <p>Как и на странице 4, триммеры меняют значения, а сами не сдвигаются; значения общие для Cruise, Landing, Speed и Float. У полётного режима Motor свой <code>BkE</code>: там это компенсация рулём высоты для мотора, её задаёт триммер руля высоты при работающем моторе.</p>
+  <p>Как и на странице 5, триммеры меняют значения, а сами не сдвигаются; значения общие для Cruise, Landing, Speed и Float. У полётного режима Motor свой <code>BkE</code>: там это компенсация рулём высоты для мотора, её задаёт триммер руля высоты при работающем моторе.</p>
 
   <div class="keep">
   <h3>6.6. Миксы руля высоты <span class="nb">M-tail</span> <span class="tag">меню MDL</span></h3>
@@ -430,7 +432,7 @@
   </table>
   </div>
   <ul class="plain">
-    <li>Миксы работают в Cruise, Landing, Speed и Float. Чтобы включить микс, выберите тумблер для <span class="ui">Ail-&gt;Ele</span> или <span class="ui">Rud-&gt;Ele</span> на странице <span class="ui">8. Switches</span> (6.11) или <span class="ui">ON</span>, чтобы микс работал всегда. Страница задаёт первый тумблер <code>L46</code> или <code>L48</code>.</li>
+    <li>Миксы работают в Cruise, Landing, Speed и Float. Чтобы включить микс, выберите тумблер для <span class="ui">Ail-&gt;Ele</span> или <span class="ui">Rud-&gt;Ele</span> на странице <span class="ui">1. Switches</span> (6.11) или <span class="ui">ON</span>, чтобы микс работал всегда. Страница задаёт первый тумблер <code>L46</code> или <code>L48</code>.</li>
     <li>На GX12 для этого подойдёт свободная кнопка <span class="sw">SW1</span>–<span class="sw">SW6</span>. У Pocket свободных тумблеров нет: там выбор — <code>ON</code> или выключено.</li>
     <li>Дифференциал −50 вдвое уменьшает ход опускающейся половины. Веса зафиксированы в миксах, потому что у Pocket и GX12 всего девять глобальных переменных. Чтобы изменить величину или направление, правьте строки <code>AilEle</code> и <code>RudEle</code> каналов CH7 и CH8 в <kbd>MDL</kbd> → <span class="ui">MIXES</span>; знаки на CH7 и CH8 должны оставаться противоположными.</li>
   </ul>
@@ -465,14 +467,14 @@
 
   <h3>Проверка направления</h3>
   <ol class="steps">
-    <li>Включите микс: на странице <span class="ui">8. Switches</span> поставьте <span class="ui">Ail-&gt;Ele</span> на <span class="ui">ON</span>.</li>
+    <li>Включите микс: на странице <span class="ui">1. Switches</span> поставьте <span class="ui">Ail-&gt;Ele</span> на <span class="ui">ON</span>.</li>
     <li>Ручку элеронов вправо: правая половина руля высоты должна подняться, левая — опуститься, как элероны (рис. 2). Опускающаяся половина отклоняется меньше.</li>
     <li>Если наоборот — поменяйте знаки в обеих строках <code>AilEle</code>: −20 на CH7 и +20 на CH8.</li>
     <li><code>RudEle</code> с теми же знаками при ручке РН вправо двигает половины так же, как ручка элеронов вправо. Если меняли знаки у <code>AilEle</code>, поменяйте их и у <code>RudEle</code>.</li>
     <li>Начинайте с небольших значений и проверяйте их в полёте на безопасной высоте.</li>
   </ol>
 
-  <h3>6.7. Предупреждение о батарее <span class="tag">6. Battery warning</span></h3>
+  <h3>6.7. Предупреждение о батарее <span class="tag">7. Battery warning</span></h3>
   <div class="with-shot">
     <div>
       <p><span class="ui">Battery level</span> показывает напряжение приёмника, по которому работает предупреждение: первый найденный сенсор из <code>Cels</code>, <code>RxBt</code>, <code>A1</code> и <code>A2</code>. Вращением колеса задайте <span class="ui">Warning level</span> с шагом 0,1 В (от 1,0 до 40,0 В; в шаблоне 6,9 В) под свою батарею приёмника. <kbd>ENTER</kbd> или <kbd>RTN</kbd> закрывает страницу.</p>
@@ -487,7 +489,7 @@
   <div class="keep">
   <h3>6.8. Проверка мотора <span class="tag">пропеллер снят!</span></h3>
   <ol class="steps">
-    <li>Откройте <span class="ui">1. Channel configuration</span> и нажмите <kbd>ENTER</kbd> на предупреждении. Указатель в строке <span class="ui">3. Moto</span> показывает канал мотора CH3.</li>
+    <li>Откройте <span class="ui">2. Channel configuration</span> и нажмите <kbd>ENTER</kbd> на предупреждении. Указатель в строке <span class="ui">3. Moto</span> показывает канал мотора CH3.</li>
     <li>Без взвода указатель стоит у левого края (−100), что бы ни делали P1 и ручки.</li>
     <li>Взведите (GX12 — нажмите <span class="sw">SA</span>, Pocket <span class="sw">SA↓</span>), затем нажмите и отпустите кнопку запуска (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). Мотор включается, когда кнопку отпускают: включается полётный режим Motor.</li>
     <li>Поверните P1 от края до края: указатель ходит между центральной меткой (наименьшая мощность) и правым краем полоски (+100, полная мощность). Запомните, какой край P1 — наименьшая мощность. Края можно поменять местами (6.10).</li>
@@ -496,11 +498,11 @@
   </ol>
   </div>
 
-  <h3>6.9. Холостой ход мотора <span class="tag">7. Motor idle</span></h3>
+  <h3>6.9. Холостой ход мотора <span class="tag">8. Motor idle</span></h3>
   <p>Холостой ход здесь — мощность мотора при нижнем положении P1. Подберите его на слух при работающем моторе. Это единственный шаг, где мотор подключён и пропеллер стоит: держите модель и не стойте перед пропеллером.</p>
   <div class="with-shot">
     <ol class="steps">
-      <li>Откройте <span class="ui">7. Motor idle</span> и подтвердите предупреждение о пропеллере кнопкой <kbd>ENTER</kbd>. Сама страница мотор не запускает.</li>
+      <li>Откройте <span class="ui">8. Motor idle</span> и подтвердите предупреждение о пропеллере кнопкой <kbd>ENTER</kbd>. Сама страница мотор не запускает.</li>
       <li>Запустите мотор как обычно (взвод, затем кнопка запуска) и поверните P1 на наименьшую мощность.</li>
       <li>Нажимайте триммер газа вверх или вниз или вращайте колесо: каждый щелчок меняет холостой ход на 1, мотор сразу меняет обороты.</li>
       <li>Остановите мотор и нажмите <kbd>RTN</kbd>. Значение остаётся в модели.</li>
@@ -518,7 +520,7 @@
 
   <div class="keep">
   <h3>6.10. Направление P1 и ручки, камбер на слайдере <span class="tag">по желанию</span></h3>
-  <p>В шаблоне P1 задаёт мощность мотора, а у ручки газа две задачи: термический камбер во Float и тормоза, когда они включены. Ручка вверху даёт полный термический камбер и полные тормоза. Каждую из этих задач можно развернуть во входах (<kbd>MDL</kbd> → <span class="ui">INPUTS</span>) и миксах (<span class="ui">MIXES</span>) модели, а камбер — перенести с ручки или T3 на потенциометр или слайдер. Каждое изменение проверяйте с отключённым мотором: тормоза и камбер видны по поверхностям, а мощность мотора — по строке <span class="ui">3. Moto</span> на странице 1 (6.8).</p>
+  <p>В шаблоне P1 задаёт мощность мотора, а у ручки газа две задачи: термический камбер во Float и тормоза, когда они включены. Ручка вверху даёт полный термический камбер и полные тормоза. Каждую из этих задач можно развернуть во входах (<kbd>MDL</kbd> → <span class="ui">INPUTS</span>) и миксах (<span class="ui">MIXES</span>) модели, а камбер — перенести с ручки или T3 на потенциометр или слайдер. Каждое изменение проверяйте с отключённым мотором: тормоза и камбер видны по поверхностям, а мощность мотора — по строке <span class="ui">3. Moto</span> на странице 2 (6.8).</p>
   <table>
     <thead><tr><th>Что нужно</th><th>Где</th><th>Что изменить</th></tr></thead>
     <tbody>
@@ -543,7 +545,7 @@
   <p><b>Камбер Float на потенциометре или слайдере.</b> Во Float термический камбер ручки газа задаёт строка <code>CambrX</code> в миксах CH25. Чтобы перенести его на потенциометр или слайдер, откройте эту строку и поменяйте её источник с <code>I5:Brk</code> на нужный элемент; вес, смещение и кривую оставьте. Тогда на краю +100 камбера нет, а на краю −100 он полный, 32; если наоборот, поставьте кривую <code>!LSl</code>. Ручка газа после этого управляет только тормозами. На GX12 для этого свободны <span class="sw">P2</span>, <span class="sw">S1</span> и <span class="sw">S2</span>, на других пультах подойдёт любой свободный потенциометр или слайдер. У Pocket свободного элемента нет (P1 задаёт мощность мотора): там снимите в полётных режимах строки <code>CambrX</code> галочку FM5 (Float), чтобы убрать камбер с ручки; триммер газа по-прежнему добавляет камбер во Float. Сделайте одно из двух, если у <span class="ui">Crow off</span> выбрано <span class="ui">NONE</span> (6.11): ручка тогда всегда управляет тормозами, и во Float камбер добавлялся бы вместе с ними.</p>
 
   <div class="keep">
-  <h3>6.11. Тумблеры <span class="tag">8. Switches</span></h3>
+  <h3>6.11. Тумблеры <span class="tag">1. Switches</span></h3>
   <div class="with-shot">
     <div>
       <p>Страница переносит функции шаблона на другие тумблеры. Каждая строка — одна функция, справа — тумблер, который она использует сейчас. Выберите строку колесом и нажмите <kbd>ENTER</kbd>: тумблер замигает. Поверните колесо, чтобы выбрать другой, затем нажмите <kbd>ENTER</kbd>, чтобы сохранить его, или <kbd>RTN</kbd>, чтобы оставить прежний.</p>
@@ -558,7 +560,8 @@
   <table>
     <thead><tr><th>Строка</th><th>Что делает</th><th>Логический переключатель</th><th>GX12</th><th>Pocket</th></tr></thead>
     <tbody>
-      <tr><td><span class="ui">Motor arm</span></td><td>взводит мотор</td><td><code>L41</code> (GX12), <code>L5</code> (Pocket)</td><td><span class="sw">SA↓</span></td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td><span class="ui">Motor arm</span></td><td>взводит мотор</td><td><code>L41</code></td><td><span class="sw">SA↓</span></td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td><span class="ui">Motor disarm</span></td><td>снимает взвод; выключение мотора тоже снимает его</td><td><code>L42</code></td><td><span class="sw">SA↑</span></td><td><span class="sw">SA↑</span></td></tr>
       <tr><td><span class="ui">Motor/timer</span></td><td>запускает и выключает мотор</td><td><code>L9</code></td><td><span class="sw">SG↓</span></td><td><span class="sw">SE↓</span></td></tr>
       <tr><td><span class="ui">Speed</span></td><td>полётный режим Speed</td><td><code>L3</code></td><td><span class="sw">SF↑</span></td><td><span class="sw">SC↑</span></td></tr>
       <tr><td><span class="ui">Float</span></td><td>полётный режим Float; если не включён ни один из двух — Cruise</td><td><code>L4</code></td><td><span class="sw">SF↓</span></td><td><span class="sw">SC↓</span></td></tr>
@@ -570,8 +573,9 @@
     </tbody>
   </table>
   <ul class="plain">
-    <li>На GX12 <span class="sw">SD↓</span> — кнопка <span class="sw">SD</span> нажата, <span class="sw">SD↑</span> — отпущена; так же у <span class="sw">SA</span> и <span class="sw">SG</span>. Две функции могут делить один тумблер, как <span class="ui">Landing</span> и <span class="ui">Crow off</span> делят <span class="sw">SD</span>.</li>
-    <li>На GX12 взвод остаётся переключателем: каждый раз, когда выбранный тумблер включается, взвод меняется на противоположный. На Pocket мотор взведён, пока тумблер включён, а озвучка стартовой высоты (раздел 5) следует за взводом, а не за <span class="sw">SA</span>.</li>
+    <li>На GX12 <span class="sw">SD↓</span> — кнопка <span class="sw">SD</span> нажата, <span class="sw">SD↑</span> — отпущена; так же у <span class="sw">SG</span>. <span class="sw">SA</span> фиксируется (раздел 5): <span class="sw">SA↓</span> — кнопка зафиксирована, <span class="sw">SA↑</span> — отпущена. Две функции могут делить один тумблер, как <span class="ui">Landing</span> и <span class="ui">Crow off</span> делят <span class="sw">SD</span>, а <span class="ui">Motor arm</span> и <span class="ui">Motor disarm</span> — <span class="sw">SA</span>.</li>
+    <li>Взвод — это <code>L5</code>: его включает тумблер строки <span class="ui">Motor arm</span>, когда включается, а выключает тумблер строки <span class="ui">Motor disarm</span> или выключение мотора. Если в обеих строках один и тот же тумблер, взвод меняется на противоположный каждый раз, когда этот тумблер включается, — так удобно для кнопки без фиксации. Озвучка стартовой высоты (раздел 7) следует за взводом, а не за <span class="sw">SA</span>.</li>
+    <li>В модели из старого шаблона строки <span class="ui">Motor disarm</span> нет. На Pocket строка <span class="ui">Motor arm</span> такой модели задаёт <code>L5</code>, и мотор взведён, пока тумблер включён; на GX12 она задаёт <code>L41</code>, и взвод меняется на противоположный каждый раз, когда тумблер включается.</li>
   </ul>
   <p><b><span class="ui">Landing</span> на <span class="ui">NONE</span>.</b> Полёт не завершает ни один тумблер. Вместо этого нажмите кнопку запуска (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>), как в оригинальном F5J из SoarOTX: если 10-секундный отсчёт после работы мотора закончился, таймер полёта останавливается и пульт называет время полёта. До этого нажатие ничего не делает. Мотор оно тоже не запускает: для этого нужен новый взвод.</p>
   <p><b><span class="ui">Crow off</span> на <span class="ui">NONE</span>.</b> Ручка газа управляет тормозами всегда, как в оригинальном F5J из SoarOTX. Когда мотор запускается, тормоза блокируются в убранном положении, поэтому положение ручки во время работы мотора не важно. После выключения мотора они остаются убранными, пока вы не переведёте ручку в край убранных тормозов, последние 5 % хода (в шаблоне — низ, после изменения в 6.10 — верх); оттуда ручка снова управляет тормозами. Пока тормоза заблокированы, а ручка не в этом краю, пульт говорит «Flaps up» через 3 секунды после выключения мотора и затем каждые 5 секунд. Во Float ручка добавляла бы термический камбер вместе с тормозами, поэтому перенесите этот камбер на потенциометр или слайдер или уберите его с ручки (6.10).</p>
@@ -598,15 +602,14 @@
     <span class="st">Планирование</span><span class="arr">→</span>
     <span class="st">Посадка</span><span class="arr">→</span>
     <span class="st">Запись</span>
-    <span class="note">или</span>
-    <span class="st zero">Нулевой результат</span>
+    <span class="note">повторный запуск мотора — снова Мотор</span>
   </div>
   <div class="shots">
     <figure><img class="screen" src="../../images/timer-armed.png" alt="MOTOR ARMED поверх экрана таймера"><figcaption>Взвод: мигает «MOTOR ARMED».</figcaption></figure>
     <figure><img class="screen" src="../../images/timer-motor.png" alt="Работа мотора: Rem 09:48, Mot 00:12"><figcaption>Работа мотора: <span class="ui">Rem</span> убывает, <span class="ui">Mot</span> растёт.</figcaption></figure>
     <figure><img class="screen" src="../../images/timer-glide.png" alt="Планирование: Rem 07:27, Mot 00:21"><figcaption>Планирование.</figcaption></figure>
     <figure><img class="screen" src="../../images/timer-landing.png" alt="Ввод очков за посадку 45, Start 100, Flt 09:56"><figcaption>Посадка: ввод очков за посадку.</figcaption></figure>
-    <figure><img class="screen" src="../../images/timer-save.png" alt="EXIT и SAVE под результатами"><figcaption>Запись: <kbd>ENTER</kbd> сохраняет, <kbd>RTN</kbd> отменяет.</figcaption></figure>
+    <figure><img class="screen" src="../../images/timer-save.png" alt="Под результатами выбрано EXIT"><figcaption>Запись: колесо выбирает <span class="ui">SAVE</span> или <span class="ui">EXIT</span>, <kbd>ENTER</kbd> подтверждает.</figcaption></figure>
     <figure><img class="screen" src="../../images/timer-scores.png" alt="Сохранённый полёт в списке результатов"><figcaption>Сохранённые результаты: <kbd>RTN</kbd> в готовности.</figcaption></figure>
   </div>
   </div>
@@ -614,26 +617,29 @@
     <li><b>Готовность:</b> на экране рабочее время <span class="ui">Tgt</span>, по умолчанию 10:00. Вращением колеса меняйте его с шагом 1 минута (от 1:00 до 99:00). <kbd>RTN</kbd> показывает сохранённые результаты: колесо листает их, <kbd>RTN</kbd> возвращает.</li>
     <li><b>Взвод</b> (GX12 — нажатие <span class="sw">SA</span>, Pocket <span class="sw">SA↓</span>): мигает «MOTOR ARMED», пульт вибрирует и каждые 5 секунд подаёт сирену, высота сбрасывается.</li>
     <li><b>Запуск:</b> нажмите и отпустите кнопку запуска (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). P1 задаёт мощность. Голос называет 5, 10, 15 и 20 секунд работы мотора, затем считает 1…9 на секундах с 21-й по 29-ю.</li>
-    <li><b>Мотор выключен:</b> снова кнопка запуска, снятие взвода (GX12 — нажатие <span class="sw">SA</span>, Pocket <span class="sw">SA↑</span>) или автоматически на 30-й секунде. Пульт отсчитывает 10 секунд. На десятой он записывает стартовую высоту — наибольшую высоту с момента взвода — и называет её, если взвод снят (GX12 снимает его сам, когда мотор выключается; Pocket <span class="sw">SA↑</span>); иначе говорит «10».</li>
+    <li><b>Мотор выключен:</b> снова кнопка запуска, снятие взвода (GX12 — нажатие <span class="sw">SA</span>, Pocket <span class="sw">SA↑</span>) или автоматически на 30-й секунде. Выключение мотора само снимает взвод. Пульт отсчитывает 10 секунд. На десятой он записывает стартовую высоту — наибольшую высоту с момента взвода — и называет её; если за время отсчёта мотор взведён снова, пульт говорит «10».</li>
     <li><b>Планирование:</b> голос называет остаток рабочего времени: каждую минуту, пока осталось больше 2 минут; каждые 15 секунд от 2 до 1 минуты; каждые 5 секунд от 1 минуты до 10 секунд; затем каждую секунду 10…1. Чтобы поправить остаток, нажмите <kbd>ENTER</kbd>: он замигает, округлённый вниз до целых минут. Вращением колеса измените его и нажмите <kbd>ENTER</kbd>, чтобы применить, или <kbd>RTN</kbd>, чтобы отменить.</li>
     <li><b>Посадка:</b> включите тормоза (GX12 — держите <span class="sw">SD</span>, Pocket <span class="sw">SD↓</span>) — ручка газа управляет тормозами. Если 10-секундный отсчёт закончился, таймер полёта сразу останавливается и пульт называет время полёта, поэтому тормоза включайте только для посадки. Если у <span class="ui">Landing</span> выбрано <span class="ui">NONE</span> (6.11), таймер останавливает нажатие кнопки запуска; если у <span class="ui">Crow off</span> выбрано <span class="ui">NONE</span>, ручка управляет тормозами без тумблера.</li>
     <li><b>Результаты:</b> вращением колеса задайте очки за посадку (шаг 5, от 0 до 50) и нажмите <kbd>ENTER</kbd>. Поправьте стартовую высоту (шаг 1 м, от 0 до 300; 100 без датчика высоты) и нажмите <kbd>ENTER</kbd>. Поправьте время полёта (шаг 1 секунда) и нажмите <kbd>ENTER</kbd>. <kbd>RTN</kbd> возвращает на шаг назад.</li>
-    <li><b>Запись:</b> <kbd>ENTER</kbd> записывает полёт в <code>/LOGS/JF F5J Scores.csv</code>, <kbd>RTN</kbd> отменяет. Экран возвращается в готовность.</li>
+    <li><b>Запись:</b> выбранное слово мигает, сначала это <span class="ui">EXIT</span>, поэтому одно нажатие <kbd>ENTER</kbd> ничего не записывает; колесо выбирает <span class="ui">SAVE</span> или <span class="ui">EXIT</span>. <kbd>ENTER</kbd> выполняет выбранное: <span class="ui">SAVE</span> записывает полёт в <code>/LOGS/JF F5J Scores.csv</code>, <span class="ui">EXIT</span> выходит без записи. Затем экран возвращается в готовность. <kbd>RTN</kbd> возвращает к времени полёта.</li>
   </ol>
-  <div class="callout warn"><span class="t">Нулевой результат</span>Повторный запуск мотора в планировании или во время ввода очков за посадку завершает полёт с нулём, как в правилах F5J: время полёта и стартовая высота становятся 0, экран переходит к записи. В планировании держите <span class="sw">SA</span> на Pocket не в нижнем положении; GX12 снимает взвод сам, когда мотор выключается. После нового взвода одно нажатие кнопки запуска включает мотор.</div>
+  <div class="callout note"><span class="t">Повторный запуск мотора</span>Повторный запуск мотора после его выключения (в планировании, во время ввода результатов или на экране записи) сразу начинает новый полёт: рабочее время снова отсчитывается от <span class="ui">Tgt</span>, время мотора — от 0. Прерванный полёт не записывается. После нового выключения мотора идут 10-секундный отсчёт и стартовая высота — наибольшая высота после повторного запуска; ноль высоты остаётся прежним, потому что взвод сбрасывает высоту только в готовности. Выключение мотора само снимает взвод, поэтому одной кнопкой запуска мотор снова не запустить; после нового взвода (на Pocket <span class="sw">SA</span> вверх и обратно вниз, на GX12 <span class="sw">SA</span> отпустить и снова зафиксировать) одно нажатие кнопки запуска включает мотор. На соревнованиях повторный запуск по правилам F5J даёт ноль, а рабочее время идёт дальше.</div>
 
   <h2 id="s8"><span class="n">8</span>Если что-то не так</h2>
-  <table>
+  <table class="long">
     <thead><tr><th>Что видно</th><th>Что сделать</th></tr></thead>
     <tbody>
       <tr><td>В модели нет экрана таймера и Configuration</td><td>Модель создана через <span class="ui">Create model</span> и пустая. Восстановите её из шаблона (раздел 3).</td></tr>
-      <tr><td>В меню нет <span class="ui">7. Motor idle</span> или <span class="ui">8. Switches</span>, либо после обновления не открываются экраны</td><td>Удалите старые файлы <code>.luac</code> (раздел 2) и перезагрузите пульт.</td></tr>
+      <tr><td><span class="ui">Create model</span> не предлагает шаблон</td><td>На чёрно-белых пультах в EdgeTX нет списка шаблонов. Восстановите шаблон через <span class="ui">Restore model</span> на пустой ячейке (раздел 3).</td></tr>
+      <tr><td><span class="ui">Restore model</span> пишет «No models on SD» или не показывает шаблоны</td><td>Шаблонов нет в <code>/BACKUP</code>, например они скопированы в <code>/TEMPLATES</code>. Скопируйте <code>TEMPLATES/3.SoarEdgeTx/*.yml</code> в <code>/BACKUP</code> (раздел 2).</td></tr>
+      <tr><td>В меню нет <span class="ui">8. Motor idle</span> или <span class="ui">1. Switches</span>, либо после обновления не открываются экраны</td><td>Удалите старые файлы <code>.luac</code> (раздел 2) и перезагрузите пульт.</td></tr>
       <tr><td>Alignment открывается с «did not pass all checks»</td><td>Кривая или выход крыла изменены не на этой странице, и выровнять их она не может. <kbd>ENTER</kbd> сбрасывает четыре выхода и кривые CV1–CV4, после этого выровняйте крыло заново (шаг 6.2). <kbd>RTN</kbd> оставляет их как есть.</td></tr>
-      <tr><td>T3 выше центра ничего не меняет, рефлекса нет</td><td>Так и задумано: T3 даёт только камбер. Рефлекс задаётся последними точками кривых тормозов на странице 3 (6.4).</td></tr>
+      <tr><td>T3 выше центра ничего не меняет, рефлекса нет</td><td>Так и задумано: T3 даёт только камбер. Рефлекс задаётся последними точками кривых тормозов на странице 4 (6.4).</td></tr>
       <tr><td>После работы мотора тормоза остаются убранными, а пульт говорит «Flaps up»</td><td>У <span class="ui">Crow off</span> выбрано <span class="ui">NONE</span> (6.11): переведите ручку газа в край убранных тормозов, и она снова управляет тормозами.</td></tr>
       <tr><td>Во Float нет камбера</td><td>Термический камбер во Float даёт ручка газа: внизу его нет. Поднимите ручку или опустите T3 (6.4).</td></tr>
       <tr><td>Подсказка закрывает страницу или не появляется</td><td>Нажмите <kbd>MDL</kbd>: она появляется и скрывается.</td></tr>
-      <tr><td>Мотор не запускается</td><td>Сначала взведите. После работы мотора на GX12 снова нажмите <span class="sw">SA</span>, на Pocket выведите <span class="sw">SA</span> из нижнего положения и верните обратно. Пока открыта страница Alignment или Airbrakes, мотор не запускается.</td></tr>
+      <tr><td>Мотор не запускается</td><td>Сначала взведите. После работы мотора взвод снят: на GX12 нажмите <span class="sw">SA</span> дважды, если она ещё нажата (отпустить, затем взвести), на Pocket выведите <span class="sw">SA</span> из нижнего положения и верните обратно. Пока открыта страница Alignment или Airbrakes, мотор не запускается.</td></tr>
+      <tr><td>На GX12 <span class="sw">SA</span> не фиксируется и не светится, или взвод снимается, когда кнопку отпускают</td><td><span class="sw">SA</span> не фиксируется: в настройках модели (<kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> до <span class="ui">SETUP</span>, блок <span class="ui">Customizable Switches</span>) выберите для <span class="sw">SA</span> тип <span class="ui">2POS</span>. Модель из старого шаблона меняет взвод на противоположный при каждом нажатии, и фиксация ей не нужна; чтобы получить фиксацию, восстановите модель из нового шаблона (раздел 3).</td></tr>
       <tr><td><span class="ui">Elev</span> показывает N/A или триммер газа не меняет холостой ход</td><td>Модель создана из старого шаблона, без <code>BrE</code>, <code>L49</code> и <code>SF39</code>. Холостой ход меняйте колесом или восстановите модель из нового шаблона.</td></tr>
       <tr><td>Правый закрылок (CH5) стоит в крайнем положении или CH6–CH8 двигаются ступеньками</td><td>Прошейте модуль и приёмник ExpressLRS 4 и выставьте <span class="ui">Packet Rate</span> «100Hz Full» и <span class="ui">Switch Mode</span> «8ch» (раздел 3). Каналы не переносите.</td></tr>
       <tr><td>Скрипт ExpressLRS не даёт поменять настройку</td><td>Модель взведена: выберите <span class="ui">Arm using</span> «Switch» и на время настройки в строке <span class="ui">Switch</span> «---», потом верните «ON». <span class="ui">Switch Mode</span> меняется только при выключенном приёмнике (раздел 3).</td></tr>

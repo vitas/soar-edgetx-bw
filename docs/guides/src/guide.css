@@ -291,6 +291,15 @@ table {
   break-inside: avoid;
 }
 
+/* A long table, such as the troubleshooting one, may break between its rows. */
+table.long {
+  break-inside: auto;
+}
+
+table.long tr {
+  break-inside: avoid;
+}
+
 th {
   text-align: left;
   font-weight: 700;
@@ -489,12 +498,6 @@ img.screen {
   border-radius: 99px;
   padding: 0.6mm 3mm;
   font-weight: 700;
-}
-
-.flow .st.zero {
-  border-color: var(--warn);
-  color: var(--warn);
-  background: var(--warn-soft);
 }
 
 .flow .arr {

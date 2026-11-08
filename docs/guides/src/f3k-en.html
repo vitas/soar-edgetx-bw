@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Soar EdgeTX BW: F3K model on the Pocket and GX12</title>
+<link rel="stylesheet" href="guide.css">
+<style>
+@page {
+  size: A4;
+  margin: 14mm 16mm 16mm;
+  @bottom-left {
+    content: "Soar EdgeTX BW · F3K model · EdgeTX 2.12";
+    font-family: "PT Sans", sans-serif;
+    font-size: 8pt;
+    color: #7a8692;
+  }
+  @bottom-right {
+    content: "page " counter(page) " of " counter(pages);
+    font-family: "PT Sans", sans-serif;
+    font-size: 8pt;
+    color: #7a8692;
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="kicker">Soar EdgeTX BW · guide</div>
+  <h1>F3K model on <span class="nb">the Pocket</span> and GX12</h1>
+  <p class="lead">Step by step: from copying the files to the radio to the first F3K task. The template is for a discus launch glider with flaperons: the two flaperons on CH1 and CH2, the elevator on CH3 and the rudder on CH4. The brakes and the landing work from the throttle stick, without a switch.</p>
+  <div class="meta"><span>EdgeTX 2.12</span><span>RadioMaster Pocket</span><span>RadioMaster GX12</span><span>November 2026</span></div>
+</header>
+
+<p class="intro">Soar EdgeTX BW brings the SoarOTX soaring scripts by Jesper Frickmann to EdgeTX radios with a 128×64 black-and-white screen. For F3K it has two parts. The <b>score keeper</b> times the flights of a task: the launch switch starts a flight and catches it, the radio calls the times, and the screen adds up the scores. It has the FAI tasks A to N, the 2026 tasks included, practice tasks and altimeter tasks. The <b>Configuration</b> menu lets you set up the model right on the radio, without a computer. The model template provides the flight modes Launch, Zoom, Cruise, Speed, Float and Landing, the timers, logical switches, global variables, curves, mixes and channels, and the scripts read and change them.</p>
+
+<div class="grid2">
+  <div class="box">
+    <h4>What you need</h4>
+    <ul class="dash">
+      <li>A RadioMaster Pocket or GX12 with EdgeTX 2.12.</li>
+      <li>An ExpressLRS 4 receiver with at least 4 channels. The template is set up for the radio's internal ExpressLRS module.</li>
+      <li>A computer and a USB cable. The Pocket's microSD card can also go into a card reader.</li>
+      <li>Optionally an altitude sensor with telemetry (the <code>Alt</code> sensor): for the launch height callout and the altimeter tasks.</li>
+      <li>Optionally receiver voltage telemetry (<code>Cels</code>, <code>RxBt</code>, <code>A1</code> or <code>A2</code>) for the low battery warning.</li>
+      <li>Optionally EdgeTX Companion, to try everything in the simulator first.</li>
+    </ul>
+  </div>
+  <div class="box warn">
+    <h4>Safety</h4>
+    <ul class="dash">
+      <li>The Configuration pages write changes to the model <b>at once</b> and move the control surfaces.</li>
+      <li>Set up a copy of the model or work in the simulator first. Keep your fingers away from the surfaces and linkages while the receiver is on.</li>
+      <li>After setup, check the channel order, directions, endpoints and failsafe.</li>
+      <li>Before each launch, check the flight mode and that the brakes are in.</li>
+    </ul>
+  </div>
+</div>
+
+<nav class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#s1">Update EdgeTX and download the files</a></li>
+    <li><a href="#s2">Copy the files to the radio</a></li>
+    <li><a href="#s3">Create a model from the template</a></li>
+    <li><a href="#s4">Connect the servos</a></li>
+    <li><a href="#s5">Screens, keys and switches</a></li>
+    <li><a href="#s6">Model setup step by step</a></li>
+    <li><a href="#s7">Flying F3K</a></li>
+    <li><a href="#s8">Troubleshooting</a></li>
+    <li><a href="#s9">Checklist before the first flight</a></li>
+  </ol>
+</nav>
+
+<section id="s1" class="page-break">
+  <h2><span class="n">1</span>Update EdgeTX and download the files</h2>
+  <ol class="steps">
+    <li>Check the EdgeTX version: press <kbd>SYS</kbd>, then <kbd>PAGE&lt;</kbd>: the <span class="ui">VERSION</span> page opens. You need EdgeTX 2.12 (the latest is 2.12.5). If your version is older, update the firmware as the EdgeTX manual describes (<a href="https://manual.edgetx.org">manual.edgetx.org</a>), for example with <a href="https://buddy.edgetx.org">EdgeTX Buddy</a>.</li>
+    <li>Download the official SD card content for EdgeTX 2.12. From the latest 2.12 release at <a href="https://github.com/EdgeTX/edgetx-sdcard/releases">github.com/EdgeTX/edgetx-sdcard/releases</a> (now v2.12.3), take <code>bw128x64.zip</code>: the Pocket and the GX12 both have a 128×64 screen.</li>
+    <li>Download the voice pack of the same version from <a href="https://github.com/EdgeTX/edgetx-sdcard-sounds/releases">github.com/EdgeTX/edgetx-sdcard-sounds/releases</a>, for example <code>edgetx-sdcard-sounds-en-2.12.3.zip</code> for English. Without it the radio does not speak numbers: times, heights and voltage.</li>
+    <li>Open the project page <a href="https://github.com/vitas/soar-edgetx-bw">github.com/vitas/soar-edgetx-bw</a>, press <span class="ui">Code</span> → <span class="ui">Download ZIP</span> and unzip it. The <code>dist/SDCARD</code> folder is not a clean SD card: it also holds models, radio settings and other files from the author's radio. Copy from it only the four items listed in section 2.</li>
+  </ol>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>Copy the files to the radio</h2>
+  <ol class="steps">
+    <li>Connect the radio to the computer with a USB cable and choose <span class="ui">USB Storage (SD)</span>: the card shows up as a drive. The GX12 has no SD card: its internal memory shows up as the drive in the same way. The Pocket's card can also go into a card reader.</li>
+    <li>Back up the card (on the GX12, the internal memory), at least the <code>MODELS</code> and <code>RADIO</code> folders.</li>
+    <li>The official content first: unzip <code>bw128x64.zip</code> and the voice pack to the root of the card and agree to replace the files. Your models and the files you added yourself stay.</li>
+    <li>Then copy only these four items from <code>dist/SDCARD</code>:
+      <table>
+        <thead><tr><th>What (from dist/SDCARD)</th><th>Where on the card</th><th>What for</th></tr></thead>
+        <tbody>
+          <tr><td class="nowrap"><code>SCRIPTS/TELEMETRY</code> (the whole folder)</td><td class="nowrap"><code>/SCRIPTS/TELEMETRY</code></td><td>the score keeper and the Configuration menu</td></tr>
+          <tr><td class="nowrap"><code>SCRIPTS/FUNCTIONS/JFutil.lua</code></td><td class="nowrap"><code>/SCRIPTS/FUNCTIONS</code></td><td>shared functions that the scripts load</td></tr>
+          <tr><td class="nowrap"><code>TEMPLATES/3.SoarEdgeTx/*.yml</code></td><td class="nowrap"><code>/BACKUP</code></td><td>the model templates; section 3 restores one of them as a model (create the folder if there is none)</td></tr>
+          <tr><td class="nowrap"><code>SOUNDS/en/*.wav</code></td><td class="nowrap"><code>/SOUNDS/en</code></td><td>the template's voice prompts: flight modes, launch, landing, crow off and “Flaps up”</td></tr>
+        </tbody>
+      </table>
+    </li>
+    <li>Eject the drive safely, unplug the cable and restart the radio.</li>
+  </ol>
+  <div class="callout warn"><span class="t">Do not copy the whole dist/SDCARD folder</span>Besides the package it holds models (<code>MODELS</code>), radio settings (<code>RADIO</code>), firmware and other files from the author's radio. Copied to your card, they replace your models and settings.</div>
+  <div class="callout note"><span class="t">Updating from an earlier package</span>Delete these old compiled files if they are on the card: <code>JFXKcf.luac</code> and <code>JF3Ksk.luac</code> in <code>/SCRIPTS/TELEMETRY</code>, and <code>JFutil.luac</code> and <code>MENU.luac</code> in <code>/SCRIPTS/TELEMETRY/128x64</code>. EdgeTX runs a <code>.luac</code> file instead of its <code>.lua</code> unless the <code>.lua</code> is newer, so the old files keep the old menu (without <span class="ui">1. Switches</span>) or stop the screens from opening. The radio makes new ones by itself.</div>
+  <div class="callout tip"><span class="t">Radio voice in another language?</span>The template prompts are recorded in English and live in <code>/SOUNDS/en</code>. Copy the same <code>.wav</code> files into the folder of your radio's voice language too, for example <code>/SOUNDS/de</code>, or they may not play.</div>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>Create a model from the template</h2>
+  <p>On black-and-white radios EdgeTX has no template list for new models: <span class="ui">Create model</span> at once makes an empty model named after its slot, such as MODEL02. The template is restored like a model backup with <span class="ui">Restore model</span>, which lists the files in the <code>/BACKUP</code> folder. EdgeTX on black-and-white radios does not read the <code>/TEMPLATES</code> folder: with the templates there and an empty or missing <code>/BACKUP</code>, <span class="ui">Restore model</span> shows “No models on SD”.</p>
+  <div class="with-shot">
+    <ol class="steps">
+      <li>Press <kbd>MDL</kbd>: the model list opens. Select an empty slot with the roller and press <kbd>ENTER</kbd>. The menu offers <span class="ui">Create model</span> and <span class="ui">Restore model</span>; a slot that holds a model has no <span class="ui">Restore model</span>.</li>
+      <li>Choose <span class="ui">Restore model</span>, select the template for your radio and press <kbd>ENTER</kbd>: <code>pocket-F3K</code> for the Pocket, <code>gx12-F3K</code> for the GX12. The two differ only in the model name and the switches (section 5).</li>
+      <li>Select the new model: <kbd>ENTER</kbd> on it, then <span class="ui">Select model</span>.</li>
+      <li>Rename the model if you like: <kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> to <span class="ui">SETUP</span>, the <span class="ui">Name</span> field.</li>
+      <li>Check the RF module: the template uses the internal ExpressLRS module (CRSF, 16 channels). For ExpressLRS, first do the steps in “ExpressLRS” below. Bind the receiver.</li>
+      <li>Set the failsafe: the surface positions for a lost signal, for example neutral. With ExpressLRS the failsafe is set in the receiver. Check it before the first flight (section 9).</li>
+    </ol>
+    <figure>
+      <img class="screen" src="../../images/model-restore.png" alt="The Restore model list with the templates in /BACKUP">
+      <figcaption>Restore model: the templates from <code>/BACKUP</code>.</figcaption>
+    </figure>
+  </div>
+  <div class="callout note"><span class="t">Made an empty model with Create model?</span>Restore the template into another empty slot and select that model: <kbd>ENTER</kbd> on it, <span class="ui">Select model</span>. EdgeTX does not delete the selected model, so only then delete the empty one: <kbd>ENTER</kbd> on it, <span class="ui">Delete model</span>, and <kbd>ENTER</kbd> to confirm.</div>
+
+  <h3>ExpressLRS</h3>
+  <ol class="steps">
+    <li>Update ExpressLRS in the radio's internal module and in the receiver to the same version 4, preferably the latest stable release. Versions 3 and 4 do not work together. Flash with <a href="https://github.com/ExpressLRS/ExpressLRS-Configurator/releases">ExpressLRS Configurator</a> and use the same <span class="ui">Binding Phrase</span> for the module and the receiver. More at <a href="https://www.expresslrs.org">expresslrs.org</a>.</li>
+    <li>Download the <a href="https://github.com/ExpressLRS/ExpressLRS/blob/master/src/lua/elrs.lua?raw=true"><code>elrs.lua</code></a> script and put it in <code>/SCRIPTS/TOOLS</code>. Delete the old <code>elrsV3.lua</code> and <code>elrsV3.luac</code> if they are there.</li>
+    <li>The template uses only CH1–CH4, which ExpressLRS sends at full resolution at every packet rate, so it needs no particular <span class="ui">Packet Rate</span> or <span class="ui">Switch Mode</span>. Set them in <kbd>SYS</kbd> → <span class="ui">TOOLS</span> → <span class="ui">ExpressLRS</span> as you prefer.</li>
+    <li>In the model settings (<kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> to <span class="ui">SETUP</span>, the <span class="ui">Internal RF</span> block) the template has <span class="ui">Arm using</span> set to “Switch” and the <span class="ui">Switch</span> line below it empty <span class="nb">(---)</span>: the model is not armed, so the ExpressLRS settings can be changed. The <span class="ui">Arm using</span> line appears once the module runs ExpressLRS 4.</li>
+    <li>When the settings are done, set the <span class="ui">Switch</span> line to “ON”. The model is then always armed, and dynamic power, if it is on, goes to maximum when telemetry or the link is lost. To change ExpressLRS settings later, set it to <span class="nb">“---”</span> for that time.</li>
+    <li>If the receiver outputs were remapped, set them back to the defaults: output 1 to channel 1 and so on.</li>
+  </ol>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>Connect the servos</h2>
+  <figure class="wiring">
+    <svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" font-family="PT Sans, sans-serif" role="img" aria-label="Channel wiring for the F3K template">
+      <text x="20" y="30" font-size="13" fill="#5d6a77">↑ direction of flight</text>
+      <rect x="40" y="112" width="620" height="33" rx="12" fill="#eef2f6" stroke="#8a96a3" stroke-width="1.5"/>
+      <rect x="52" y="145" width="278" height="15" rx="2" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+      <rect x="370" y="145" width="278" height="15" rx="2" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+      <rect x="262" y="288" width="176" height="17" rx="6" fill="#eef2f6" stroke="#8a96a3" stroke-width="1.5"/>
+      <rect x="266" y="305" width="168" height="13" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.5"/>
+      <path d="M350 34 C362 34 367 52 367 74 L362 250 L356 352 L344 352 L338 250 L333 74 C333 52 338 34 350 34 Z" fill="#e3e9ef" stroke="#8a96a3" stroke-width="1.5"/>
+      <rect x="347" y="282" width="6" height="64" rx="2" fill="#cfd6de" stroke="#8a96a3" stroke-width="1"/>
+      <rect x="347" y="346" width="6" height="30" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+
+      <line x1="191" y1="161" x2="191" y2="178" stroke="#2563eb" stroke-width="1.2"/>
+      <text x="191" y="195" text-anchor="middle" font-size="14" font-weight="700" fill="#1d4ed8">CH1 · Ai-L</text>
+      <text x="191" y="212" text-anchor="middle" font-size="13" fill="#334155">left flaperon</text>
+
+      <line x1="509" y1="161" x2="509" y2="178" stroke="#2563eb" stroke-width="1.2"/>
+      <text x="509" y="195" text-anchor="middle" font-size="14" font-weight="700" fill="#1d4ed8">CH2 · Ai-R</text>
+      <text x="509" y="212" text-anchor="middle" font-size="13" fill="#334155">right flaperon</text>
+
+      <line x1="264" y1="311" x2="250" y2="311" stroke="#ea580c" stroke-width="1.2"/>
+      <text x="244" y="307" text-anchor="end" font-size="14" font-weight="700" fill="#c2410c">CH3 · Elev</text>
+      <text x="244" y="324" text-anchor="end" font-size="13" fill="#334155">elevator</text>
+
+      <line x1="355" y1="364" x2="370" y2="364" stroke="#7c3aed" stroke-width="1.2"/>
+      <text x="376" y="368" font-size="14" font-weight="700" fill="#6d28d9">CH4 · Rudd</text>
+      <text x="376" y="385" font-size="13" fill="#334155">rudder</text>
+    </svg>
+    <figcaption>Fig. 1. Wiring for the F3K template, top view. Next to each channel number is the output name in the model.</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th>Channel</th><th>Name in the model</th><th>What to connect</th></tr></thead>
+    <tbody>
+      <tr><td>CH1</td><td><code>Ai-L</code></td><td>left flaperon</td></tr>
+      <tr><td>CH2</td><td><code>Ai-R</code></td><td>right flaperon</td></tr>
+      <tr><td>CH3</td><td><code>Elev</code></td><td>elevator</td></tr>
+      <tr><td>CH4</td><td><code>Rudd</code></td><td>rudder</td></tr>
+    </tbody>
+  </table>
+  <p>The flaperons do three jobs: ailerons, camber and brakes. The template is neutral: centers, travels and reverses are not fitted to any particular glider; that is done in section 6. The alignment curves <code>Lft</code> and <code>Rgt</code> (CV1, CV2) start linear. With the brakes in, the template puts the flaperons at about ±20 %: most of the servo travel below that goes to the brakes, the travel above it to the ailerons. Channels 25 to 32 are the template's internal channels for the brakes, snapflap and camber; they need no receiver output.</p>
+</section>
+
+<section id="s5">
+  <div class="keep">
+  <h2><span class="n">5</span>Screens, keys and switches</h2>
+  <p>The template has two telemetry screens. <b>Screen 1</b> is the F3K score keeper, <b>screen 2</b> is the <span class="ui">Configuration</span> menu with six pages. <kbd>TELE</kbd> opens the screens, <kbd>PAGE&gt;</kbd> and <kbd>PAGE&lt;</kbd> switch between them.</p>
+  <div class="shots">
+    <figure><img class="screen" src="../../images/f3k-plugins.png" alt="The score keeper's plugin list: F3K, Practice, Altimeter, Saved scores"><figcaption>Screen 1: the score keeper starts with its plugins.</figcaption></figure>
+    <figure><img class="screen" src="../../images/f3k-menu.png" alt="The F3K Configuration menu with 1. Switches first"><figcaption>Screen 2: the Configuration menu.</figcaption></figure>
+    <figure><img class="screen" src="../../images/f3k-switches.png" alt="The Switches page of the Pocket F3K template"><figcaption>Page 1: the switches of the Pocket template.</figcaption></figure>
+  </div>
+  </div>
+  <table>
+    <thead><tr><th>Menu item</th><th>Page title</th><th>What it sets</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ui">1. Switches</span></td><td><span class="ui">Switches</span></td><td>the switches of the template's functions (6.1)</td></tr>
+      <tr><td><span class="ui">2. Channel configuration</span></td><td><span class="ui">Channel Config</span></td><td>channel order, direction, center and endpoints</td></tr>
+      <tr><td><span class="ui">3. Align flaperons</span></td><td><span class="ui">Alignment</span></td><td>aligning the two flaperons with each other</td></tr>
+      <tr><td><span class="ui">4. Center flaperons</span></td><td><span class="ui">Center</span></td><td>the flaperon position in Speed, and the travel for the brakes and the ailerons</td></tr>
+      <tr><td><span class="ui">5. Adjust other mixes</span></td><td><span class="ui">Adjust mixes</span></td><td>aileron to rudder, aileron differential, brake to elevator, snapflap</td></tr>
+      <tr><td><span class="ui">6. Battery warning</span></td><td><span class="ui">Bat Warning</span></td><td>receiver battery warning level</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Keys</h3>
+  <table>
+    <thead><tr><th>Key</th><th>In the Configuration menu and on its pages</th></tr></thead>
+    <tbody>
+      <tr><td>Roller (turn)</td><td>select a menu item or a field, change a value; the help calls it <span class="ui">ROT</span></td></tr>
+      <tr><td><kbd>ENTER</kbd> (press the roller)</td><td>open a page, start or finish editing</td></tr>
+      <tr><td><kbd>RTN</kbd></td><td>leave a page or a field; the help calls it <span class="ui">EXIT</span></td></tr>
+      <tr><td><kbd>MDL</kbd> (short press)</td><td>show or hide the help of the page; the help calls it <span class="ui">MENU</span></td></tr>
+      <tr><td><kbd>PAGE&gt;</kbd> / <kbd>PAGE&lt;</kbd></td><td>switch between the score keeper and the Configuration screens</td></tr>
+    </tbody>
+  </table>
+  <p>On the score keeper screen the roller, <kbd>ENTER</kbd> and <kbd>RTN</kbd> have their own roles (section 7).</p>
+  <div class="callout note"><span class="t">No need to save</span>Changes are written to the model at once; there is no Save button.</div>
+
+  <div class="keep">
+  <h3>Switches and controls</h3>
+  <p>The Pocket and GX12 templates differ only in these switches. The <span class="ui">1. Switches</span> page moves the functions to other switches (6.1).</p>
+  <table>
+    <thead><tr><th>Function</th><th>GX12</th><th>Pocket</th></tr></thead>
+    <tbody>
+      <tr><td>Launch: hold before the throw, let go at the throw; press again to catch</td><td><span class="sw">SG</span> button</td><td><span class="sw">SE</span> (spring-loaded): pull</td></tr>
+      <tr><td>Flight mode Speed / Cruise / Float</td><td><span class="sw">SF↑</span> / middle / <span class="sw">SF↓</span></td><td><span class="sw">SC↑</span> / middle / <span class="sw">SC↓</span></td></tr>
+      <tr><td>Brakes and the Landing flight mode</td><td>throttle stick</td><td>throttle stick</td></tr>
+      <tr><td>Launch height callout</td><td><span class="sw">SE↓</span></td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td>Altitude every 10 s</td><td><span class="sw">SB↓</span></td><td><span class="sw">SB↓</span></td></tr>
+      <tr><td>Poker target time</td><td>rudder stick</td><td>rudder stick</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="plain">
+    <li><b>Launch:</b> while the launch switch is on, the flight mode is Launch. When you let go, Zoom follows and stays on until you move the elevator or aileron stick; then the flight mode follows <span class="sw">SC</span> (GX12 <span class="sw">SF</span>). The score keeper starts the flight timer when you let go and stops it at the next press (section 7).</li>
+    <li><b>Throttle stick:</b> the brakes. Stick up gives full brakes: both flaperons go down, and the elevator compensates. Stick down retracts them; the bottom 5 % of the travel keep the brakes fully in. After each launch the brakes stay in until the stick has been at the bottom. If it is not there, the radio says “Flaps up” 3 seconds after the launch and then every 5 seconds.</li>
+    <li><b>Landing:</b> half a second after the stick leaves the bottom, the flight mode Landing comes on and the radio says “landing”. When the stick returns to the bottom, Landing goes off at once and the flight mode follows the switch again.</li>
+    <li><b>Throttle trim T3</b> down from center adds camber in Cruise and Float; each of the two modes keeps its own T3. Up from center it does nothing, and in Speed it is off.</li>
+    <li><b>Elevator trim:</b> Launch keeps its own elevator trim and T3; set them on the ground with the launch switch held. Zoom, Speed and Float add their own elevator trim to the Cruise trim. In Landing the elevator trim buttons set the brake compensation <code>BkE</code> (6.5), and the Cruise trim stays.</li>
+    <li>The radio announces the flight modes with the template's voice prompts.</li>
+    <li>Free on the Pocket: <span class="sw">SD</span> and <span class="sw">P1</span>. Free on the GX12: <span class="sw">SA</span>, <span class="sw">SC</span>, <span class="sw">SD</span>, the <span class="sw">SH</span> button, the <span class="sw">S1</span>/<span class="sw">S2</span> sliders, <span class="sw">P1</span>, <span class="sw">P2</span> and the <span class="sw">SW1</span>–<span class="sw">SW6</span> buttons.</li>
+  </ul>
+</section>
+
+<section id="s6">
+  <div class="keep">
+  <h2><span class="n">6</span>Model setup step by step</h2>
+  <p>Open the Configuration screen (<kbd>PAGE&gt;</kbd> from the score keeper), select a page with the roller and press <kbd>ENTER</kbd>; <kbd>RTN</kbd> returns to the menu. Do the steps in order, with the model held securely.</p>
+
+  <h3>6.1. Switches <span class="tag">1. Switches</span></h3>
+  <div class="with-shot">
+    <div>
+      <p>The page moves the template's functions to other switches. Each row is one function, with the switch it uses now on the right. Select a row with the roller and press <kbd>ENTER</kbd>: the switch blinks. Turn the roller to choose another one, then press <kbd>ENTER</kbd> to save it or <kbd>RTN</kbd> to keep the old one.</p>
+      <p>The list starts with <span class="ui">NONE</span> (the function stays off) and <span class="ui">ON</span> (always on). Then come the positions with “!”, which means not: <span class="sw">!SB↓</span> is on whenever <span class="sw">SB</span> is not down. After them come the switch positions, on the GX12 also the <span class="sw">SW1</span>–<span class="sw">SW6</span> buttons. The page sets the first switch of a logical switch (see the table).</p>
+    </div>
+    <figure>
+      <img class="screen" src="../../images/f3k-switches.png" alt="Switches page with the Pocket F3K switches">
+      <figcaption>The switches of the Pocket template.</figcaption>
+    </figure>
+  </div>
+  </div>
+  <table>
+    <thead><tr><th>Row</th><th>What it does</th><th>Logical switch</th><th>GX12</th><th>Pocket</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ui">Launch</span></td><td>flight mode Launch; starts and catches the flights</td><td><code>L7</code></td><td><span class="sw">SG↓</span></td><td><span class="sw">SE↓</span></td></tr>
+      <tr><td><span class="ui">Speed</span></td><td>flight mode Speed</td><td><code>L3</code></td><td><span class="sw">SF↑</span></td><td><span class="sw">SC↑</span></td></tr>
+      <tr><td><span class="ui">Float</span></td><td>flight mode Float; with neither of the two, Cruise</td><td><code>L4</code></td><td><span class="sw">SF↓</span></td><td><span class="sw">SC↓</span></td></tr>
+      <tr><td><span class="ui">Landing</span></td><td>frees the brakes after a launch</td><td><code>L8</code></td><td><span class="ui">NONE</span></td><td><span class="ui">NONE</span></td></tr>
+      <tr><td><span class="ui">Crow off</span></td><td>keeps the brakes in</td><td><code>L35</code></td><td><span class="ui">NONE</span></td><td><span class="ui">NONE</span></td></tr>
+      <tr><td><span class="ui">Alt calls</span></td><td>the launch height callout</td><td><code>L1</code></td><td><span class="sw">SE↓</span></td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td><span class="ui">Alt 10 sec</span></td><td>the altitude every 10 s, while <span class="ui">Alt calls</span> is on</td><td><code>L6</code></td><td><span class="sw">SB↓</span></td><td><span class="sw">SB↓</span></td></tr>
+    </tbody>
+  </table>
+  <ul class="plain">
+    <li>On the GX12, <span class="sw">SG↓</span> is the <span class="sw">SG</span> button held. Two functions can share a switch, for example <span class="ui">Landing</span> on <span class="sw">SD↓</span> and <span class="ui">Crow off</span> on <span class="sw">SD↑</span>.</li>
+    <li><span class="ui">Alt calls</span> works while a flight is timed: 10 seconds after the launch the radio says the launch height, the highest altitude since the launch switch came on. <span class="ui">Alt 10 sec</span> then adds the current altitude every 10 seconds. Both need the <code>Alt</code> sensor.</li>
+  </ul>
+  <p><b><span class="ui">Landing</span> and <span class="ui">Crow off</span> at <span class="ui">NONE</span></b> (the template). The throttle stick does both jobs, as section 5 describes: after a launch the brakes stay in until the stick has been at the bottom, then the stick moves the brakes and switches the flight mode Landing. Only with both rows at <span class="ui">NONE</span> does the page turn on <code>L52</code>, which lets the stick switch Landing; with <span class="ui">Landing</span> at <span class="ui">NONE</span> it also turns on <code>L50</code>, which lets the stick free the brakes.</p>
+  <p><b>A switch for <span class="ui">Landing</span></b> brings back the SoarOTX way. After a launch the brakes stay in until the <span class="ui">Landing</span> switch comes on; if it was already on at the launch, switch it off and on again. The radio says “landing”, and from then on the stick moves the brakes. The flight mode Landing is not used. Until then the throttle stick gives only thermal camber in Float (6.7). The template's telemetry log, which EdgeTX writes to <code>/LOGS</code>, runs only while this switch is on, so with <span class="ui">Landing</span> at <span class="ui">NONE</span> there is no log.</p>
+  <p><b>A switch for <span class="ui">Crow off</span></b> locks the brakes in, and the radio says “crow off”. They stay in until something frees them again: the <span class="ui">Landing</span> switch, or, with <span class="ui">Landing</span> at <span class="ui">NONE</span>, the stick at the bottom once <span class="ui">Crow off</span> is off. The flight mode Landing is then not used.</p>
+  <p>To set the Pocket up as the original template was, choose <span class="sw">SD↓</span> for <span class="ui">Landing</span> and <span class="sw">SD↑</span> for <span class="ui">Crow off</span>; on the GX12 the brakes then work only while the <span class="sw">SD</span> button is held. A model made from an older template has no <span class="ui">Landing</span> and <span class="ui">Crow off</span> rows: restore it from the new template (section 3) to land with the throttle stick.</p>
+
+  <h3>6.2. Channels and directions <span class="tag">2. Channel configuration</span></h3>
+  <div class="with-shot">
+    <div>
+      <p>The page first warns: “Disconnect the motor!”. The F3K template has no motor: press <kbd>ENTER</kbd>. Each row shows the channel number, the name, the direction (<code>&gt;</code> or <code>&lt;</code>) and a bar with three marks (lower end, center, upper end) and a marker for the current position.</p>
+      <ul class="plain">
+        <li>Select a channel with the roller and press <kbd>ENTER</kbd>.</li>
+        <li>Turn the roller to choose what to change: the number, the direction, all three marks together, the range, the lower end, the center or the upper end.</li>
+        <li><kbd>ENTER</kbd> on the direction reverses the channel. <kbd>ENTER</kbd> on a mark starts editing: the roller moves it, <kbd>ENTER</kbd> or <kbd>RTN</kbd> finishes.</li>
+        <li>Leave the channels from 25 on as they are: they are the template's internal channels.</li>
+      </ul>
+    </div>
+    <figure>
+      <img class="screen" src="../../images/f3k-channels.png" alt="Channel Config page with Ai-L, Ai-R, Elev and Rudd">
+      <figcaption>The F3K channels with their bars.</figcaption>
+    </figure>
+  </div>
+  <table>
+    <thead><tr><th>Action</th><th>Correct response</th></tr></thead>
+    <tbody>
+      <tr><td>Elevator stick back</td><td>elevator up</td></tr>
+      <tr><td>Rudder stick right</td><td>rudder right</td></tr>
+      <tr><td>Aileron stick right</td><td>right flaperon up, left flaperon down</td></tr>
+      <tr><td>Throttle stick up, after it has been at the bottom</td><td>both flaperons down (brakes)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.3. Flaperon alignment <span class="tag">3. Align flaperons</span></h3>
+  <div class="with-shot">
+    <div>
+      <p>Aligns the two flaperons with each other over their whole travel. The changes are written to the curves <code>Lft</code> and <code>Rgt</code> (CV1, CV2) and to the centers and endpoints of the two outputs.</p>
+      <ul class="plain">
+        <li>The throttle stick selects one of the five curve points.</li>
+        <li>The throttle trim moves both flaperons, the aileron trim aligns the left flaperon with the right one.</li>
+        <li>Order: the end points first, then the center, then the points between.</li>
+      </ul>
+    </div>
+    <figure>
+      <img class="screen" src="../../images/f3k-align.png" alt="Alignment page with the left and right flaperon curves">
+      <figcaption>The two alignment curves.</figcaption>
+    </figure>
+  </div>
+  <div class="callout note"><span class="t">Starting over</span><kbd>ENTER</kbd> on this page asks whether to reset the flaperon outputs. A second <kbd>ENTER</kbd> makes the curves CV1 and CV2 straight and sets the center and the ends of the two outputs back to 0 and ±100; <kbd>RTN</kbd> keeps everything. If the curves and outputs do not pass the page's checks, the page opens with this question; <kbd>RTN</kbd> then leaves the page without changes.</div>
+
+  <div class="keep">
+  <h3>6.4. Flaperon center <span class="tag">4. Center flaperons</span></h3>
+  <div class="with-shot">
+    <div>
+      <p>Sets where the flaperons sit in Speed, with the brakes in and no camber. The same setting shares out the servo travel: <code>Brk</code> is the travel from there down to full brakes, and the page sets the aileron travel <code>Ail</code> to the travel left above it.</p>
+      <ul class="plain">
+        <li>The throttle trim changes <code>Brk</code>, and the flaperons move with it. Set them where you want them in Speed: in line with the wing section, or with a little reflex.</li>
+        <li><code>Ail</code> follows by itself: the higher <code>Brk</code>, the less aileron travel is left. The template has <code>Brk</code> 60 and <code>Ail</code> 80.</li>
+      </ul>
+    </div>
+    <figure>
+      <img class="screen" src="../../images/f3k-center.png" alt="Center page with Ail 80 and Brk 60">
+      <figcaption>The template values.</figcaption>
+    </figure>
+  </div>
+  </div>
+
+  <h3>6.5. Other mixes <span class="tag">5. Adjust other mixes</span></h3>
+  <div class="with-shot">
+    <div>
+      <p>While the page is open, the trims change four values instead of moving:</p>
+      <table>
+        <thead><tr><th>Trim</th><th>Code</th><th>What it sets</th></tr></thead>
+        <tbody>
+          <tr><td>Rudder</td><td><code>AiR</code></td><td>aileron to rudder</td></tr>
+          <tr><td>Aileron</td><td><code>Dif</code></td><td>aileron differential: the higher, the less the flaperons go down</td></tr>
+          <tr><td>Elevator</td><td><code>BkE</code></td><td>elevator compensation for the brakes</td></tr>
+          <tr><td>Throttle</td><td><code>Snp</code></td><td>snapflap: the flaperons follow the elevator stick</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure>
+      <img class="screen" src="../../images/f3k-mixes.png" alt="Adjust mixes page with AiR 32, Dif 68, BkE 36 and Snp -22">
+      <figcaption>The template values.</figcaption>
+    </figure>
+  </div>
+  <p>The brake compensation goes from 0 with the brakes in to twice <code>BkE</code> at full brakes. The brake curve <code>BrF</code> (CV3) shapes it along the stick travel, together with the flaperons: the template's −100, 50, 100 moves both slowly at the start, for fine control. In flight you can also change <code>BkE</code> in Landing with the elevator trim buttons: if the model pitches as the brakes come out, click the trim against it.</p>
+
+  <h3>6.6. Battery warning <span class="tag">6. Battery warning</span></h3>
+  <div class="with-shot">
+    <div>
+      <p><span class="ui">Battery level</span> shows the receiver voltage that the warning uses: the first sensor found of <code>Cels</code>, <code>RxBt</code>, <code>A1</code> and <code>A2</code>. Turn the roller to set the <span class="ui">Warning level</span> in steps of 0.1 V for your receiver battery. <kbd>ENTER</kbd> or <kbd>RTN</kbd> closes the page.</p>
+      <p>Below the level the radio warns about the low battery and says the voltage, at most once every 20 seconds.</p>
+    </div>
+    <figure>
+      <img class="screen" src="../../images/page-battery.png" alt="Bat Warning page with the warning level">
+      <figcaption>Without telemetry the voltage is 0.0 V.</figcaption>
+    </figure>
+  </div>
+
+  <div class="keep">
+  <h3>6.7. Camber <span class="tag">optional</span></h3>
+  <table>
+    <thead><tr><th>Mode</th><th>Camber</th></tr></thead>
+    <tbody>
+      <tr><td>Speed (Pocket <span class="sw">SC↑</span>, GX12 <span class="sw">SF↑</span>)</td><td>None, and T3 does nothing: the flaperons sit where 6.4 put them.</td></tr>
+      <tr><td>Cruise (SC&nbsp;or&nbsp;SF middle)</td><td>From T3: below center it adds camber, a little more with each click down; at center and above it adds none. The template has T3 at center.</td></tr>
+      <tr><td>Float (Pocket <span class="sw">SC↓</span>, GX12 <span class="sw">SF↓</span>)</td><td>From T3, kept apart from Cruise. With a <span class="ui">Landing</span> switch (6.1), also from the throttle stick: none at the bottom, 35 at the top; once that switch frees the brakes, the stick moves them too.</td></tr>
+      <tr><td>Landing</td><td>The camber of Cruise: its T3.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><b>Why the stick gives no Float camber in the template.</b> With <span class="ui">Landing</span> at <span class="ui">NONE</span>, the stick out of its bottom position means brakes and the flight mode Landing, which has no thermal camber. To have the stick camber in Float, give <span class="ui">Landing</span> a switch (6.1); otherwise use T3 or a slider.</p>
+  <p><b>Camber on a slider.</b> Input <code>I6:Cmb</code> is kept for a slider or pot; its source <code>MAX</code> gives no camber. In <kbd>MDL</kbd> → <span class="ui">INPUTS</span>, set its source to the control: on the Pocket <span class="sw">P1</span>, on the GX12 <span class="sw">S1</span>, <span class="sw">S2</span>, <span class="sw">P1</span> or <span class="sw">P2</span>. If a control is missing from the list, enable it in the radio's hardware settings (<kbd>SYS</kbd> → <span class="ui">HARDWARE</span>). The control's +100 end (the last 5 % of the travel) gives no camber; toward the −100 end the camber grows to twice the flight mode's <code>Cmb</code> (GV7): 20 in Cruise and Speed and 70 in Float in the template. It works in Cruise, Speed and Float and adds to T3. To keep Speed free of it, untick FM4 (Speed) in the flight modes of the <code>Slider</code> line in the CH28 mixes.</p>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>Flying F3K</h2>
+  <div class="keep">
+  <p>Screen 1 starts with the plugin list. Turn the roller to a plugin and press <kbd>ENTER</kbd>, then do the same for the task: its screen opens. <kbd>RTN</kbd> goes back. The task screen shows the task name at the top, the flights on the left, the target or flight time (<span class="ui">Tgt</span>, then <span class="ui">Flt</span> in flight) and the working time (<span class="ui">Win</span>) on the right. <span class="ui">QR</span> and <span class="ui">EoW</span> show the two options below.</p>
+  <div class="flow">
+    <span class="st">Window</span><span class="arr">→</span>
+    <span class="st">Launch</span><span class="arr">→</span>
+    <span class="st">10 s grace</span><span class="arr">→</span>
+    <span class="st">Flight counts</span><span class="arr">→</span>
+    <span class="st">Catch</span>
+    <span class="note">then the next launch, until the window or the task ends</span>
+  </div>
+  <div class="shots">
+    <figure><img class="screen" src="../../images/f3k-tasks.png" alt="The F3K task list from I to N"><figcaption>The F3K tasks, the 2026 tasks included.</figcaption></figure>
+    <figure><img class="screen" src="../../images/f3k-task.png" alt="Task N before the window: Tgt 09:59, Win 10:00"><figcaption>Task N: ready, <span class="ui">EoW</span> on.</figcaption></figure>
+    <figure><img class="screen" src="../../images/f3k-flight.png" alt="Task N in flight: Flt 09:50, Win 09:48"><figcaption>In flight: <span class="ui">Flt</span> and <span class="ui">Win</span> count down.</figcaption></figure>
+  </div>
+  </div>
+  <ol class="steps">
+    <li><b>Window:</b> <kbd>ENTER</kbd> starts the working time. You can also just launch: the first launch starts the window and the flight together. Between flights, <kbd>ENTER</kbd> pauses the window and shows the total score; <kbd>ENTER</kbd> again resumes it.</li>
+    <li><b>Launch:</b> hold the launch switch (Pocket pull <span class="sw">SE</span>, GX12 press <span class="sw">SG</span>) through the run-up and let go as you throw. The flight timer starts, and the radio says the target time; a task without one beeps instead.</li>
+    <li><b>Grace period:</b> for the first 10 seconds, a press of the launch switch cancels the flight, and it does not count. For the relaunch, let go and hold the switch again. After 10 seconds the flight counts, the radio says the launch height if <span class="ui">Alt calls</span> is on (6.1), and the launch counts against the task's limit.</li>
+    <li><b>In flight:</b> <span class="ui">Flt</span> counts down the target time. The radio says the time left every minute, at 45, 30, 20 and 15 seconds, and then every second from 10.</li>
+    <li><b>Catch:</b> press the launch switch: the timer stops and the time goes into the list. With <span class="ui">QR</span> (quick relaunch) on, the next flight starts when you let go, so you can hold the switch from the catch to the next throw. With <span class="ui">QR</span> off, a short beep as you let go says that no flight is timed; press and hold again for the next launch.</li>
+    <li><b>Landed out:</b> <kbd>RTN</kbd> scores the flight zero.</li>
+    <li><b>End of the window:</b> a long tone. With <span class="ui">EoW</span> on (the default), the timer of a flight still in the air stops there. Press the launch switch at the catch to score the flight, or <kbd>RTN</kbd> for zero. The task ends with “Done!” and the total.</li>
+    <li><b>Save:</b> with the window paused or the task done, <kbd>RTN</kbd> asks “Save scores?”: <kbd>ENTER</kbd> adds them to <code>/LOGS/JF F3K Scores.csv</code>, <kbd>RTN</kbd> leaves them out. <span class="ui">Saved scores</span> in the plugin list shows them.</li>
+  </ol>
+
+  <div class="keep">
+  <table>
+    <thead><tr><th>Key</th><th>On the task screen</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>ENTER</kbd></td><td>start or pause the window; not during a flight</td></tr>
+      <tr><td>Roller up</td><td><span class="ui">QR</span> on or off: the next flight starts as you let go after the catch</td></tr>
+      <tr><td>Roller down</td><td><span class="ui">EoW</span> on or off: the flight timer stops at the end of the window</td></tr>
+      <tr><td><kbd>RTN</kbd></td><td>a flight that counts: zero score; before the window: leave the task; window paused or task done: save the scores</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="keep">
+  <h3>Tasks</h3>
+  <table>
+    <thead><tr><th>Plugin</th><th>Tasks</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ui">F3K</span></td><td>A. Last flight · B. Two last flights 3:00 and 4:00 · C. All up last down · D. Two flights only · E. Poker 10 and 15 min. · F. Three best out of six · G. Five best flights · H. 1-2-3-4 in any order · I. Three best flights · J. Three last flights · K. Big Ladder · L. One flight only · M. Huge Ladder · N. Best flight · A2. Last flight 10:00</td></tr>
+      <tr><td><span class="ui">Practice</span></td><td>Just Fly! · Quick Relaunch! · Deuces</td></tr>
+      <tr><td><span class="ui">Altimeter</span></td><td>W. Height gain · X. Under ceiling · Y. Throw low 2:00 · Z. Height Poker; they need the <code>Alt</code> sensor</td></tr>
+      <tr><td><span class="ui">Saved scores</span></td><td>Score browser</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul class="plain">
+    <li><b>2026 FAI rules.</b> L. One flight only and N. Best flight have a 10-minute window and flights up to 599 seconds. A keeps 7 minutes and 300 seconds. A2 is not an FAI task: it is A with a 10-minute window and flights up to 599 seconds, for practice or local rules.</li>
+    <li><b>Poker.</b> The rudder stick sets the target time. When the stick rests for a second after a move, the radio beeps and says the time. During a flight the screen shows the next call.</li>
+    <li>The screen has room for 7 flights, so tasks with more flights stop at 7.</li>
+  </ul>
+  <div class="shots two">
+    <figure>
+      <img class="screen" src="../../images/f3k-score.png" alt="A flight of 21 seconds in the list">
+      <figcaption>After the catch: the flight is in the list.</figcaption>
+    </figure>
+  </div>
+
+  <h2 id="s8"><span class="n">8</span>Troubleshooting</h2>
+  <table class="long">
+    <thead><tr><th>What you see</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td>The model has no score keeper or Configuration screen</td><td>The model was made with <span class="ui">Create model</span> and is empty. Restore it from the template (section 3).</td></tr>
+      <tr><td><span class="ui">Restore model</span> shows “No models on SD” or no templates</td><td>The templates are not in <code>/BACKUP</code>, for example they were copied to <code>/TEMPLATES</code>. Copy <code>TEMPLATES/3.SoarEdgeTx/*.yml</code> to <code>/BACKUP</code> (section 2).</td></tr>
+      <tr><td>The menu has no <span class="ui">1. Switches</span>, or the screens do not open after an update</td><td>Delete the old <code>.luac</code> files (section 2) and restart the radio.</td></tr>
+      <tr><td>After a launch the brakes stay in and the radio says “Flaps up”</td><td>Move the throttle stick to the bottom: after each launch the stick has to be there before it moves the brakes.</td></tr>
+      <tr><td>No camber from the throttle stick in Float</td><td>With <span class="ui">Landing</span> at <span class="ui">NONE</span> the stick lands instead. Give <span class="ui">Landing</span> a switch (6.1), or use T3 or a slider (6.7).</td></tr>
+      <tr><td>The brakes come out but the flaperons do not move far, or the elevator jumps</td><td>Check <code>Brk</code> (6.4) and <code>BkE</code> (6.5), and that the curve <code>BrF</code> (CV3) runs from −100 to 100.</td></tr>
+      <tr><td>The flight timer does not start at the launch</td><td>After a cancelled flight or a catch without <span class="ui">QR</span>, let go and hold the launch switch again before the throw. A paused window does not time flights: <kbd>ENTER</kbd> resumes it. A done task needs a new start: leave it with <kbd>RTN</kbd> and open it again.</td></tr>
+      <tr><td>A short flight is missing from the list</td><td>A press of the launch switch in the first 10 seconds cancels the flight (section 7).</td></tr>
+      <tr><td><kbd>RTN</kbd> does not ask to save</td><td>The window is still running: pause it with <kbd>ENTER</kbd> first.</td></tr>
+      <tr><td>No launch height callout</td><td><span class="ui">Alt calls</span> is off (Pocket <span class="sw">SA↓</span>, GX12 <span class="sw">SE↓</span>), or there is no <code>Alt</code> sensor: discover the sensors on the model's <span class="ui">TELEMETRY</span> page.</td></tr>
+      <tr><td>Alignment opens with “did not pass all checks”</td><td>A flaperon curve or output was changed outside this page. <kbd>ENTER</kbd> resets them; then align the flaperons again (6.3). <kbd>RTN</kbd> leaves them as they are.</td></tr>
+      <tr><td>The help covers the page, or does not show</td><td>Press <kbd>MDL</kbd>: it shows or hides the help.</td></tr>
+      <tr><td>No voice prompts for the flight modes</td><td>Copy <code>SOUNDS/en/*.wav</code> to <code>/SOUNDS/en</code>, and to the folder of your voice language (section 2).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="keep">
+  <h2 id="s9"><span class="n">9</span>Checklist before the first flight</h2>
+  <ul class="check">
+    <li>All control surfaces move the right way in Cruise, Speed and Float.</li>
+    <li>The flaperons are aligned and sit where you want them in Speed.</li>
+    <li>The launch switch gives the Launch flight mode, and Zoom follows until you move the elevator or aileron stick.</li>
+    <li>After a launch, the brakes stay in until the throttle stick has been at the bottom; then stick up brings both flaperons down smoothly, and the elevator compensates.</li>
+    <li>Landing comes on with the brakes and goes off with the stick at the bottom.</li>
+    <li>The failsafe is set and checked.</li>
+    <li>The altitude and receiver voltage telemetry show, and the voice prompts are heard.</li>
+    <li>A range check is done.</li>
+  </ul>
+
+  <p class="endnote">The project page is <a href="https://github.com/vitas/soar-edgetx-bw">github.com/vitas/soar-edgetx-bw</a>; its README shows what is new compared with SoarOTX, and the F5J guide describes the F5J templates. This guide describes the templates and scripts as of November 2026.</p>
+  </div>
+</section>
+
+</body>
+</html>

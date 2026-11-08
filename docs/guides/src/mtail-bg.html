@@ -94,7 +94,7 @@
         <tbody>
           <tr><td class="nowrap"><code>SCRIPTS/TELEMETRY</code> (цялата папка)</td><td class="nowrap"><code>/SCRIPTS/TELEMETRY</code></td><td>екранът на таймера и менюто Configuration</td></tr>
           <tr><td class="nowrap"><code>SCRIPTS/FUNCTIONS/JFutil.lua</code></td><td class="nowrap"><code>/SCRIPTS/FUNCTIONS</code></td><td>общи функции, които скриптовете зареждат</td></tr>
-          <tr><td class="nowrap"><code>TEMPLATES/3.SoarEdgeTx/*.yml</code></td><td class="nowrap"><code>/BACKUP</code></td><td>шаблони на модели; в раздел 3 единият се възстановява като модел</td></tr>
+          <tr><td class="nowrap"><code>TEMPLATES/3.SoarEdgeTx/*.yml</code></td><td class="nowrap"><code>/BACKUP</code></td><td>шаблони на модели; в раздел 3 единият се възстановява като модел (ако папката я няма, създайте я)</td></tr>
           <tr><td class="nowrap"><code>SOUNDS/en/*.wav</code></td><td class="nowrap"><code>/SOUNDS/en</code></td><td>гласовите съобщения на шаблона: полетни режими, старт, кацане, изключен мотор и други</td></tr>
         </tbody>
       </table>
@@ -102,16 +102,16 @@
     <li>Извадете безопасно диска, изключете кабела и рестартирайте предавателя.</li>
   </ol>
   <div class="callout warn"><span class="t">Не копирайте цялата папка dist/SDCARD</span>Освен пакета в нея има модели (<code>MODELS</code>), настройки на предавателя (<code>RADIO</code>), фърмуер и други файлове от предавателя на автора. Копирани на вашата карта, те ще заменят вашите модели и настройки.</div>
-  <div class="callout note"><span class="t">Обновяване от стар пакет</span>Изтрийте старите компилирани файлове, ако ги има на картата: <code>JFXJcf.luac</code> и <code>JF5Jsk.luac</code> в <code>/SCRIPTS/TELEMETRY</code>, както и <code>ARMED.luac</code>, <code>JFutil.luac</code> и <code>MENU.luac</code> в <code>/SCRIPTS/TELEMETRY/128x64</code>. EdgeTX стартира файла <code>.luac</code> вместо <code>.lua</code>, ако <code>.lua</code> не е по-нов, затова старите файлове оставят старото меню (без <span class="ui">7. Motor idle</span>) или не дават на екраните да се отворят.</div>
+  <div class="callout note"><span class="t">Обновяване от стар пакет</span>Изтрийте старите компилирани файлове, ако ги има на картата: <code>JFXJcf.luac</code> и <code>JF5Jsk.luac</code> в <code>/SCRIPTS/TELEMETRY</code>, както и <code>ARMED.luac</code>, <code>JFutil.luac</code> и <code>MENU.luac</code> в <code>/SCRIPTS/TELEMETRY/128x64</code>. EdgeTX стартира файла <code>.luac</code> вместо <code>.lua</code>, ако <code>.lua</code> не е по-нов, затова старите файлове оставят старото меню (без <span class="ui">8. Motor idle</span>) или не дават на екраните да се отворят.</div>
   <div class="callout tip"><span class="t">Предавателят не говори на английски?</span>Съобщенията на шаблона са записани на английски и са в <code>/SOUNDS/en</code>. Копирайте същите файлове <code>.wav</code> и в папката на езика на гласа, например <code>/SOUNDS/ru</code> за руски, иначе може да не прозвучат.</div>
 </section>
 
 <section id="s3">
   <h2><span class="n">3</span>Създайте модел от шаблон</h2>
-  <p>На черно-белите предаватели EdgeTX няма списък с шаблони за нов модел. Шаблонът се възстановява като резервно копие на модел от папката <code>/BACKUP</code>.</p>
+  <p>На черно-белите предаватели EdgeTX няма списък с шаблони за нов модел: <span class="ui">Create model</span> веднага създава празен модел с име по номера на мястото, например MODEL02. Шаблонът се възстановява като резервно копие на модел чрез <span class="ui">Restore model</span>, а тази опция показва файловете от папката <code>/BACKUP</code>. Папката <code>/TEMPLATES</code> EdgeTX на черно-белите предаватели не чете: ако шаблоните са там, а папката <code>/BACKUP</code> е празна или я няма, <span class="ui">Restore model</span> показва „No models on SD“.</p>
   <div class="with-shot">
     <ol class="steps">
-      <li>Натиснете <kbd>MDL</kbd> — ще се отвори списъкът с модели. Изберете с колелото празно място и натиснете <kbd>ENTER</kbd>.</li>
+      <li>Натиснете <kbd>MDL</kbd> — ще се отвори списъкът с модели. Изберете с колелото празно място и натиснете <kbd>ENTER</kbd>. В менюто има <span class="ui">Create model</span> и <span class="ui">Restore model</span>; на заето място опцията <span class="ui">Restore model</span> липсва.</li>
       <li>Изберете <span class="ui">Restore model</span>, после шаблона за вашия предавател и натиснете <kbd>ENTER</kbd>: <code>pocket-F5J-MTail</code> за Pocket, <code>gx12-F5J-MTail</code> за GX12. Те се различават само по името на модела и по превключвателите (раздел 5).</li>
       <li>Изберете новия модел: <kbd>ENTER</kbd> върху него, после <span class="ui">Select model</span>.</li>
       <li>Ако желаете, преименувайте модела: <kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> до <span class="ui">SETUP</span>, полето <span class="ui">Name</span>.</li>
@@ -123,6 +123,7 @@
       <figcaption>Restore model: шаблоните от <code>/BACKUP</code>.</figcaption>
     </figure>
   </div>
+  <div class="callout note"><span class="t">Вече е създаден празен модел с Create model?</span>Възстановете шаблона на друго празно място и изберете този модел: <kbd>ENTER</kbd> върху него, <span class="ui">Select model</span>. EdgeTX не изтрива избрания модел, затова едва след това изтрийте празния: <kbd>ENTER</kbd> върху него, <span class="ui">Delete model</span> и <kbd>ENTER</kbd> за потвърждение.</div>
 
   <h3>ExpressLRS: обновяване и пълна резолюция</h3>
   <ol class="steps">
@@ -232,14 +233,14 @@
   <table>
     <thead><tr><th>Точка от менюто</th><th>Заглавие на страницата</th><th>Какво настройва</th></tr></thead>
     <tbody>
-      <tr><td><span class="ui">1. Channel configuration</span></td><td><span class="ui">Channel Config</span></td><td>ред на каналите, посока, център и крайни точки</td></tr>
-      <tr><td><span class="ui">2. Align flaps &amp; ailerons</span></td><td><span class="ui">Alignment</span></td><td>подравняване на елероните и задкрилките</td></tr>
-      <tr><td><span class="ui">3. Adjust airbrake curves</span></td><td><span class="ui">Airbrakes</span></td><td>криви на спирачките (crow) за задкрилките, елероните и компенсацията с кормилото за височина</td></tr>
-      <tr><td><span class="ui">4. Aileron and camber</span></td><td><span class="ui">Aile &amp; camber</span></td><td>ход на елероните, елерони → задкрилки, камбер → елерони</td></tr>
-      <tr><td><span class="ui">5. Adjust other mixes</span></td><td><span class="ui">Adjust mixes</span></td><td>елерони → кормило за посока, диференциал на елероните, спирачки → кормило за височина, снапфлап</td></tr>
-      <tr><td><span class="ui">6. Battery warning</span></td><td><span class="ui">Bat Warning</span></td><td>праг за предупреждението за батерията на приемника</td></tr>
-      <tr><td><span class="ui">7. Motor idle</span></td><td><span class="ui">Motor idle</span></td><td>мощност на мотора при долното положение на P1</td></tr>
-      <tr><td><span class="ui">8. Switches</span></td><td><span class="ui">Switches</span></td><td>превключвателите на функциите на шаблона (6.11)</td></tr>
+      <tr><td><span class="ui">1. Switches</span></td><td><span class="ui">Switches</span></td><td>превключвателите на функциите на шаблона (6.11)</td></tr>
+      <tr><td><span class="ui">2. Channel configuration</span></td><td><span class="ui">Channel Config</span></td><td>ред на каналите, посока, център и крайни точки</td></tr>
+      <tr><td><span class="ui">3. Align flaps &amp; ailerons</span></td><td><span class="ui">Alignment</span></td><td>подравняване на елероните и задкрилките</td></tr>
+      <tr><td><span class="ui">4. Adjust airbrake curves</span></td><td><span class="ui">Airbrakes</span></td><td>криви на спирачките (crow) за задкрилките, елероните и компенсацията с кормилото за височина</td></tr>
+      <tr><td><span class="ui">5. Aileron and camber</span></td><td><span class="ui">Aile &amp; camber</span></td><td>ход на елероните, елерони → задкрилки, камбер → елерони</td></tr>
+      <tr><td><span class="ui">6. Adjust other mixes</span></td><td><span class="ui">Adjust mixes</span></td><td>елерони → кормило за посока, диференциал на елероните, спирачки → кормило за височина, снапфлап</td></tr>
+      <tr><td><span class="ui">7. Battery warning</span></td><td><span class="ui">Bat Warning</span></td><td>праг за предупреждението за батерията на приемника</td></tr>
+      <tr><td><span class="ui">8. Motor idle</span></td><td><span class="ui">Motor idle</span></td><td>мощност на мотора при долното положение на P1</td></tr>
     </tbody>
   </table>
 
@@ -259,23 +260,24 @@
 
   <div class="keep">
   <h3>Превключватели и органи за управление</h3>
-  <p>Шаблоните за Pocket и GX12 се различават само по тези превключватели. Страницата <span class="ui">8. Switches</span> премества функциите на други превключватели (6.11).</p>
+  <p>Шаблоните за Pocket и GX12 се различават само по тези превключватели. Страницата <span class="ui">1. Switches</span> премества функциите на други превключватели (6.11).</p>
   <table>
     <thead><tr><th>Функция</th><th>GX12</th><th>Pocket</th></tr></thead>
     <tbody>
-      <tr><td>Активиране на мотора</td><td>бутонът <span class="sw">SA</span>: натиснете — активиране, натиснете отново — деактивиране</td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td>Активиране на мотора</td><td>бутонът <span class="sw">SA</span>: натискането го фиксира и той светва</td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td>Деактивиране на мотора (спирането на мотора също го деактивира)</td><td>бутонът <span class="sw">SA</span>: следващото натискане го освобождава</td><td><span class="sw">SA↑</span></td></tr>
       <tr><td>Старт и стоп на мотора</td><td>бутонът <span class="sw">SG</span>: натиснете и пуснете</td><td><span class="sw">SE</span> (с пружина): дръпнете и пуснете</td></tr>
       <tr><td>Полетен режим Speed / Cruise / Float</td><td><span class="sw">SF↑</span> / средата / <span class="sw">SF↓</span></td><td><span class="sw">SC↑</span> / средата / <span class="sw">SC↓</span></td></tr>
       <tr><td>Спирачки (crow) със стика за газ и кацане</td><td>бутонът <span class="sw">SD</span>, докато е натиснат</td><td><span class="sw">SD↓</span></td></tr>
       <tr><td>Спирачките са изключени</td><td><span class="sw">SD</span> е пуснат</td><td><span class="sw">SD↑</span></td></tr>
       <tr><td>Съобщаване на времето на полета на всеки 10 с</td><td><span class="sw">SC↓</span></td><td><span class="sw">SB↓</span></td></tr>
-      <tr><td>Съобщаване на стартовата височина след работата на мотора</td><td>моторът е деактивиран: това става автоматично, когато спре</td><td><span class="sw">SA↑</span></td></tr>
       <tr><td>Мощност на мотора</td><td><span class="sw">P1</span></td><td><span class="sw">P1</span></td></tr>
     </tbody>
   </table>
   </div>
   <ul class="plain">
-    <li>Моторът спира при повторно натискане на бутона за старт, при деактивиране или автоматично след 30 секунди работа. За ново активиране на Pocket изведете <span class="sw">SA</span> от долното положение и го върнете обратно. GX12 деактивира мотора автоматично, когато спре: натиснете <span class="sw">SA</span> отново. Натискания на <span class="sw">SA</span> по-често от веднъж на половин секунда предавателят пропуска; активирането се потвърждава от сирената и „MOTOR ARMED“.</li>
+    <li>Моторът спира при повторно натискане на бутона за старт, при деактивиране или автоматично след 30 секунди работа. И двата предавателя деактивират мотора автоматично, когато спре, затова след 10-секундното отброяване предавателят казва стартовата височина (раздел 7). За ново активиране на Pocket изведете <span class="sw">SA</span> от долното положение и го върнете обратно. На GX12 след спиране с бутона за старт или на 30-ата секунда <span class="sw">SA</span> остава натиснат: натиснете го два пъти — първото натискане го освобождава, второто активира. Активирането се потвърждава от сирената и „MOTOR ARMED“; светлината на <span class="sw">SA</span> показва само, че бутонът е натиснат.</li>
+    <li><b><span class="sw">SA</span> на GX12</b> е бутон. Шаблонът го прави фиксиращ се в настройките на модела (<kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> до <span class="ui">SETUP</span>, блок <span class="ui">Customizable Switches</span>): за <span class="sw">SA</span> е избран тип <span class="ui">2POS</span> и при включване на предавателя бутонът е освободен. Натискането фиксира бутона и той светва, следващото натискане го освобождава, затова <span class="sw">SA↓</span> е фиксираният бутон, а <span class="sw">SA↑</span> — освободеният.</li>
     <li><b>Стикът за газ</b> управлява спирачките (crow), когато те са включени (Pocket <span class="sw">SD↓</span>, GX12 — докато <span class="sw">SD</span> е натиснат): стикът нагоре включва спирачките, надолу — ги изключва. Ако за <span class="ui">Crow off</span> е избрано <span class="ui">NONE</span> (6.11), стикът управлява спирачките винаги. Във Float стикът за газ освен това добавя термичен камбер: долу няма, горе — пълен (6.4).</li>
     <li><b>Тримерът за газ</b> надолу от центъра добавя термичен камбер в Cruise и Float; всеки от двата режима има свой тример. Нагоре от центъра не прави нищо, в Speed е изключен.</li>
     <li><b>Тримерът за височина при работещ мотор</b> задава компенсацията с кормилото за височина за мотора. Тя се пази в полетния режим Motor, а тримерът за височина за планирането не се променя.</li>
@@ -289,7 +291,7 @@
   <h2><span class="n">6</span>Настройка на модела стъпка по стъпка</h2>
   <p>Отворете екрана Configuration (<kbd>PAGE&gt;</kbd> от екрана на таймера), изберете страница с колелото и натиснете <kbd>ENTER</kbd>; <kbd>RTN</kbd> връща в менюто. Изпълнявайте стъпките по ред. Моторът е разкачен (освен в стъпка 6.9), моделът е добре закрепен.</p>
 
-  <h3>6.1. Канали и посоки <span class="tag">1. Channel configuration</span></h3>
+  <h3>6.1. Канали и посоки <span class="tag">2. Channel configuration</span></h3>
   <div class="with-shot">
     <div>
       <p>Страницата първо предупреждава: „Disconnect the motor!“. Натиснете <kbd>ENTER</kbd> едва след като моторът е разкачен. Във всеки ред има номер на канала, име, посока (<code>&gt;</code> или <code>&lt;</code>) и лента с три точки (долен край, център, горен край) и показалец на текущото положение.</p>
@@ -316,7 +318,7 @@
   </table>
   <p><b>При <span class="nb">M-tail</span></b> първо направете така, че двете половини на кормилото за височина да се движат заедно: при нужда обърнете посоката на <code>Ele-L</code> или <code>Ele-R</code>. След това настройте центъра и крайните точки: в неутрално положение половините трябва да стоят равно, а ходът нагоре и надолу да е еднакъв.</p>
 
-  <h3>6.2. Подравняване на крилото <span class="tag">2. Align flaps &amp; ailerons</span></h3>
+  <h3>6.2. Подравняване на крилото <span class="tag">3. Align flaps &amp; ailerons</span></h3>
   <div class="with-shot">
     <div>
       <p>Подравнява четирите повърхности на крилото: <span class="ui">LA</span> и <span class="ui">RA</span> (елероните), <span class="ui">LF</span> и <span class="ui">RF</span> (задкрилките). Промените се записват в кривите CV1–CV4 и в центъра и крайните точки на каналите.</p>
@@ -334,7 +336,7 @@
   </div>
   <div class="callout note"><span class="t">Започване отначало</span><kbd>ENTER</kbd> на тази страница пита дали да се нулират изходите на задкрилките и елероните. Второ натискане на <kbd>ENTER</kbd> изправя кривите CV1–CV4 и връща центъра и крайните точки на четирите изхода на 0 и ±100; <kbd>RTN</kbd> оставя всичко както е. Ако кривите и изходите не минават проверките на страницата, тя се отваря направо с този въпрос; тогава <kbd>RTN</kbd> излиза от страницата без промени.</div>
 
-  <h3>6.3. Спирачки <span class="tag">3. Adjust airbrake curves</span></h3>
+  <h3>6.3. Спирачки <span class="tag">4. Adjust airbrake curves</span></h3>
   <div class="with-shot">
     <div>
       <p>Три графики: <span class="ui">Flap</span> (кривата BrF), <span class="ui">Aile</span> (BrA) и <span class="ui">Elev</span> (BrE). Левият край на всяка графика е за напълно включени спирачки, десният — за изключени.</p>
@@ -351,12 +353,12 @@
   </div>
   <ul class="plain">
     <li>Обикновено при напълно включени спирачки задкрилките са спуснати, а елероните — вдигнати.</li>
-    <li>Големината на компенсацията с кормилото за височина се задава с <code>BkE</code> на страница 5, а кривата <span class="ui">Elev</span> задава как тя нараства по хода на спирачките: при −100 няма компенсация, при 0 тя е равна на <code>BkE</code>, при +100 — два пъти по-голяма. Последната точка остава на −100, така че в нормален полет кормилото за височина стои според тримера.</li>
+    <li>Големината на компенсацията с кормилото за височина се задава с <code>BkE</code> на страница 6, а кривата <span class="ui">Elev</span> задава как тя нараства по хода на спирачките: при −100 няма компенсация, при 0 тя е равна на <code>BkE</code>, при +100 — два пъти по-голяма. Последната точка остава на −100, така че в нормален полет кормилото за височина стои според тримера.</li>
     <li>На тази страница кормилото за височина не се движи. Проверете компенсацията след изход от страницата: спирачките включени (Pocket <span class="sw">SD↓</span>, на GX12 задръжте <span class="sw">SD</span>), стикът за газ нагоре. Ако при включване на спирачките моделът вдига или сваля носа, забележете при какъв ход става това и коригирайте тази точка от кривата <span class="ui">Elev</span>.</li>
     <li>При модели от по-стари шаблони кривата BrE липсва: <span class="ui">Elev</span> показва N/A.</li>
   </ul>
 
-  <h3>6.4. Елерони и камбер <span class="tag">4. Aileron and camber</span></h3>
+  <h3>6.4. Елерони и камбер <span class="tag">5. Aileron and camber</span></h3>
   <div class="with-shot">
     <div>
       <p>Докато страницата е отворена, тримерите не се местят, а променят три стойности:</p>
@@ -389,20 +391,20 @@
 
   <p><b>Как да нагласите камбера</b> (с изключен мотор):</p>
   <ol class="steps">
-    <li>Изключете спирачките (Pocket <span class="sw">SD↑</span>, на GX12 пуснете <span class="sw">SD</span>), включете Float (Pocket <span class="sw">SC↓</span>, GX12 <span class="sw">SF↓</span>) и поставете стика за газ горе. Отворете страница 4: докато е отворена, режимът остава Float и повърхностите показват пълния камбер на Float.</li>
+    <li>Изключете спирачките (Pocket <span class="sw">SD↑</span>, на GX12 пуснете <span class="sw">SD</span>), включете Float (Pocket <span class="sw">SC↓</span>, GX12 <span class="sw">SF↓</span>) и поставете стика за газ горе. Отворете страница 5: докато е отворена, режимът остава Float и повърхностите показват пълния камбер на Float.</li>
     <li>Тримерът за височина променя само <code>CbA</code>: нагоре елероните слизат повече, надолу — по-малко; задкрилките не се движат.</li>
     <li>Излезте от страницата, включете Cruise и нагласете камбера с T3 (надолу — повече). Във Float T3 по същия начин добавя камбер към камбера от стика за газ.</li>
   </ol>
 
-  <p><b>Рефлекс за Speed.</b> В Speed повърхностите стоят в неутралата, в последните точки на спирачните криви, затова рефлексът се задава на страница 3 (6.3), с изключен мотор:</p>
+  <p><b>Рефлекс за Speed.</b> В Speed повърхностите стоят в неутралата, в последните точки на спирачните криви, затова рефлексът се задава на страница 4 (6.3), с изключен мотор:</p>
   <ol class="steps">
-    <li>Отворете страница 3 и поставете стика за газ долу: избрана е последната точка, задкрилките и елероните стоят в неутралата.</li>
+    <li>Отворете страница 4 и поставете стика за газ долу: избрана е последната точка, задкрилките и елероните стоят в неутралата.</li>
     <li>С тримера за газ вдигнете двете задкрилки, а с тримера за елерони — двата елерона с колкото рефлекс искате.</li>
     <li>Излезте от страницата и проверете в Speed (Pocket <span class="sw">SC↑</span>, GX12 <span class="sw">SF↑</span>): повърхностите стоят с рефлекс.</li>
     <li>Cruise и Float отчитат камбера от същата неутрала. В Cruise свалете повърхностите с T3 надолу до желаното положение, например до предишната неутрала; във Float при нужда също свалете T3.</li>
   </ol>
 
-  <h3>6.5. Други миксове <span class="tag">5. Adjust other mixes</span></h3>
+  <h3>6.5. Други миксове <span class="tag">6. Adjust other mixes</span></h3>
   <div class="with-shot">
     <table>
       <thead><tr><th>Тример</th><th>Код</th><th>Какво задава</th></tr></thead>
@@ -418,7 +420,7 @@
       <figcaption>Стойностите от шаблона.</figcaption>
     </figure>
   </div>
-  <p>Както на страница 4, тримерите променят стойностите, а самите те не се местят; стойностите са общи за Cruise, Landing, Speed и Float. Полетният режим Motor има свой <code>BkE</code>: там това е компенсацията с кормилото за височина за мотора, която се задава с тримера за височина при работещ мотор.</p>
+  <p>Както на страница 5, тримерите променят стойностите, а самите те не се местят; стойностите са общи за Cruise, Landing, Speed и Float. Полетният режим Motor има свой <code>BkE</code>: там това е компенсацията с кормилото за височина за мотора, която се задава с тримера за височина при работещ мотор.</p>
 
   <div class="keep">
   <h3>6.6. Миксове на кормилото за височина при <span class="nb">M-tail</span> <span class="tag">меню MDL</span></h3>
@@ -432,7 +434,7 @@
   </table>
   </div>
   <ul class="plain">
-    <li>Миксовете работят в Cruise, Landing, Speed и Float. За да включите микс, изберете превключвател за <span class="ui">Ail-&gt;Ele</span> или <span class="ui">Rud-&gt;Ele</span> на страницата <span class="ui">8. Switches</span> (6.11) или <span class="ui">ON</span>, за да работи миксът винаги. Страницата задава първия превключвател на <code>L46</code> или <code>L48</code>.</li>
+    <li>Миксовете работят в Cruise, Landing, Speed и Float. За да включите микс, изберете превключвател за <span class="ui">Ail-&gt;Ele</span> или <span class="ui">Rud-&gt;Ele</span> на страницата <span class="ui">1. Switches</span> (6.11) или <span class="ui">ON</span>, за да работи миксът винаги. Страницата задава първия превключвател на <code>L46</code> или <code>L48</code>.</li>
     <li>На GX12 за това е подходящ свободен бутон <span class="sw">SW1</span>–<span class="sw">SW6</span>. Pocket няма свободни превключватели: там изборът е <code>ON</code> или изключено.</li>
     <li>Диференциалът −50 намалява два пъти хода на спускащата се половина. Теглата са фиксирани в миксовете, защото Pocket и GX12 имат само девет глобални променливи. За да смените големината или посоката, редактирайте редовете <code>AilEle</code> и <code>RudEle</code> на каналите CH7 и CH8 в <kbd>MDL</kbd> → <span class="ui">MIXES</span>; знаците на CH7 и CH8 трябва да остават противоположни.</li>
   </ul>
@@ -467,14 +469,14 @@
 
   <h3>Проверка на посоката</h3>
   <ol class="steps">
-    <li>Включете микса: на страницата <span class="ui">8. Switches</span> задайте <span class="ui">ON</span> за <span class="ui">Ail-&gt;Ele</span>.</li>
+    <li>Включете микса: на страницата <span class="ui">1. Switches</span> задайте <span class="ui">ON</span> за <span class="ui">Ail-&gt;Ele</span>.</li>
     <li>Стик за елерони надясно: дясната половина на кормилото за височина трябва да се вдигне, а лявата — да се спусне, както елероните (фиг. 2). Спускащата се половина се отклонява по-малко.</li>
     <li>Ако е обратно, сменете знаците в двата реда <code>AilEle</code>: −20 на CH7 и +20 на CH8.</li>
     <li><code>RudEle</code> със същите знаци при стик за посока надясно движи половините така, както стикът за елерони надясно. Ако сте сменили знаците на <code>AilEle</code>, сменете ги и на <code>RudEle</code>.</li>
     <li>Започнете с малки стойности и ги проверете в полет на безопасна височина.</li>
   </ol>
 
-  <h3>6.7. Предупреждение за батерията <span class="tag">6. Battery warning</span></h3>
+  <h3>6.7. Предупреждение за батерията <span class="tag">7. Battery warning</span></h3>
   <div class="with-shot">
     <div>
       <p><span class="ui">Battery level</span> показва напрежението на приемника, по което работи предупреждението: първия намерен сензор от <code>Cels</code>, <code>RxBt</code>, <code>A1</code> и <code>A2</code>. С въртене на колелото задайте <span class="ui">Warning level</span> на стъпки от 0,1 V (от 1,0 до 40,0 V; в шаблона 6,9 V) според батерията на приемника. <kbd>ENTER</kbd> или <kbd>RTN</kbd> затваря страницата.</p>
@@ -489,7 +491,7 @@
   <div class="keep">
   <h3>6.8. Проверка на мотора <span class="tag">витлото е свалено!</span></h3>
   <ol class="steps">
-    <li>Отворете <span class="ui">1. Channel configuration</span> и натиснете <kbd>ENTER</kbd> при предупреждението. Показалецът в реда <span class="ui">3. Moto</span> показва канала на мотора CH3.</li>
+    <li>Отворете <span class="ui">2. Channel configuration</span> и натиснете <kbd>ENTER</kbd> при предупреждението. Показалецът в реда <span class="ui">3. Moto</span> показва канала на мотора CH3.</li>
     <li>Без активиране показалецът стои в левия край (−100), каквото и да правят P1 и стиковете.</li>
     <li>Активирайте (GX12 — натиснете <span class="sw">SA</span>, Pocket <span class="sw">SA↓</span>), после натиснете и пуснете бутона за старт (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). Моторът тръгва, когато бутонът се пусне: включва се полетният режим Motor.</li>
     <li>Завъртете P1 от край до край: показалецът се движи между централната точка (най-ниска мощност) и десния край на лентата (+100, пълна мощност). Запомнете кой край на P1 е най-ниската мощност. Краищата могат да се разменят (6.10).</li>
@@ -498,11 +500,11 @@
   </ol>
   </div>
 
-  <h3>6.9. Празен ход на мотора <span class="tag">7. Motor idle</span></h3>
+  <h3>6.9. Празен ход на мотора <span class="tag">8. Motor idle</span></h3>
   <p>Празният ход тук е мощността на мотора при долното положение на P1. Настройте го на слух при работещ мотор. Това е единствената стъпка, при която моторът е свързан и витлото е поставено: дръжте модела и не заставайте пред витлото.</p>
   <div class="with-shot">
     <ol class="steps">
-      <li>Отворете <span class="ui">7. Motor idle</span> и потвърдете предупреждението за витлото с <kbd>ENTER</kbd>. Самата страница не стартира мотора.</li>
+      <li>Отворете <span class="ui">8. Motor idle</span> и потвърдете предупреждението за витлото с <kbd>ENTER</kbd>. Самата страница не стартира мотора.</li>
       <li>Стартирайте мотора както обикновено (активиране, после бутонът за старт) и завъртете P1 на най-ниска мощност.</li>
       <li>Натискайте тримера за газ нагоре или надолу или въртете колелото: всяко щракване променя празния ход с 1, моторът веднага сменя оборотите.</li>
       <li>Спрете мотора и натиснете <kbd>RTN</kbd>. Стойността остава в модела.</li>
@@ -520,7 +522,7 @@
 
   <div class="keep">
   <h3>6.10. Посока на P1 и на стика, камбер на плъзгач <span class="tag">по желание</span></h3>
-  <p>В шаблона P1 задава мощността на мотора, а стикът за газ има две задачи: термичният камбер във Float и спирачките, когато са включени. Стикът горе дава пълен термичен камбер и пълни спирачки. Всяка от тези задачи може да се обърне във входовете (<kbd>MDL</kbd> → <span class="ui">INPUTS</span>) и миксовете (<span class="ui">MIXES</span>) на модела, а камберът може да се премести от стика или от T3 на потенциометър или плъзгач. Проверявайте всяка промяна с изключен мотор: спирачките и камберът се виждат по повърхностите, а мощността на мотора — по реда <span class="ui">3. Moto</span> на страница 1 (6.8).</p>
+  <p>В шаблона P1 задава мощността на мотора, а стикът за газ има две задачи: термичният камбер във Float и спирачките, когато са включени. Стикът горе дава пълен термичен камбер и пълни спирачки. Всяка от тези задачи може да се обърне във входовете (<kbd>MDL</kbd> → <span class="ui">INPUTS</span>) и миксовете (<span class="ui">MIXES</span>) на модела, а камберът може да се премести от стика или от T3 на потенциометър или плъзгач. Проверявайте всяка промяна с изключен мотор: спирачките и камберът се виждат по повърхностите, а мощността на мотора — по реда <span class="ui">3. Moto</span> на страница 2 (6.8).</p>
   <table>
     <thead><tr><th>Какво искате</th><th>Къде</th><th>Промяна</th></tr></thead>
     <tbody>
@@ -545,7 +547,7 @@
   <p><b>Камбер Float на потенциометър или плъзгач.</b> Във Float термичният камбер на стика за газ идва от реда <code>CambrX</code> в миксовете на CH25. За да го преместите на потенциометър или плъзгач, отворете този ред и сменете източника му от <code>I5:Brk</code> на нужния елемент; оставете теглото, отместването и кривата. Тогава в края +100 няма камбер, а в края −100 той е пълен, 32; ако е обратно, задайте кривата <code>!LSl</code>. След това стикът за газ управлява само спирачките. На GX12 за това са свободни <span class="sw">P2</span>, <span class="sw">S1</span> и <span class="sw">S2</span>, на други предаватели — всеки свободен потенциометър или плъзгач. Pocket няма свободен елемент (P1 задава мощността на мотора): там махнете отметката FM5 (Float) в полетните режими на реда <code>CambrX</code>, за да махнете камбера от стика; тримерът за газ продължава да добавя камбер във Float. Направете едното от двете, ако за <span class="ui">Crow off</span> е избрано <span class="ui">NONE</span> (6.11): тогава стикът винаги управлява спирачките и във Float би добавял камбера заедно с тях.</p>
 
   <div class="keep">
-  <h3>6.11. Превключватели <span class="tag">8. Switches</span></h3>
+  <h3>6.11. Превключватели <span class="tag">1. Switches</span></h3>
   <div class="with-shot">
     <div>
       <p>Страницата премества функциите на шаблона на други превключватели. Всеки ред е една функция, а вдясно е превключвателят, който тя използва сега. Изберете ред с колелото и натиснете <kbd>ENTER</kbd>: превключвателят започва да мига. Завъртете колелото, за да изберете друг, след това натиснете <kbd>ENTER</kbd>, за да го запазите, или <kbd>RTN</kbd>, за да оставите предишния.</p>
@@ -560,7 +562,8 @@
   <table>
     <thead><tr><th>Ред</th><th>Какво прави</th><th>Логически превключвател</th><th>GX12</th><th>Pocket</th></tr></thead>
     <tbody>
-      <tr><td><span class="ui">Motor arm</span></td><td>активира мотора</td><td><code>L41</code> (GX12), <code>L5</code> (Pocket)</td><td><span class="sw">SA↓</span></td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td><span class="ui">Motor arm</span></td><td>активира мотора</td><td><code>L41</code></td><td><span class="sw">SA↓</span></td><td><span class="sw">SA↓</span></td></tr>
+      <tr><td><span class="ui">Motor disarm</span></td><td>деактивира мотора; спирането на мотора също го деактивира</td><td><code>L42</code></td><td><span class="sw">SA↑</span></td><td><span class="sw">SA↑</span></td></tr>
       <tr><td><span class="ui">Motor/timer</span></td><td>пуска и спира мотора</td><td><code>L9</code></td><td><span class="sw">SG↓</span></td><td><span class="sw">SE↓</span></td></tr>
       <tr><td><span class="ui">Speed</span></td><td>полетен режим Speed</td><td><code>L3</code></td><td><span class="sw">SF↑</span></td><td><span class="sw">SC↑</span></td></tr>
       <tr><td><span class="ui">Float</span></td><td>полетен режим Float; ако не е включен нито един от двата — Cruise</td><td><code>L4</code></td><td><span class="sw">SF↓</span></td><td><span class="sw">SC↓</span></td></tr>
@@ -572,8 +575,9 @@
     </tbody>
   </table>
   <ul class="plain">
-    <li>На GX12 <span class="sw">SD↓</span> е натиснатият бутон <span class="sw">SD</span>, а <span class="sw">SD↑</span> — пуснатият; същото важи за <span class="sw">SA</span> и <span class="sw">SG</span>. Две функции могат да делят един превключвател, както <span class="ui">Landing</span> и <span class="ui">Crow off</span> делят <span class="sw">SD</span>.</li>
-    <li>На GX12 активирането остава превключване: всеки път, когато избраният превключвател се включи, активирането се обръща. На Pocket моторът е активиран, докато превключвателят е включен, а съобщаването на стартовата височина (раздел 5) следва активирането, а не <span class="sw">SA</span>.</li>
+    <li>На GX12 <span class="sw">SD↓</span> е натиснатият бутон <span class="sw">SD</span>, а <span class="sw">SD↑</span> — пуснатият; същото важи за <span class="sw">SG</span>. <span class="sw">SA</span> се фиксира (раздел 5): <span class="sw">SA↓</span> е фиксираният бутон, а <span class="sw">SA↑</span> — освободеният. Две функции могат да делят един превключвател, както <span class="ui">Landing</span> и <span class="ui">Crow off</span> делят <span class="sw">SD</span>, а <span class="ui">Motor arm</span> и <span class="ui">Motor disarm</span> — <span class="sw">SA</span>.</li>
+    <li>Активирането е <code>L5</code>: включва го превключвателят на реда <span class="ui">Motor arm</span>, когато се включи, а го изключва превключвателят на реда <span class="ui">Motor disarm</span> или спирането на мотора. Ако двата реда имат един и същ превключвател, активирането се обръща всеки път, когато той се включи — това е удобно за бутон без фиксиране. Съобщаването на стартовата височина (раздел 7) следва активирането, а не <span class="sw">SA</span>.</li>
+    <li>Модел от по-стар шаблон няма ред <span class="ui">Motor disarm</span>. На Pocket редът <span class="ui">Motor arm</span> на такъв модел задава <code>L5</code> и моторът е активиран, докато превключвателят е включен; на GX12 той задава <code>L41</code> и активирането се обръща всеки път, когато превключвателят се включи.</li>
   </ul>
   <p><b><span class="ui">Landing</span> на <span class="ui">NONE</span>.</b> Никой превключвател не завършва полета. Вместо това натиснете бутона за старт (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>), както в оригиналния F5J на SoarOTX: ако 10-секундното отброяване след работата на мотора е приключило, таймерът на полета спира и предавателят казва времето на полета. Преди това натискането не прави нищо. То не пуска и мотора: за това е нужно ново активиране.</p>
   <p><b><span class="ui">Crow off</span> на <span class="ui">NONE</span>.</b> Стикът за газ управлява спирачките винаги, както в оригиналния F5J на SoarOTX. Когато моторът тръгне, спирачките се блокират прибрани, затова положението на стика по време на работата на мотора няма значение. След спирането на мотора те остават прибрани, докато не преместите стика в края с прибрани спирачки, последните 5 % от хода (в шаблона — долу, след промяната в 6.10 — горе); оттам стикът отново управлява спирачките. Докато спирачките са блокирани, а стикът не е в този край, предавателят казва „Flaps up“ 3 секунди след спирането на мотора и след това на всеки 5 секунди. Във Float стикът би добавял термичния камбер заедно със спирачките, затова преместете този камбер на потенциометър или плъзгач или го махнете от стика (6.10).</p>
@@ -600,15 +604,14 @@
     <span class="st">Планиране</span><span class="arr">→</span>
     <span class="st">Кацане</span><span class="arr">→</span>
     <span class="st">Запис</span>
-    <span class="note">или</span>
-    <span class="st zero">Нулев резултат</span>
+    <span class="note">повторното пускане на мотора — отново Мотор</span>
   </div>
   <div class="shots">
     <figure><img class="screen" src="../../images/timer-armed.png" alt="MOTOR ARMED върху екрана на таймера"><figcaption>Активиране: мига „MOTOR ARMED“.</figcaption></figure>
     <figure><img class="screen" src="../../images/timer-motor.png" alt="Работа на мотора: Rem 09:48, Mot 00:12"><figcaption>Работа на мотора: <span class="ui">Rem</span> намалява, <span class="ui">Mot</span> расте.</figcaption></figure>
     <figure><img class="screen" src="../../images/timer-glide.png" alt="Планиране: Rem 07:27, Mot 00:21"><figcaption>Планиране.</figcaption></figure>
     <figure><img class="screen" src="../../images/timer-landing.png" alt="Въвеждане на точките за кацането 45, Start 100, Flt 09:56"><figcaption>Кацане: въвеждане на точките за кацането.</figcaption></figure>
-    <figure><img class="screen" src="../../images/timer-save.png" alt="EXIT и SAVE под резултатите"><figcaption>Запис: <kbd>ENTER</kbd> записва, <kbd>RTN</kbd> отказва.</figcaption></figure>
+    <figure><img class="screen" src="../../images/timer-save.png" alt="Избрано EXIT под резултатите"><figcaption>Запис: колелото избира <span class="ui">SAVE</span> или <span class="ui">EXIT</span>, <kbd>ENTER</kbd> потвърждава.</figcaption></figure>
     <figure><img class="screen" src="../../images/timer-scores.png" alt="Записан полет в списъка с резултати"><figcaption>Записаните резултати: <kbd>RTN</kbd> в готовност.</figcaption></figure>
   </div>
   </div>
@@ -616,26 +619,29 @@
     <li><b>Готовност:</b> на екрана е работното време <span class="ui">Tgt</span>, по подразбиране 10:00. С въртене на колелото го променяте на стъпки от 1 минута (от 1:00 до 99:00). <kbd>RTN</kbd> показва записаните резултати: колелото ги прелиства, <kbd>RTN</kbd> връща обратно.</li>
     <li><b>Активиране</b> (GX12 — натискане на <span class="sw">SA</span>, Pocket <span class="sw">SA↓</span>): мига „MOTOR ARMED“, предавателят вибрира и на всеки 5 секунди подава сирена, височината се нулира.</li>
     <li><b>Старт:</b> натиснете и пуснете бутона за старт (GX12 <span class="sw">SG</span>, Pocket <span class="sw">SE</span>). P1 задава мощността. Гласът казва 5, 10, 15 и 20 секунди работа на мотора, после брои 1…9 в секундите от 21-вата до 29-ата.</li>
-    <li><b>Моторът е изключен:</b> отново бутонът за старт, деактивиране (GX12 — натискане на <span class="sw">SA</span>, Pocket <span class="sw">SA↑</span>) или автоматично на 30-ата секунда. Предавателят отброява 10 секунди. На десетата той записва стартовата височина — най-голямата височина от момента на активирането — и я казва, ако моторът е деактивиран (GX12 го деактивира автоматично, когато спре; Pocket <span class="sw">SA↑</span>); иначе казва „10“.</li>
+    <li><b>Моторът е изключен:</b> отново бутонът за старт, деактивиране (GX12 — натискане на <span class="sw">SA</span>, Pocket <span class="sw">SA↑</span>) или автоматично на 30-ата секунда. Спирането на мотора го деактивира автоматично. Предавателят отброява 10 секунди. На десетата той записва стартовата височина — най-голямата височина от момента на активирането — и я казва; ако по време на отброяването моторът е активиран отново, казва „10“.</li>
     <li><b>Планиране:</b> гласът казва оставащото работно време: всяка минута, докато остават повече от 2 минути; на всеки 15 секунди от 2 до 1 минута; на всеки 5 секунди от 1 минута до 10 секунди; след това всяка секунда 10…1. За да коригирате оставащото време, натиснете <kbd>ENTER</kbd>: то започва да мига, закръглено надолу до цели минути. С въртене на колелото го променете и натиснете <kbd>ENTER</kbd>, за да го приложите, или <kbd>RTN</kbd>, за да откажете.</li>
     <li><b>Кацане:</b> включете спирачките (GX12 — задръжте <span class="sw">SD</span>, Pocket <span class="sw">SD↓</span>) — стикът за газ управлява спирачките. Ако 10-секундното отброяване е приключило, таймерът на полета спира веднага и предавателят казва времето на полета, затова включвайте спирачките само за кацането. Ако за <span class="ui">Landing</span> е избрано <span class="ui">NONE</span> (6.11), таймерът се спира с натискане на бутона за старт; ако за <span class="ui">Crow off</span> е избрано <span class="ui">NONE</span>, стикът управлява спирачките без превключвател.</li>
     <li><b>Резултати:</b> с въртене на колелото задайте точките за кацането (стъпка 5, от 0 до 50) и натиснете <kbd>ENTER</kbd>. Коригирайте стартовата височина (стъпка 1 м, от 0 до 300; 100 без датчик за височина) и натиснете <kbd>ENTER</kbd>. Коригирайте времето на полета (стъпка 1 секунда) и натиснете <kbd>ENTER</kbd>. <kbd>RTN</kbd> връща една стъпка назад.</li>
-    <li><b>Запис:</b> <kbd>ENTER</kbd> записва полета в <code>/LOGS/JF F5J Scores.csv</code>, <kbd>RTN</kbd> отказва. Екранът се връща в готовност.</li>
+    <li><b>Запис:</b> избраната дума мига, отначало това е <span class="ui">EXIT</span>, затова едно натискане на <kbd>ENTER</kbd> не записва нищо; колелото избира <span class="ui">SAVE</span> или <span class="ui">EXIT</span>. <kbd>ENTER</kbd> изпълнява избраното: <span class="ui">SAVE</span> записва полета в <code>/LOGS/JF F5J Scores.csv</code>, <span class="ui">EXIT</span> излиза без запис. След това екранът се връща в готовност. <kbd>RTN</kbd> връща към времето на полета.</li>
   </ol>
-  <div class="callout warn"><span class="t">Нулев резултат</span>Повторното пускане на мотора по време на планиране или докато въвеждате точките за кацането завършва полета с нула, както в правилата на F5J: времето на полета и стартовата височина стават 0 и екранът преминава към записа. По време на планиране на Pocket дръжте <span class="sw">SA</span> извън долното положение; GX12 деактивира мотора автоматично, когато спре. След ново активиране едно натискане на бутона за старт пуска мотора.</div>
+  <div class="callout note"><span class="t">Повторно пускане на мотора</span>Повторното пускане на мотора след спирането му (по време на планиране, докато въвеждате резултатите, или на екрана за запис) веднага започва нов полет: работното време отново се отброява от <span class="ui">Tgt</span>, а времето на мотора — от 0. Прекъснатият полет не се записва. След новото спиране на мотора следват 10-секундното отброяване и стартовата височина — най-голямата височина след повторното пускане; нулата на височината остава същата, защото активирането я нулира само в готовност. Спирането на мотора го деактивира автоматично, затова бутонът за старт сам не може да го пусне отново; след ново активиране (на Pocket <span class="sw">SA</span> нагоре и обратно надолу, на GX12 <span class="sw">SA</span> освободен и отново фиксиран) едно натискане на бутона за старт пуска мотора. На състезание повторното пускане по правилата на F5J дава нула, а работното време продължава да тече.</div>
 
   <h2 id="s8"><span class="n">8</span>Ако нещо не е наред</h2>
-  <table>
+  <table class="long">
     <thead><tr><th>Какво виждате</th><th>Какво да направите</th></tr></thead>
     <tbody>
       <tr><td>В модела няма екран на таймера и Configuration</td><td>Моделът е създаден с <span class="ui">Create model</span> и е празен. Възстановете го от шаблон (раздел 3).</td></tr>
-      <tr><td>В менюто няма <span class="ui">7. Motor idle</span> или <span class="ui">8. Switches</span>, или след обновяване екраните не се отварят</td><td>Изтрийте старите файлове <code>.luac</code> (раздел 2) и рестартирайте предавателя.</td></tr>
+      <tr><td><span class="ui">Create model</span> не предлага шаблон</td><td>На черно-белите предаватели EdgeTX няма списък с шаблони. Възстановете шаблона чрез <span class="ui">Restore model</span> на празно място (раздел 3).</td></tr>
+      <tr><td><span class="ui">Restore model</span> показва „No models on SD“ или не показва шаблоните</td><td>Шаблоните не са в <code>/BACKUP</code>, например са копирани в <code>/TEMPLATES</code>. Копирайте <code>TEMPLATES/3.SoarEdgeTx/*.yml</code> в <code>/BACKUP</code> (раздел 2).</td></tr>
+      <tr><td>В менюто няма <span class="ui">8. Motor idle</span> или <span class="ui">1. Switches</span>, или след обновяване екраните не се отварят</td><td>Изтрийте старите файлове <code>.luac</code> (раздел 2) и рестартирайте предавателя.</td></tr>
       <tr><td>Alignment се отваря с „did not pass all checks“</td><td>Крива или изход на крилото са променени извън тази страница и тя не може да ги подравни. <kbd>ENTER</kbd> нулира четирите изхода и кривите CV1–CV4, след това подравнете крилото отново (стъпка 6.2). <kbd>RTN</kbd> ги оставя както са.</td></tr>
-      <tr><td>T3 над центъра не променя нищо, няма рефлекс</td><td>Така е замислено: T3 дава само камбер. Рефлексът се задава с последните точки на спирачните криви на страница 3 (6.4).</td></tr>
+      <tr><td>T3 над центъра не променя нищо, няма рефлекс</td><td>Така е замислено: T3 дава само камбер. Рефлексът се задава с последните точки на спирачните криви на страница 4 (6.4).</td></tr>
       <tr><td>След работата на мотора спирачките остават прибрани, а предавателят казва „Flaps up“</td><td>За <span class="ui">Crow off</span> е избрано <span class="ui">NONE</span> (6.11): преместете стика за газ в края с прибрани спирачки и той отново управлява спирачките.</td></tr>
       <tr><td>Във Float няма камбер</td><td>Термичния камбер във Float го дава стикът за газ: долу няма камбер. Вдигнете стика или свалете T3 (6.4).</td></tr>
       <tr><td>Подсказката закрива страницата или не се появява</td><td>Натиснете <kbd>MDL</kbd>: тя се появява и скрива.</td></tr>
-      <tr><td>Моторът не тръгва</td><td>Първо активирайте. След работа на мотора на GX12 натиснете отново <span class="sw">SA</span>, а на Pocket изведете <span class="sw">SA</span> от долното положение и го върнете обратно. Докато е отворена страницата Alignment или Airbrakes, моторът не тръгва.</td></tr>
+      <tr><td>Моторът не тръгва</td><td>Първо активирайте. След работа на мотора той е деактивиран: на GX12 натиснете <span class="sw">SA</span> два пъти, ако още е натиснат (освобождаване, после активиране), а на Pocket изведете <span class="sw">SA</span> от долното положение и го върнете обратно. Докато е отворена страницата Alignment или Airbrakes, моторът не тръгва.</td></tr>
+      <tr><td>На GX12 <span class="sw">SA</span> не се фиксира и не свети, или активирането изчезва, когато пуснете бутона</td><td><span class="sw">SA</span> не се фиксира: в настройките на модела (<kbd>MDL</kbd>, <kbd>PAGE&gt;</kbd> до <span class="ui">SETUP</span>, блок <span class="ui">Customizable Switches</span>) изберете за <span class="sw">SA</span> тип <span class="ui">2POS</span>. Модел от по-стар шаблон обръща активирането при всяко натискане и не се нуждае от фиксиране; за да получите фиксирането, възстановете модела от новия шаблон (раздел 3).</td></tr>
       <tr><td><span class="ui">Elev</span> показва N/A или тримерът за газ не променя празния ход</td><td>Моделът е създаден от стар шаблон, без <code>BrE</code>, <code>L49</code> и <code>SF39</code>. Променяйте празния ход с колелото или възстановете модела от новия шаблон.</td></tr>
       <tr><td>Дясната задкрилка (CH5) стои в крайно положение или CH6–CH8 се движат на стъпки</td><td>Обновете модула и приемника до ExpressLRS 4 и задайте <span class="ui">Packet Rate</span> „100Hz Full“ и <span class="ui">Switch Mode</span> „8ch“ (раздел 3). Не местете каналите.</td></tr>
       <tr><td>Скриптът ExpressLRS не дава да смените настройка</td><td>Моделът е армиран: изберете <span class="ui">Arm using</span> „Switch“ и за времето на настройката задайте „---“ на реда <span class="ui">Switch</span>, после върнете „ON“. <span class="ui">Switch Mode</span> се сменя само при изключен приемник (раздел 3).</td></tr>
